@@ -950,10 +950,12 @@
               return '<option value="' + v.id + '"' + (v.id === googleTtsVoice ? ' selected' : '') + '>' + v.name + ' \u2014 ' + v.desc + '</option>';
             }).join('')}
           </select>
-          <div style="display:flex;gap:8px;justify-content:flex-end">
+          <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
+            <button id="demo-google-test" style="padding:7px 14px;border-radius:6px;border:1px solid #485162;background:transparent;color:#9aa2b1;font-size:12px;cursor:pointer">&#9654; Test Voice</button>
             <button id="demo-google-cancel" style="padding:7px 14px;border-radius:6px;border:1px solid #485162;background:transparent;color:#9aa2b1;font-size:12px;cursor:pointer">Cancel</button>
             <button id="demo-google-save" style="padding:7px 14px;border-radius:6px;border:none;background:#1a73e8;color:#fff;font-size:12px;font-weight:600;cursor:pointer">Enable Google TTS</button>
           </div>
+          <div id="demo-google-test-status" style="font-size:12px;margin-top:8px;min-height:18px;text-align:right"></div>
           <p style="font-size:11px;color:#697182;margin:10px 0 0;line-height:1.4">~$4 per 1M characters (Neural2). Audio cached per step &mdash; replays are free.</p>
         </div>
         <div id="demo-voice-panel-eleven" style="display:none">
@@ -991,6 +993,31 @@
         if (panel) panel.style.display = t === tab ? '' : 'none';
       });
     };
+
+    document.getElementById('demo-google-test').addEventListener('click', function() {
+      var keyInput = document.getElementById('demo-google-key-input');
+      var voiceSelect = document.getElementById('demo-google-voice-select');
+      var statusEl = document.getElementById('demo-google-test-status');
+      var key = keyInput && keyInput.value.trim();
+      var voice = voiceSelect ? voiceSelect.value : googleTtsVoice;
+      if (!key) { statusEl.style.color = '#f87171'; statusEl.textContent = 'Enter an API key first'; return; }
+      statusEl.style.color = '#9aa2b1'; statusEl.textContent = 'Testing\u2026';
+      fetch('https://texttospeech.googleapis.com/v1/text:synthesize?key=' + key, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ input: { text: 'Google TTS is working.' }, voice: { languageCode: 'en-US', name: voice }, audioConfig: { audioEncoding: 'MP3' } })
+      }).then(function(resp) {
+        if (!resp.ok) return resp.json().then(function(e) { throw new Error((e && e.error && e.error.message) || ('HTTP ' + resp.status)); });
+        return resp.json();
+      }).then(function(data) {
+        if (!data || !data.audioContent) throw new Error('No audio returned');
+        var audio = new Audio('data:audio/mp3;base64,' + data.audioContent);
+        audio.play().catch(function(e) { throw new Error('Playback blocked: ' + e.message); });
+        statusEl.style.color = '#22c55e'; statusEl.textContent = '\u2714 Success! Google TTS is working.';
+      }).catch(function(err) {
+        statusEl.style.color = '#f87171'; statusEl.textContent = '\u26A0 ' + err.message;
+      });
+    });
 
     document.getElementById('demo-google-cancel').addEventListener('click', function() {
       document.getElementById('demo-11labs-modal').style.display = 'none';
@@ -1326,6 +1353,20 @@
   }
 
   // Pre-fetch the NEXT step's audio while current step plays
+  // ── TTS error toast ──────────────────────────────────────────
+  function showTtsError(msg) {
+    var existing = document.getElementById('demo-tts-toast');
+    if (existing) existing.remove();
+    var toast = document.createElement('div');
+    toast.id = 'demo-tts-toast';
+    toast.style.cssText = 'position:fixed;bottom:110px;left:50%;transform:translateX(-50%);z-index:100010;background:#7f1d1d;color:#fecaca;border:1px solid #dc2626;border-radius:8px;padding:10px 18px;font-size:13px;font-family:system-ui,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.4);max-width:90vw;text-align:center;cursor:pointer';
+    toast.textContent = '\u26A0\uFE0F ' + msg;
+    toast.title = 'Click to open Voice Settings';
+    toast.addEventListener('click', function() { toast.remove(); openVoiceModal(); });
+    document.body.appendChild(toast);
+    setTimeout(function() { if (toast.parentNode) toast.remove(); }, 8000);
+  }
+
   // ── Google Cloud TTS Engine ──────────────────────────────────
   function fetchGoogleTTSAudio(text, stepIndex) {
     if (googleTtsCache[stepIndex]) return Promise.resolve(googleTtsCache[stepIndex]);
@@ -1348,7 +1389,18 @@
       })
     }).then(function(resp) {
       googleTtsFetching[stepIndex] = false;
-      if (!resp.ok) { console.warn('Google TTS error:', resp.status); return null; }
+      if (!resp.ok) {
+        return resp.json().then(function(errBody) {
+          var msg = (errBody && errBody.error && errBody.error.message) ? errBody.error.message : ('HTTP ' + resp.status);
+          console.error('Google TTS error:', msg);
+          showTtsError('Google TTS: ' + msg);
+          return null;
+        }).catch(function() {
+          console.error('Google TTS HTTP error:', resp.status);
+          showTtsError('Google TTS error ' + resp.status + ' — check API key & billing');
+          return null;
+        });
+      }
       return resp.json();
     }).then(function(data) {
       if (!data || !data.audioContent) return null;
@@ -1357,7 +1409,8 @@
       return url;
     }).catch(function(err) {
       googleTtsFetching[stepIndex] = false;
-      console.warn('Google TTS fetch failed:', err);
+      console.error('Google TTS fetch failed:', err);
+      showTtsError('Google TTS unreachable — check your network');
       return null;
     });
   }
