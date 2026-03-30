@@ -1,0 +1,789 @@
+// ===== RFQ MODULE =====
+// RFQ view switching, filtering, sorting, saved views management
+
+
+// ===== CLOSE ALL PANELS =====
+function closeAllPanels() {
+  const utility = document.getElementById('utility-panel');
+  const ai = document.getElementById('ai-panel');
+  const scrim = document.getElementById('scrim');
+  utility.classList.remove('open');
+  ai.classList.remove('open');
+  if (scrim) scrim.classList.remove('visible');
+  utilityOpen = false;
+  aiOpen = false;
+  document.getElementById('btn-ai')?.classList.remove('active');
+  document.getElementById('btn-notif')?.classList.remove('active');
+}
+
+// ===== TAB NAV CLICK (header tabs) =====
+document.querySelectorAll('.th-tab[data-page]').forEach(tab => {
+  tab.addEventListener('click', () => navigateTo(tab.dataset.page));
+});
+
+// ===== TAB BAR CLICK (non-navigating tabs) =====
+document.querySelectorAll('.tab-bar').forEach(bar => {
+  bar.querySelectorAll('.tab').forEach(tab => {
+    if (!tab.getAttribute('onclick')) {
+      tab.addEventListener('click', () => {
+        bar.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+      });
+    }
+  });
+});
+
+// ===== CHIP CLICK TOGGLE =====
+document.querySelectorAll('.chips').forEach(chipGroup => {
+  chipGroup.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      chipGroup.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+    });
+  });
+});
+
+// ===== DASHBOARD: yard filter =====
+(function(){
+  const filters = document.getElementById('yard-filters');
+  const carousel = document.getElementById('rfq-carousel');
+  if (!filters || !carousel) return;
+  filters.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const yard = chip.dataset.yard;
+      carousel.querySelectorAll('.rfq-card').forEach(card => {
+        if (yard === 'all') { card.style.display = ''; }
+        else if (yard === 'unclass') { card.style.display = card.dataset.sec === 'unclass' ? '' : 'none'; }
+        else { card.style.display = card.dataset.yard === yard ? '' : 'none'; }
+      });
+    });
+  });
+})();
+
+// ===== VIEW TOGGLE (list/card) — Dashboard =====
+function switchView(view) {
+  const carousel = document.getElementById('rfq-carousel');
+  const listView = document.getElementById('rfq-list-view');
+  const toggle = document.getElementById('view-toggle');
+  const btns = toggle.querySelectorAll('.view-toggle-btn');
+  btns.forEach(b => b.classList.toggle('active', b.dataset.view === view));
+  if (view === 'list') {
+    carousel.style.display = 'none';
+    listView.style.display = 'block';
+    sortListView();
+  } else {
+    carousel.style.display = 'flex';
+    listView.style.display = 'none';
+  }
+}
+
+// ===== VIEW TOGGLE (list/cards) — RFQ & Bids =====
+function switchRfqView(view) {
+  const listW = document.getElementById('rfq-list-wrapper');
+  const cardsW = document.getElementById('rfq-cards-wrapper');
+  // Update toggle buttons in action tray
+  const toggle = document.getElementById('rfq-view-toggle');
+  if (toggle) {
+    toggle.querySelectorAll('.view-toggle-btn').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+  }
+  if (view === 'cards') {
+    if (listW) listW.style.display = 'none';
+    if (cardsW) cardsW.style.display = 'block';
+  } else {
+    if (listW) listW.style.display = '';
+    if (cardsW) cardsW.style.display = 'none';
+  }
+}
+
+// ===== SORT CAROUSEL =====
+let dashSortVal = 'fit';
+function sortCarousel() {
+  const carousel = document.getElementById('rfq-carousel');
+  const sortBy = dashSortVal;
+  const cards = [...carousel.querySelectorAll('.rfq-card')];
+  cards.sort((a, b) => {
+    if (sortBy === 'fit') return Number(b.dataset.fit) - Number(a.dataset.fit);
+    if (sortBy === 'posted') return a.dataset.posted.localeCompare(b.dataset.posted);
+    if (sortBy === 'size') return Number(b.dataset.size) - Number(a.dataset.size);
+    return 0;
+  });
+  cards.forEach(card => carousel.appendChild(card));
+  sortListView();
+}
+
+function sortListView() {
+  const tbody = document.querySelector('#rfq-list-view tbody');
+  if (!tbody) return;
+  const sortBy = dashSortVal;
+  const rows = [...tbody.querySelectorAll('tr')];
+  rows.sort((a, b) => {
+    if (sortBy === 'fit') return Number(b.dataset.fit) - Number(a.dataset.fit);
+    if (sortBy === 'posted') return a.dataset.posted.localeCompare(b.dataset.posted);
+    if (sortBy === 'size') return Number(b.dataset.size) - Number(a.dataset.size);
+    return 0;
+  });
+  rows.forEach(r => tbody.appendChild(r));
+}
+
+// ===== RFQ TABLE DATA GENERATION =====
+function buildRfqData() {
+  const yards = ['HII-Ingalls','HII-Newport News','Bath Iron Works','Electric Boat','GD-NASSCO','Austal USA','Fincantieri Marinette'];
+  const progs = [{c:'DDG-51',n:'DDG-51 FIII'},{c:'CVN-81',n:'CVN-81 Ford'},{c:'SSN-810',n:'SSN-810 Virginia'},{c:'SSBN-826',n:'SSBN-826 Columbia'},{c:'LPD-32',n:'LPD-32'},{c:'FFG-62',n:'FFG-62 Constellation'},{c:'LHA-9',n:'LHA-9'},{c:'T-AO-205',n:'T-AO-205'},{c:'EPF',n:'EPF Spearhead'}];
+  const parts = ['Pump mounting bracket','Valve body','Shaft coupling','Motor mount','Deck plate insert','Hull stiffener','Bearing housing','Pipe spool assembly','Stanchion base','Structural bracket','Rudder bearing assembly','Anchor chain stopper','Ventilation duct','Bilge keel bracket','Reduction gear housing','Keel block pad','Pressure hull frame','Davit arm','Hatch frame','Propeller shaft section','Sea chest grating','Hull insert plate','Bulkhead stiffener','Foundation pad','Cable tray support','Tank top plating','Sonar dome panel','Mast support bracket','Exhaust duct section','Cooling water pipe','Stern tube bearing','Windlass mount','Capstan base plate','Chock fitting','Bollard plate','Scupper housing','Ladder bracket','Door frame assembly','Hatch coaming ring','Tank access cover','Ventilation plenum','Pump base plate','Condenser housing','Heat exchanger shell','Fire main tee','Watertight door frame','Thruster tunnel ring','Rudder post','Shaft strut','Bilge pump mount'];
+  const mats = ['HY-80','HY-100','HY-130','HSLA-80','CRES 316L','CRES 304L','CuNi 70/30','AL 5456','AL 5083','DH-36'];
+  const procs = ['weldment','forging','machined','cast','flame cut','welded','fabrication','CNC machined'];
+
+  // Deterministic pseudo-random for consistent prototype data
+  let seed = 54321;
+  const r = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+  const pick = a => a[Math.floor(r() * a.length)];
+
+  const data = [];
+  const now = new Date('2026-02-14T12:00:00');
+
+  for (let i = 0; i < 150; i++) {
+    // Spread posts over ~8 months: recent rows more frequent
+    const daysBack = i < 7 ? Math.floor(r() * 3) :
+                     i < 25 ? 3 + Math.floor(r() * 28) :
+                     i < 60 ? 31 + Math.floor(r() * 60) :
+                     91 + Math.floor(r() * 150);
+
+    const posted = new Date(now);
+    posted.setDate(posted.getDate() - daysBack);
+    const due = new Date(posted);
+    due.setDate(due.getDate() + 14 + Math.floor(r() * 28));
+
+    // Status distribution based on age
+    let status;
+    if (i < 7) status = pick(['New','New','New','In Estimating']);
+    else if (daysBack < 14) status = pick(['New','In Estimating','In Estimating','Internal Review']);
+    else if (daysBack < 45) status = pick(['In Estimating','Internal Review','Submitted','Submitted']);
+    else if (daysBack < 100) status = pick(['Submitted','Submitted','Internal Review','Awarded','Lost']);
+    else status = pick(['Awarded','Awarded','Awarded','Lost','Lost','Submitted']);
+
+    const fit = (status === 'Awarded' || status === 'Lost') ? 0 : 42 + Math.floor(r() * 56);
+    const value = 12 + Math.floor(r() * 488);
+    const prog = pick(progs);
+
+    data.push({
+      id: 'RFQ-2026-' + String(300 - i).padStart(4, '0'),
+      yard: pick(yards), program: prog.c, programName: prog.n,
+      desc: pick(parts) + ', ' + pick(mats) + ' ' + pick(procs),
+      posted: posted.toISOString().slice(0, 10),
+      due: due.toISOString().slice(0, 10),
+      fit, status, value
+    });
+  }
+
+  // Inject RFQ-0147 for demo (pump bracket, HII-Ingalls, Submitted)
+  data.push({
+    id: 'RFQ-2026-0147', yard: 'HII-Ingalls', program: 'T-AO-205', programName: 'T-AO-205',
+    desc: 'Pump bracket, HY-80 weldment', posted: '2026-02-13', due: '2026-03-06',
+    fit: 94, status: 'Submitted', value: 48
+  });
+
+  // Sort newest first
+  data.sort((a, b) => b.posted.localeCompare(a.posted));
+  // Mark first 7 as new/unseen
+  data.forEach((d, i) => d.isNew = i < 7);
+  return data;
+}
+
+const rfqData = buildRfqData();
+
+function renderRfqTable() {
+  const tbody = document.getElementById('rfq-tbody');
+  if (!tbody) return;
+  const now = new Date('2026-02-14T12:00:00');
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  let html = '';
+  rfqData.forEach(d => {
+    // Posted display — relative for recent, date for older
+    const posted = new Date(d.posted + 'T12:00:00');
+    const diffMs = now - posted;
+    const diffHrs = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+    let postedStr;
+    if (diffHrs < 1) postedStr = Math.max(1, Math.floor(diffMs / 60000)) + 'm';
+    else if (diffHrs < 24) postedStr = diffHrs + 'hrs';
+    else if (diffDays < 7) postedStr = diffDays + 'd ago';
+    else postedStr = months[posted.getMonth()] + ' ' + posted.getDate();
+
+    // Due display
+    const dueD = new Date(d.due + 'T12:00:00');
+    const dueStr = months[dueD.getMonth()] + ' ' + dueD.getDate();
+
+    // Fit display with progress bar
+    let fitHtml;
+    if (d.fit === 0) {
+      fitHtml = '\u2014';
+    } else {
+      const fitColor = d.fit >= 90 ? 'green' : d.fit >= 75 ? 'cyan' : d.fit >= 65 ? 'yellow' : 'orange';
+      fitHtml = '<div style="display:flex;align-items:center;gap:6px"><div class="progress-bar" style="width:50px"><div class="progress-fill ' + fitColor + '" style="width:' + d.fit + '%"></div></div><span style="font-size:12px;font-weight:600">' + d.fit + '</span></div>';
+    }
+
+    // Status badge
+    const statusMap = { 'New': 'badge-blue', 'In Estimating': 'badge-cyan', 'Internal Review': 'badge-yellow', 'Submitted': 'badge-green', 'Awarded': 'badge-emerald' };
+    const statusCls = statusMap[d.status];
+    const statusBadge = statusCls
+      ? '<span class="badge ' + statusCls + '">' + d.status + '</span>'
+      : '<span class="badge" style="background:rgba(107,114,128,.15);color:var(--steel-300)">' + d.status + '</span>';
+
+    // New badge
+    const newBadge = d.isNew ? '<span class="rfq-new-badge">NEW</span>' : '';
+
+    var rowId = (d.id === 'RFQ-2026-0147') ? ' id="rfq-row-0147"' : '';
+    html += '<tr onclick="navigateTo(\'rfq-detail\')"' + rowId
+      + ' data-status="' + d.status + '" data-yard="' + d.yard + '" data-program="' + d.program + '"'
+      + ' data-fit="' + d.fit + '" data-due="' + d.due + '" data-value="' + d.value + '"'
+      + ' data-posted="' + d.posted + '"' + (d.isNew ? ' data-new="true"' : '') + '>'
+      + '<td style="color:var(--cyan-400);font-weight:600;font-family:var(--font-mono)">' + d.id + newBadge + '</td>'
+      + '<td style="color:var(--steel-300);font-size:12px">' + postedStr + '</td>'
+      + '<td>' + d.yard + '</td>'
+      + '<td>' + d.programName + '</td>'
+      + '<td>' + d.desc + '</td>'
+      + '<td>' + dueStr + '</td>'
+      + '<td>' + fitHtml + '</td>'
+      + '<td>' + statusBadge + '</td>'
+      + '<td style="text-align:right;font-weight:600">$' + d.value + 'K</td>'
+      + '</tr>';
+  });
+  tbody.innerHTML = html;
+}
+
+function renderRfqCards() {
+  const grid = document.getElementById('rfq-cards-grid');
+  if (!grid) return;
+  const now = new Date('2026-02-14T12:00:00');
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const statusMap = { 'New': 'badge-blue', 'In Estimating': 'badge-cyan', 'Internal Review': 'badge-yellow', 'Submitted': 'badge-green', 'Awarded': 'badge-emerald' };
+
+  let html = '';
+  rfqData.forEach(d => {
+    const posted = new Date(d.posted + 'T12:00:00');
+    const diffMs = now - posted;
+    const diffHrs = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+    let postedStr;
+    if (diffHrs < 1) postedStr = Math.max(1, Math.floor(diffMs / 60000)) + 'm';
+    else if (diffHrs < 24) postedStr = diffHrs + 'hrs';
+    else if (diffDays < 7) postedStr = diffDays + 'd ago';
+    else postedStr = months[posted.getMonth()] + ' ' + posted.getDate();
+
+    const dueD = new Date(d.due + 'T12:00:00');
+    const dueStr = months[dueD.getMonth()] + ' ' + dueD.getDate();
+
+    const fitCls = d.fit >= 90 ? 'fit-high' : d.fit >= 80 ? 'fit-mid' : d.fit >= 65 ? 'fit-med' : 'fit-low';
+    const fitHtml = d.fit === 0 ? '' : '<span class="fit-score ' + fitCls + '">' + d.fit + '</span>';
+
+    const statusCls = statusMap[d.status] || '';
+    const statusBadge = statusCls
+      ? '<span class="badge ' + statusCls + '" style="font-size:10px">' + d.status + '</span>'
+      : '<span class="badge" style="background:rgba(107,114,128,.15);color:var(--steel-300);font-size:10px">' + d.status + '</span>';
+
+    var cardId = (d.id === 'RFQ-2026-0147') ? ' id="rfq-card-0147"' : '';
+    html += '<div class="rfq-card"' + cardId + ' onclick="navigateTo(\'rfq-detail\')"'
+      + ' data-status="' + d.status + '" data-yard="' + d.yard + '" data-program="' + d.program + '"'
+      + ' data-fit="' + d.fit + '" data-due="' + d.due + '" data-value="' + d.value + '"'
+      + ' data-posted="' + d.posted + '"' + (d.isNew ? ' data-new="true"' : '') + '>'
+      + '<div class="rfq-card-header"><div class="rfq-card-header-left">'
+      + '<span class="rfq-posted">' + postedStr + '</span>'
+      + '<span class="rfq-card-id">' + d.id + '</span>'
+      + '</div>' + fitHtml + '</div>'
+      + '<div class="rfq-card-body">'
+      + '<div class="rfq-card-title">' + d.desc + '</div>'
+      + '<div class="rfq-card-meta">' + d.yard + ' · ' + d.programName + '</div>'
+      + '</div>'
+      + '<div class="rfq-card-footer">'
+      + '<div style="display:flex;align-items:center;gap:8px"><span class="rfq-card-due"><span class="mi" style="font-size:14px;vertical-align:middle">event</span> ' + dueStr + '</span>'
+      + statusBadge + '</div>'
+      + '<span style="font-weight:600;font-size:12px">$' + d.value + 'K</span>'
+      + '</div></div>';
+  });
+  grid.innerHTML = html;
+}
+
+// ===== FILTER SYSTEM =====
+// Active filter state
+const rfqFilters = { yard:'', program:'', security:'', fitMin:'', fitMax:'', valMin:'', valMax:'', dueFrom:'', dueTo:'', statuses:[], material:'', tags:[] };
+
+// Toggle filter panel
+function toggleFilterPanel() {
+  const panel = document.getElementById('rfq-filter-panel');
+  const btn = document.getElementById('rfq-funnel');
+  panel.classList.toggle('open');
+  btn.classList.toggle('open');
+}
+
+// Combobox: open dropdown
+function openCombobox(id) {
+  const dd = document.getElementById(id + '-dd');
+  dd.classList.add('open');
+  dd.querySelectorAll('.cb-opt').forEach(o => o.style.display = '');
+}
+// Combobox: filter options as user types
+function filterCombobox(id) {
+  const input = document.querySelector('#' + id + ' input');
+  const dd = document.getElementById(id + '-dd');
+  const q = input.value.toLowerCase();
+  dd.classList.add('open');
+  dd.querySelectorAll('.cb-opt').forEach(o => {
+    o.style.display = o.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+// Combobox: select an option
+function selectCombobox(id, el) {
+  const input = document.querySelector('#' + id + ' input');
+  input.value = el.textContent;
+  input.dataset.selected = el.dataset.val;
+  document.getElementById(id + '-dd').classList.remove('open');
+}
+// Close comboboxes on outside click
+document.addEventListener('click', function(e) {
+  document.querySelectorAll('.cb-dd.open').forEach(dd => {
+    if (!dd.parentElement.contains(e.target)) dd.classList.remove('open');
+  });
+});
+
+// Checkbox toggle
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+}
+
+// Read all filter panel values into rfqFilters
+function readFilterPanel() {
+  const yardInput = document.querySelector('#cb-yard input');
+  rfqFilters.yard = yardInput?.dataset.selected || '';
+  const progInput = document.querySelector('#cb-program input');
+  rfqFilters.program = progInput?.dataset.selected || '';
+  rfqFilters.security = document.querySelector('#fp-security-wrap .fp-select-opt.active')?.dataset.val || '';
+  rfqFilters.fitMin = document.getElementById('fp-fit-min')?.value || '';
+  rfqFilters.fitMax = document.getElementById('fp-fit-max')?.value || '';
+  rfqFilters.valMin = document.getElementById('fp-val-min')?.value || '';
+  rfqFilters.valMax = document.getElementById('fp-val-max')?.value || '';
+  rfqFilters.dueFrom = document.getElementById('dp-due-from')?.dataset.value || '';
+  rfqFilters.dueTo = document.getElementById('dp-due-to')?.dataset.value || '';
+  rfqFilters.statuses = [...document.querySelectorAll('#ck-status .ck-item.checked')].map(el => el.dataset.val);
+  const matInput = document.querySelector('#cb-material input');
+  rfqFilters.material = matInput?.dataset.selected || '';
+  rfqFilters.tags = [...document.querySelectorAll('#ck-tags .ck-item.checked')].map(el => el.dataset.val);
+}
+
+// Apply filters to table rows
+function applyRfqFilters() {
+  readFilterPanel();
+  const search = (document.getElementById('rfq-search')?.value || '').toLowerCase();
+  const rows = document.querySelectorAll('#rfq-tbody tr');
+  let visible = 0;
+  rows.forEach(row => {
+    const text = row.textContent.toLowerCase();
+    let show = true;
+    // Text search (live input + pinned search pills)
+    if (search && !text.includes(search)) show = false;
+    if (show && !matchesSearchPills('rfq', text)) show = false;
+    // Shipyard
+    if (show && rfqFilters.yard && row.dataset.yard !== rfqFilters.yard) show = false;
+    // Program
+    if (show && rfqFilters.program && !row.dataset.program?.startsWith(rfqFilters.program)) show = false;
+    // Status (multi-select: show if any match, or if none selected show all)
+    if (show && rfqFilters.statuses.length > 0 && !rfqFilters.statuses.includes(row.dataset.status)) show = false;
+    // Fit score range
+    if (show && rfqFilters.fitMin && Number(row.dataset.fit) < Number(rfqFilters.fitMin)) show = false;
+    if (show && rfqFilters.fitMax && Number(row.dataset.fit) > Number(rfqFilters.fitMax)) show = false;
+    // Value range
+    if (show && rfqFilters.valMin && Number(row.dataset.value) < Number(rfqFilters.valMin)) show = false;
+    if (show && rfqFilters.valMax && Number(row.dataset.value) > Number(rfqFilters.valMax)) show = false;
+    // Due date range
+    if (show && rfqFilters.dueFrom && row.dataset.due < rfqFilters.dueFrom) show = false;
+    if (show && rfqFilters.dueTo && row.dataset.due > rfqFilters.dueTo) show = false;
+    // Material (match in description text)
+    if (show && rfqFilters.material && !text.includes(rfqFilters.material.toLowerCase())) show = false;
+    row.style.display = show ? '' : 'none';
+    if (show) visible++;
+  });
+  // Also filter cards view
+  document.querySelectorAll('#rfq-cards-grid .rfq-card').forEach(card => {
+    const text = card.textContent.toLowerCase();
+    let show = true;
+    if (search && !text.includes(search)) show = false;
+    if (show && !matchesSearchPills('rfq', text)) show = false;
+    if (show && rfqFilters.yard && card.dataset.yard !== rfqFilters.yard) show = false;
+    if (show && rfqFilters.program && !card.dataset.program?.startsWith(rfqFilters.program)) show = false;
+    if (show && rfqFilters.statuses.length > 0 && !rfqFilters.statuses.includes(card.dataset.status)) show = false;
+    if (show && rfqFilters.fitMin && Number(card.dataset.fit) < Number(rfqFilters.fitMin)) show = false;
+    if (show && rfqFilters.fitMax && Number(card.dataset.fit) > Number(rfqFilters.fitMax)) show = false;
+    if (show && rfqFilters.valMin && Number(card.dataset.value) < Number(rfqFilters.valMin)) show = false;
+    if (show && rfqFilters.valMax && Number(card.dataset.value) > Number(rfqFilters.valMax)) show = false;
+    if (show && rfqFilters.dueFrom && card.dataset.due < rfqFilters.dueFrom) show = false;
+    if (show && rfqFilters.dueTo && card.dataset.due > rfqFilters.dueTo) show = false;
+    if (show && rfqFilters.material && !text.includes(rfqFilters.material.toLowerCase())) show = false;
+    card.style.display = show ? '' : 'none';
+  });
+  const countEl = document.getElementById('rfq-row-count');
+  if (countEl) countEl.textContent = visible + ' RFQ' + (visible !== 1 ? 's' : '');
+  renderFilterChips();
+}
+
+// Render active filter chips in the search bar
+function renderFilterChips() {
+  const container = document.getElementById('rfq-filter-chips');
+  if (!container) return;
+  let html = renderSearchPillsHtml('rfq');
+  if (rfqFilters.yard) html += '<span class="fc"><span class="fc-label">Shipyard:</span>' + rfqFilters.yard + '<span class="fc-x mi" onclick="clearFilter(\'yard\')">close</span></span>';
+  if (rfqFilters.program) html += '<span class="fc"><span class="fc-label">Program:</span>' + rfqFilters.program + '<span class="fc-x mi" onclick="clearFilter(\'program\')">close</span></span>';
+  if (rfqFilters.security) html += '<span class="fc"><span class="fc-label">Security:</span>' + document.getElementById('fp-security-label').textContent + '<span class="fc-x mi" onclick="clearFilter(\'security\')">close</span></span>';
+  if (rfqFilters.statuses.length) html += '<span class="fc"><span class="fc-label">Status:</span>' + rfqFilters.statuses.join(', ') + '<span class="fc-x mi" onclick="clearFilter(\'statuses\')">close</span></span>';
+  if (rfqFilters.fitMin || rfqFilters.fitMax) html += '<span class="fc"><span class="fc-label">Fit:</span>' + (rfqFilters.fitMin||'0') + '\u2013' + (rfqFilters.fitMax||'100') + '<span class="fc-x mi" onclick="clearFilter(\'fit\')">close</span></span>';
+  if (rfqFilters.valMin || rfqFilters.valMax) html += '<span class="fc"><span class="fc-label">Value:</span>$' + (rfqFilters.valMin||'0') + 'K\u2013$' + (rfqFilters.valMax||'\u221e') + 'K<span class="fc-x mi" onclick="clearFilter(\'value\')">close</span></span>';
+  if (rfqFilters.dueFrom || rfqFilters.dueTo) html += '<span class="fc"><span class="fc-label">Due:</span>' + (rfqFilters.dueFrom||'any') + ' \u2013 ' + (rfqFilters.dueTo||'any') + '<span class="fc-x mi" onclick="clearFilter(\'due\')">close</span></span>';
+  if (rfqFilters.material) html += '<span class="fc"><span class="fc-label">Material:</span>' + rfqFilters.material + '<span class="fc-x mi" onclick="clearFilter(\'material\')">close</span></span>';
+  if (rfqFilters.tags.length) html += '<span class="fc"><span class="fc-label">Tags:</span>' + rfqFilters.tags.length + ' selected<span class="fc-x mi" onclick="clearFilter(\'tags\')">close</span></span>';
+  if (html) html += '<span class="fc" style="background:transparent;border:none;color:var(--steel-300);cursor:pointer;padding:0 4px" onclick="resetRfqFilters()">Clear all</span>';
+  container.innerHTML = html;
+}
+
+// Clear a specific filter
+function clearFilter(key) {
+  if (key === 'yard') { rfqFilters.yard = ''; const i = document.querySelector('#cb-yard input'); if(i){i.value='';delete i.dataset.selected;} }
+  if (key === 'program') { rfqFilters.program = ''; const i = document.querySelector('#cb-program input'); if(i){i.value='';delete i.dataset.selected;} }
+  if (key === 'security') { rfqFilters.security = ''; resetFpSelect('fp-security-wrap'); }
+  if (key === 'statuses') { rfqFilters.statuses = []; document.querySelectorAll('#ck-status .ck-item').forEach(el => el.classList.remove('checked')); }
+  if (key === 'fit') { rfqFilters.fitMin = ''; rfqFilters.fitMax = ''; const a = document.getElementById('fp-fit-min'), b = document.getElementById('fp-fit-max'); if(a) a.value=''; if(b) b.value=''; }
+  if (key === 'value') { rfqFilters.valMin = ''; rfqFilters.valMax = ''; const a = document.getElementById('fp-val-min'), b = document.getElementById('fp-val-max'); if(a) a.value=''; if(b) b.value=''; }
+  if (key === 'due') { rfqFilters.dueFrom = ''; rfqFilters.dueTo = ''; clearDatePicker('dp-due-from'); clearDatePicker('dp-due-to'); }
+  if (key === 'material') { rfqFilters.material = ''; const i = document.querySelector('#cb-material input'); if(i){i.value='';delete i.dataset.selected;} }
+  if (key === 'tags') { rfqFilters.tags = []; document.querySelectorAll('#ck-tags .ck-item').forEach(el => el.classList.remove('checked')); }
+  applyRfqFilters();
+}
+
+// Reset all filters
+function resetRfqFilters() {
+  ['yard','program','security','statuses','fit','value','due','material','tags'].forEach(k => clearFilter(k));
+  const search = document.getElementById('rfq-search');
+  if (search) search.value = '';
+  searchPillStore.rfq = [];
+  activeViewKey = '';
+  updateSvBtnLabel();
+  applyRfqFilters();
+}
+
+// ===== SAVED VIEWS =====
+let savedViews = {
+  'high-fit': { name:'High Fit (80+)', filters: { fitMin:'80' } },
+  'due-week': { name:'Due This Week', filters: { dueFrom:'2026-02-09', dueTo:'2026-02-15' } },
+  'new-only': { name:'New RFQs Only', filters: { statuses:['New'] } }
+};
+let defaultView = '';
+let activeViewKey = '';
+let svNextId = 1;
+
+function toggleSavedViews() {
+  const pop = document.getElementById('sv-pop');
+  const wrap = document.getElementById('sv-wrap');
+  if (!pop) return;
+  pop.classList.toggle('open');
+  if (wrap) wrap.classList.toggle('open', pop.classList.contains('open'));
+  if (pop.classList.contains('open')) renderSvList();
+}
+
+function closeSavedViews() {
+  const pop = document.getElementById('sv-pop');
+  const wrap = document.getElementById('sv-wrap');
+  if (pop) pop.classList.remove('open');
+  if (wrap) wrap.classList.remove('open');
+  document.querySelectorAll('.sv-edit-row').forEach(el => el.remove());
+  document.querySelectorAll('.sv-item[data-editing]').forEach(el => el.style.display = '');
+  svEditingKey = '';
+}
+
+function renderSvList() {
+  const list = document.getElementById('sv-list');
+  if (!list) return;
+  let html = '<div class="sv-item' + (activeViewKey === '' ? ' active' : '') + '" onclick="loadSavedView(\'\')"><span>All RFQs</span></div>';
+  Object.keys(savedViews).forEach(key => {
+    const v = savedViews[key];
+    const isActive = activeViewKey === key;
+    const isDefault = defaultView === key;
+    html += '<div class="sv-item' + (isActive ? ' active' : '') + '" data-key="' + key + '" onclick="loadSavedView(\'' + key + '\')">';
+    html += '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + v.name;
+    if (isDefault) html += '<span class="sv-def">(default)</span>';
+    html += '</span>';
+    html += '<span class="sv-actions">';
+    if (!isDefault) html += '<button class="sv-act" onclick="event.stopPropagation();setSvDefault(\'' + key + '\')" title="Set as default"><span class="mi" style="font-size:14px">star_outline</span></button>';
+    else html += '<button class="sv-act" onclick="event.stopPropagation();clearSvDefault()" title="Remove default"><span class="mi" style="font-size:14px;color:var(--cyan-400)">star</span></button>';
+    html += '<button class="sv-act" onclick="event.stopPropagation();editSv(\'' + key + '\')" title="Edit view"><span class="mi" style="font-size:14px">edit</span></button>';
+    html += '<button class="sv-act" onclick="event.stopPropagation();deleteSv(\'' + key + '\')" title="Delete view"><span class="mi" style="font-size:14px">close</span></button>';
+    html += '</span></div>';
+  });
+  list.innerHTML = html;
+}
+
+function updateSvBtnLabel() {
+  const label = document.getElementById('sv-btn-label');
+  if (!label) return;
+  if (activeViewKey && savedViews[activeViewKey]) {
+    label.textContent = savedViews[activeViewKey].name;
+  } else {
+    label.textContent = 'All RFQs';
+  }
+}
+
+function loadSavedView(viewKey) {
+  // Reset everything first
+  ['yard','program','security','statuses','fit','value','due','material','tags'].forEach(k => clearFilter(k));
+  const search = document.getElementById('rfq-search');
+  if (search) search.value = '';
+  searchPillStore.rfq = [];
+  activeViewKey = viewKey;
+  updateSvBtnLabel();
+  closeSavedViews();
+  if (!viewKey || !savedViews[viewKey]) { applyRfqFilters(); return; }
+  const v = savedViews[viewKey].filters;
+  // Apply saved filter values to the panel
+  if (v.yard) { const i = document.querySelector('#cb-yard input'); if(i){ i.value=v.yard; i.dataset.selected=v.yard; } }
+  if (v.program) { const i = document.querySelector('#cb-program input'); if(i){ i.value=v.program; i.dataset.selected=v.program; } }
+  if (v.security) { setFpSelect('fp-security-wrap', v.security); }
+  if (v.fitMin) { const el = document.getElementById('fp-fit-min'); if(el) el.value=v.fitMin; }
+  if (v.fitMax) { const el = document.getElementById('fp-fit-max'); if(el) el.value=v.fitMax; }
+  if (v.valMin) { const el = document.getElementById('fp-val-min'); if(el) el.value=v.valMin; }
+  if (v.valMax) { const el = document.getElementById('fp-val-max'); if(el) el.value=v.valMax; }
+  if (v.dueFrom) setDatePicker('dp-due-from', v.dueFrom);
+  if (v.dueTo) setDatePicker('dp-due-to', v.dueTo);
+  if (v.statuses && v.statuses.length) {
+    document.querySelectorAll('#ck-status .ck-item').forEach(el => {
+      if (v.statuses.includes(el.dataset.val)) el.classList.add('checked');
+    });
+  }
+  if (v.material) { const i = document.querySelector('#cb-material input'); if(i){ i.value=v.material; i.dataset.selected=v.material; } }
+  if (v.tags && v.tags.length) {
+    document.querySelectorAll('#ck-tags .ck-item').forEach(el => {
+      if (v.tags.includes(el.dataset.val)) el.classList.add('checked');
+    });
+  }
+  if (v.searchPills && v.searchPills.length) {
+    searchPillStore.rfq = v.searchPills.map(function(t) { return {text: t}; });
+  }
+  applyRfqFilters();
+}
+
+// Capture current filter state as an object
+function captureCurrentFilters() {
+  const f = {};
+  const yard = document.querySelector('#cb-yard input');
+  if (yard && yard.dataset.selected) f.yard = yard.dataset.selected;
+  const prog = document.querySelector('#cb-program input');
+  if (prog && prog.dataset.selected) f.program = prog.dataset.selected;
+  const secOpt = document.querySelector('#fp-security-wrap .fp-select-opt.active');
+  if (secOpt && secOpt.dataset.val) f.security = secOpt.dataset.val;
+  const fitMin = document.getElementById('fp-fit-min');
+  if (fitMin && fitMin.value) f.fitMin = fitMin.value;
+  const fitMax = document.getElementById('fp-fit-max');
+  if (fitMax && fitMax.value) f.fitMax = fitMax.value;
+  const valMin = document.getElementById('fp-val-min');
+  if (valMin && valMin.value) f.valMin = valMin.value;
+  const valMax = document.getElementById('fp-val-max');
+  if (valMax && valMax.value) f.valMax = valMax.value;
+  const dueFromVal = document.getElementById('dp-due-from')?.dataset.value;
+  if (dueFromVal) f.dueFrom = dueFromVal;
+  const dueToVal = document.getElementById('dp-due-to')?.dataset.value;
+  if (dueToVal) f.dueTo = dueToVal;
+  const statuses = [];
+  document.querySelectorAll('#ck-status .ck-item.checked').forEach(el => statuses.push(el.dataset.val));
+  if (statuses.length) f.statuses = statuses;
+  const mat = document.querySelector('#cb-material input');
+  if (mat && mat.dataset.selected) f.material = mat.dataset.selected;
+  const tags = [];
+  document.querySelectorAll('#ck-tags .ck-item.checked').forEach(el => tags.push(el.dataset.val));
+  if (tags.length) f.tags = tags;
+  if (searchPillStore.rfq.length) f.searchPills = searchPillStore.rfq.map(function(p) { return p.text; });
+  return f;
+}
+
+// ===== SAVE FILTER MODAL =====
+function openSvModal() {
+  const bg = document.getElementById('sv-modal-bg');
+  const inp = document.getElementById('sv-modal-name');
+  const ck = document.getElementById('sv-modal-def-ck');
+  const title = document.getElementById('sv-modal-title');
+  if (title) title.textContent = 'Save Filter';
+  if (inp) inp.value = '';
+  if (ck) ck.classList.remove('checked');
+  if (bg) bg.classList.add('open');
+  setTimeout(() => { if(inp) inp.focus(); }, 80);
+}
+
+function closeSvModal() {
+  const bg = document.getElementById('sv-modal-bg');
+  if (bg) bg.classList.remove('open');
+}
+
+function toggleSvModalDefault() {
+  const ck = document.getElementById('sv-modal-def-ck');
+  if (ck) ck.classList.toggle('checked');
+}
+
+function saveSvFromModal() {
+  var inp = document.getElementById('sv-modal-name');
+  var name = (inp ? inp.value.trim() : '');
+  if (!name) { if(inp) inp.focus(); return; }
+  // Route to the correct module's save handler
+  if (savingViewModule === 'jobs') { saveJobsSvFromModal(name); return; }
+  if (savingViewModule === 'quality') { saveQualitySvFromModal(name); return; }
+  // Default: RFQ
+  const ck = document.getElementById('sv-modal-def-ck');
+  const setDefault = ck && ck.classList.contains('checked');
+  const key = 'custom-' + (svNextId++);
+  savedViews[key] = { name: name, filters: captureCurrentFilters() };
+  if (setDefault) defaultView = key;
+  activeViewKey = key;
+  updateSvBtnLabel();
+  closeSvModal();
+  // Close the filter panel to show results
+  const fp = document.getElementById('rfq-filter-panel');
+  if (fp && fp.classList.contains('open')) toggleFilterPanel();
+  applyRfqFilters();
+}
+
+function setSvDefault(key) {
+  defaultView = key;
+  renderSvList();
+}
+
+function clearSvDefault() {
+  defaultView = '';
+  renderSvList();
+}
+
+function deleteSv(key) {
+  if (!confirm('Delete "' + savedViews[key].name + '"?')) return;
+  delete savedViews[key];
+  if (defaultView === key) defaultView = '';
+  if (activeViewKey === key) {
+    activeViewKey = '';
+    updateSvBtnLabel();
+    loadSavedView('');
+  }
+  renderSvList();
+}
+
+// Edit saved view (rename + toggle default)
+let svEditingKey = '';
+function editSv(key) {
+  svEditingKey = key;
+  renderSvList();
+  // After render, inject edit row below the item
+  const item = document.querySelector('.sv-item[data-key="' + key + '"]');
+  if (!item) return;
+  item.style.display = 'none';
+  const editRow = document.createElement('div');
+  editRow.className = 'sv-edit-row';
+  const v = savedViews[key];
+  const isDefault = defaultView === key;
+  editRow.innerHTML = '<input type="text" id="sv-edit-input" value="' + v.name.replace(/"/g,'&quot;') + '" onkeydown="if(event.key===\'Enter\')updateSvConfirm(\'' + key + '\')">' +
+    '<div class="sv-edit-actions">' +
+    '<span class="sv-def-label" onclick="toggleSvEditDefault()"><span class="sv-mini-ck' + (isDefault ? ' checked' : '') + '" id="sv-edit-def-ck"><span class="mi">check</span></span>Default</span>' +
+    '<button class="btn btn-primary" onclick="updateSvConfirm(\'' + key + '\')" style="height:24px;padding:0 10px;font-size:11px">Update</button>' +
+    '<button class="btn btn-secondary" onclick="cancelSvEdit(\'' + key + '\')" style="height:24px;padding:0 8px;font-size:11px">Cancel</button>' +
+    '</div>';
+  item.parentNode.insertBefore(editRow, item.nextSibling);
+  const inp = document.getElementById('sv-edit-input');
+  if (inp) { inp.focus(); inp.select(); }
+}
+
+function toggleSvEditDefault() {
+  const ck = document.getElementById('sv-edit-def-ck');
+  if (ck) ck.classList.toggle('checked');
+}
+
+function updateSvConfirm(key) {
+  const inp = document.getElementById('sv-edit-input');
+  const name = (inp ? inp.value.trim() : '');
+  if (!name) { if(inp) inp.focus(); return; }
+  savedViews[key].name = name;
+  const ck = document.getElementById('sv-edit-def-ck');
+  if (ck && ck.classList.contains('checked')) {
+    defaultView = key;
+  } else if (defaultView === key) {
+    defaultView = '';
+  }
+  svEditingKey = '';
+  updateSvBtnLabel();
+  renderSvList();
+}
+
+function cancelSvEdit(key) {
+  svEditingKey = '';
+  renderSvList();
+}
+
+// Close saved views popover when clicking outside
+document.addEventListener('click', function(e) {
+  const wrap = document.getElementById('sv-wrap');
+  if (wrap && !wrap.contains(e.target)) closeSavedViews();
+});
+
+// ===== TABLE SORT =====
+let rfqSortVal = 'posted-desc';
+function sortRfqTable() {
+  const tbody = document.getElementById('rfq-tbody');
+  if (!tbody) return;
+  const sortVal = rfqSortVal;
+  const [field, dir] = sortVal.split('-');
+  rfqColSort.field = field;
+  rfqColSort.dir = dir;
+  const rows = [...tbody.querySelectorAll('tr')];
+  rows.sort((a, b) => {
+    let av, bv;
+    if (field === 'fit' || field === 'value') {
+      av = Number(a.dataset[field]) || 0;
+      bv = Number(b.dataset[field]) || 0;
+      return dir === 'asc' ? av - bv : bv - av;
+    }
+    if (a.dataset[field] !== undefined) {
+      av = a.dataset[field] || '';
+      bv = b.dataset[field] || '';
+      return dir === 'asc' ? av.localeCompare(bv) : bv.localeCompare(av);
+    }
+    return 0;
+  });
+  rows.forEach(r => tbody.appendChild(r));
+  updateSortIndicators();
+}
+
+let rfqColSort = { field: 'posted', dir: 'desc' };
+function sortRfqCol(field) {
+  if (rfqColSort.field === field) {
+    rfqColSort.dir = rfqColSort.dir === 'desc' ? 'asc' : 'desc';
+  } else {
+    rfqColSort.field = field;
+    rfqColSort.dir = (field === 'fit' || field === 'value' || field === 'posted') ? 'desc' : 'asc';
+  }
+  rfqSortVal = field + '-' + rfqColSort.dir;
+  // Sync the popover active state
+  const pop = document.getElementById('rfq-sort-pop');
+  if (pop) {
+    pop.querySelectorAll('.sort-opt').forEach(o => {
+      o.classList.toggle('active', o.dataset.sort === rfqSortVal);
+    });
+    const label = document.getElementById('rfq-sort-label');
+    const activeOpt = pop.querySelector('.sort-opt.active');
+    if (label && activeOpt) label.textContent = activeOpt.textContent;
+  }
+  sortRfqTable();
+  updateSortIndicators();
+}
+
+function updateSortIndicators() {
+  document.querySelectorAll('#rfq-table .th-sort').forEach(th => {
+    const arrow = th.querySelector('.sort-arrow');
+    if (th.dataset.sort === rfqColSort.field) {
+      th.classList.add('th-sort-active');
+      if (arrow) arrow.textContent = rfqColSort.dir === 'asc' ? 'arrow_upward' : 'arrow_downward';
+    } else {
+      th.classList.remove('th-sort-active');
+      // Show a subtle down arrow on hover for non-active sortable columns
+      if (arrow) arrow.textContent = 'arrow_downward';
+    }
+  });
+}

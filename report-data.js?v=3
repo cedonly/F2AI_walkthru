@@ -1,0 +1,944 @@
+// ===== REPORT DATA =====
+// KPI colors, report overlays, period data, metrics
+
+// Report Overlay bar color thresholds
+var rptOverlayBarColor = {
+  'bid-hitrate': function(v) { return v >= 35 ? 'bar-success' : v >= 28 ? 'bar-yellow' : v >= 22 ? 'bar-warn' : 'bar-danger'; },
+  'bid-cycle': function(v) { return v <= 3 ? 'bar-success' : v <= 4.5 ? 'bar-yellow' : v <= 5.5 ? 'bar-warn' : 'bar-danger'; },
+  'bid-margin': function(v) { return v >= 22 ? 'bar-success' : v >= 19 ? 'bar-yellow' : v >= 16 ? 'bar-warn' : 'bar-danger'; },
+  'bid-pipeline': function(v) { return v >= 600 ? 'bar-success' : v >= 500 ? 'bar-yellow' : v >= 400 ? 'bar-warn' : 'bar-danger'; },
+  'bid-hitrate-shipyard': function(v) { return v >= 35 ? 'bar-success' : v >= 28 ? 'bar-yellow' : v >= 22 ? 'bar-warn' : 'bar-danger'; },
+  'bid-margin-program': function(v) { return v >= 22 ? 'bar-success' : v >= 19 ? 'bar-yellow' : v >= 16 ? 'bar-warn' : 'bar-danger'; },
+  'bid-cycle-trend': function(v) { return v <= 3 ? 'bar-success' : v <= 4.5 ? 'bar-yellow' : v <= 5.5 ? 'bar-warn' : 'bar-danger'; },
+  'bid-hitrate-customer': function(v) { return v >= 35 ? 'bar-success' : v >= 28 ? 'bar-yellow' : v >= 22 ? 'bar-warn' : 'bar-danger'; },
+  'prod-activejobs': function(v) { return v >= 16 ? 'bar-success' : v >= 12 ? 'bar-yellow' : v >= 8 ? 'bar-warn' : 'bar-danger'; },
+  'prod-ontime': function(v) { return v >= 90 ? 'bar-success' : v >= 82 ? 'bar-yellow' : v >= 75 ? 'bar-warn' : 'bar-danger'; },
+  'prod-overdue': function(v) { return v <= 2 ? 'bar-success' : v <= 3 ? 'bar-yellow' : v <= 4 ? 'bar-warn' : 'bar-danger'; },
+  'prod-duration': function(v) { return v <= 10.5 ? 'bar-success' : v <= 11.5 ? 'bar-yellow' : v <= 12.5 ? 'bar-warn' : 'bar-danger'; },
+  'prod-readiness': function(v) { return v >= 16 ? 'bar-success' : v >= 12 ? 'bar-yellow' : v >= 8 ? 'bar-warn' : 'bar-danger'; },
+  'prod-schedule': function(v) { return v >= 16 ? 'bar-success' : v >= 12 ? 'bar-yellow' : v >= 8 ? 'bar-warn' : 'bar-danger'; },
+  'prod-cost': function(v) { return v <= 95 ? 'bar-success' : v <= 105 ? 'bar-yellow' : v <= 115 ? 'bar-warn' : 'bar-danger'; },
+  'prod-pipeline': function(v) { return v >= 700 ? 'bar-success' : v >= 600 ? 'bar-yellow' : v >= 500 ? 'bar-warn' : 'bar-danger'; },
+  'qual-openncrs': function(v) { return v <= 3 ? 'bar-success' : v <= 5 ? 'bar-yellow' : v <= 7 ? 'bar-warn' : 'bar-danger'; },
+  'qual-firstpass': function(v) { return v >= 95 ? 'bar-success' : v >= 92 ? 'bar-yellow' : v >= 90 ? 'bar-warn' : 'bar-danger'; },
+  'qual-escaperate': function(v) { return v <= 0.5 ? 'bar-success' : v <= 1.0 ? 'bar-yellow' : v <= 1.5 ? 'bar-warn' : 'bar-danger'; },
+  'qual-costncr': function(v) { return v <= 15 ? 'bar-success' : v <= 20 ? 'bar-yellow' : v <= 25 ? 'bar-warn' : 'bar-danger'; },
+  'qual-ncrbycause': function(v) { return v <= 2 ? 'bar-success' : v <= 3 ? 'bar-yellow' : v <= 4 ? 'bar-warn' : 'bar-danger'; },
+  'qual-ncrtrend': function(v) { return v <= 2 ? 'bar-success' : v <= 3 ? 'bar-yellow' : v <= 4 ? 'bar-warn' : 'bar-danger'; },
+  'qual-ncrbyarea': function(v) { return v <= 2 ? 'bar-success' : v <= 3 ? 'bar-yellow' : v <= 4 ? 'bar-warn' : 'bar-danger'; },
+  'qual-fpybyarea': function(v) { return v >= 95 ? 'bar-success' : v >= 92 ? 'bar-yellow' : v >= 90 ? 'bar-warn' : 'bar-danger'; },
+  'util-machinetime': function(v) { return v >= 80 ? 'bar-success' : v >= 70 ? 'bar-yellow' : v >= 60 ? 'bar-warn' : 'bar-danger'; },
+  'util-laborutil': function(v) { return v >= 82 ? 'bar-success' : v >= 75 ? 'bar-yellow' : v >= 65 ? 'bar-warn' : 'bar-danger'; },
+  'util-throughput': function(v) { return v >= 4.0 ? 'bar-success' : v >= 3.5 ? 'bar-yellow' : v >= 3.0 ? 'bar-warn' : 'bar-danger'; },
+  'util-scrap': function(v) { return v <= 2.0 ? 'bar-success' : v <= 2.5 ? 'bar-yellow' : v <= 3.0 ? 'bar-warn' : 'bar-danger'; },
+  'util-hoursbywc': function(v) { return v >= 48 ? 'bar-success' : v >= 42 ? 'bar-yellow' : v >= 36 ? 'bar-warn' : 'bar-danger'; },
+  'util-weeklytrend': function(v) { return v >= 75 ? 'bar-success' : v >= 70 ? 'bar-yellow' : v >= 65 ? 'bar-warn' : 'bar-danger'; },
+  'util-hoursbyjob': function(v) { return v >= 8 ? 'bar-success' : v >= 6 ? 'bar-yellow' : v >= 4 ? 'bar-warn' : 'bar-danger'; },
+  'util-idlereasons': function(v) { return v <= 2.0 ? 'bar-success' : v <= 2.5 ? 'bar-yellow' : v <= 3.0 ? 'bar-warn' : 'bar-danger'; },
+  'kpi-util-hours': function(v) { return v >= 28 ? 'bar-success' : v >= 24 ? 'bar-yellow' : v >= 20 ? 'bar-warn' : 'bar-danger'; },
+  'kpi-util-operators': function(v) { return v >= 5 ? 'bar-success' : v >= 4 ? 'bar-yellow' : v >= 3 ? 'bar-warn' : 'bar-danger'; },
+  'kpi-util-idle': function(v) { return v <= 3 ? 'bar-success' : v <= 6 ? 'bar-yellow' : v <= 10 ? 'bar-warn' : 'bar-danger'; }
+};
+
+// Map report tab KPI indices to overlay bar color keys for dynamic coloring
+var rptKpiColorKeys = {
+  bid: ['bid-hitrate', 'bid-cycle', 'bid-margin', 'bid-pipeline'],
+  production: ['prod-activejobs', 'prod-ontime', 'prod-overdue', 'prod-duration'],
+  quality: ['qual-openncrs', 'qual-firstpass', 'qual-escaperate', 'qual-costncr'],
+  utilization: ['util-machinetime', 'kpi-util-hours', 'kpi-util-operators', 'kpi-util-idle']
+};
+
+function getKpiColor(tabName, kpiIndex, value) {
+  var keys = rptKpiColorKeys[tabName];
+  if (!keys || !keys[kpiIndex]) return null;
+  var colorFn = rptOverlayBarColor[keys[kpiIndex]];
+  if (!colorFn) return null;
+  var numVal = parseFloat(String(value).replace(/[^0-9.\-]/g, ''));
+  if (isNaN(numVal)) return null;
+  var barClass = colorFn(numVal);
+  var colorMap = {'bar-success':'var(--success)', 'bar-yellow':'var(--yellow)', 'bar-warn':'var(--warning)', 'bar-danger':'var(--danger)'};
+  return colorMap[barClass] || null;
+}
+
+function renderMetricChart(period) {
+  const d = metricData[_currentMetricKey];
+  if (!d) return;
+  const p = d.periods[period];
+  if (!p) return;
+  const chart = document.getElementById('mm-chart-area');
+  if (!chart) return;
+  const maxH = 120;
+  const colorFn = metricBarColor[_currentMetricKey];
+  chart.innerHTML = p.d.map(m => {
+    const h = Math.round((m.v / p.max) * maxH);
+    const barClass = colorFn ? colorFn(m.v) : 'bar-yellow';
+    return '<div class="mm-chart-bar-group"><div class="mm-chart-val">' + m.v + '</div><div class="mm-chart-bar ' + barClass + '" style="height:' + h + 'px"></div><div class="mm-chart-label">' + m.l + '</div></div>';
+  }).join('');
+}
+
+function selectPeriod(el, period) {
+  el.parentNode.querySelectorAll('.mm-period-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderMetricChart(period);
+}
+
+var _currentRptOverlayKey = null;
+
+function colorCodeCell(text) {
+  var t = text.toLowerCase();
+  // Status keywords
+  if (t === 'on track' || t === 'won' || t === 'active' || t === 'pass' || t === 'complete' || t === 'shipped' || t === 'materials ok' || t === 'on floor')
+    return '<td style="color:var(--success);font-weight:600">' + text + '</td>';
+  if (t === 'at risk' || t === 'pending' || t === 'available' || t === 'scheduled' || t === 'queue' || t === 'backlog')
+    return '<td style="color:var(--yellow);font-weight:600">' + text + '</td>';
+  if (t === 'behind' || t === 'major' || t.includes('down '))
+    return '<td style="color:var(--warning);font-weight:600">' + text + '</td>';
+  if (t === 'critical' || t === 'lost' || t === 'overdue')
+    return '<td style="color:var(--danger);font-weight:600">' + text + '</td>';
+  if (t === 'minor')
+    return '<td style="color:var(--yellow);font-weight:600">' + text + '</td>';
+  // Trend arrows — context-aware: ↓ in time/cost = good, ↓ in rate/% = bad
+  var isLowerBetter = /[d$k]/.test(t) && !/\d+%/.test(t);
+  if (text.startsWith('↑')) {
+    if (isLowerBetter) return '<td style="color:var(--danger)">' + text + '</td>';
+    return '<td style="color:var(--success)">' + text + '</td>';
+  }
+  if (text.startsWith('↓')) {
+    if (isLowerBetter) return '<td style="color:var(--success)">' + text + '</td>';
+    return '<td style="color:var(--danger)">' + text + '</td>';
+  }
+  // Delay values like "2d late", "5d late"
+  if (/\d+d\s*late/.test(t))
+    return '<td style="color:var(--danger)">' + text + '</td>';
+  // Overdue counts
+  if (/\d+\s*overdue/.test(t))
+    return '<td style="color:var(--danger)">' + text + '</td>';
+  if (/0\s*overdue/.test(t))
+    return '<td style="color:var(--success)">' + text + '</td>';
+  return '<td>' + text + '</td>';
+}
+
+function renderRptOverlayChart(period) {
+  var d = rptOverlayData[_currentRptOverlayKey];
+  if (!d || !d.periods) return;
+  var p = d.periods[period];
+  if (!p) return;
+  var chart = document.getElementById('rpt-chart-area');
+  if (!chart) return;
+  var maxH = 120;
+  var colorFn = rptOverlayBarColor[_currentRptOverlayKey];
+  chart.innerHTML = p.d.map(function(m) {
+    var h = Math.round((m.v / p.max) * maxH);
+    var barClass = colorFn ? colorFn(m.v) : 'bar-yellow';
+    return '<div class="mm-chart-bar-group"><div class="mm-chart-val">' + m.v + '</div><div class="mm-chart-bar ' + barClass + '" style="height:' + h + 'px"></div><div class="mm-chart-label">' + m.l + '</div></div>';
+  }).join('');
+}
+
+function selectRptOverlayPeriod(el, period) {
+  el.parentNode.querySelectorAll('.mm-period-tab').forEach(function(t) { t.classList.remove('active'); });
+  el.classList.add('active');
+  renderRptOverlayChart(period);
+
+  // Update big value from period-specific data
+  var d = rptOverlayData[_currentRptOverlayKey];
+  if (d && d.periodValues && d.periodValues[period]) {
+    var pv = d.periodValues[period];
+    var bigEl = document.querySelector('#rpt-modal .mm-big-value');
+    var changeEl = document.querySelector('#rpt-modal .mm-change');
+    if (bigEl) bigEl.textContent = pv.value;
+    if (changeEl) {
+      changeEl.textContent = pv.change;
+      changeEl.className = 'mm-change ' + (pv.changeDir || '');
+    }
+    // Update theme color
+    var colorFn = rptOverlayBarColor[_currentRptOverlayKey];
+    if (colorFn) {
+      var numVal = parseFloat(String(pv.value).replace(/[^0-9.\-]/g, ''));
+      if (!isNaN(numVal)) {
+        var barClass = colorFn(numVal);
+        var themeMap = {'bar-success':'success','bar-yellow':'yellow','bar-warn':'warn','bar-danger':'danger'};
+        var newTheme = themeMap[barClass] || '';
+        var modal = document.getElementById('rpt-modal');
+        modal.className = 'metric-modal' + (newTheme ? ' mm-theme-' + newTheme : '');
+      }
+    }
+  }
+}
+
+// ===== ADMIN TAB SWITCHING =====
+function switchAdminTab(tab) {
+  const tabMap = { shop:'admin-shop', users:'admin-users', compliance:'admin-compliance', integrations:'admin-integrations' };
+  document.querySelectorAll('.admin-tab-content').forEach(c => c.style.display = 'none');
+  const target = document.getElementById(tabMap[tab]);
+  if (target) target.style.display = 'block';
+  const bar = document.getElementById('admin-tab-bar');
+  if (bar) {
+    const btns = bar.querySelectorAll('.seg-btn');
+    btns.forEach(t => t.classList.remove('active'));
+    const idx = { shop:0, compliance:1, integrations:2, users:3 }[tab];
+    if (btns[idx]) btns[idx].classList.add('active');
+  }
+  // Update info note
+  var noteEl = document.getElementById('admin-info-note');
+  var textEl = document.getElementById('admin-info-text');
+  if (noteEl && textEl) {
+    var iconEl = noteEl.querySelector('.mi');
+    var notes = {
+      shop: { icon:'info', color:'var(--cyan-400)', text:'Visible to <strong>Bid/PM</strong> (view rates &amp; materials), <strong>Planner</strong> (full edit), <strong>Quality/Eng</strong> (view; edit routing templates). Not visible to Operators.' },
+      compliance: { icon:'info', color:'var(--cyan-400)', text:'Editable by <strong>Quality/Eng</strong> and <strong>Admin</strong>. Viewable by <strong>Bid/PM</strong> and <strong>Planner</strong>. Not visible to Operators.' },
+      integrations: { icon:'lock', color:'var(--orange)', text:'<strong>Admin only.</strong> This section is restricted to system administrators. Other roles do not see this tab.' },
+      users: { icon:'lock', color:'var(--orange)', text:'<strong>Admin only.</strong> This section is restricted to system administrators. Other roles do not see this tab.' }
+    };
+    var n = notes[tab];
+    if (n) {
+      noteEl.style.color = n.color;
+      iconEl.textContent = n.icon;
+      textEl.innerHTML = n.text;
+    }
+  }
+}
+
+// ===== REPORTS TAB SWITCHING =====
+function switchReportsTab(tab) {
+  const tabMap = { bid:'rpt-bid', production:'rpt-production', quality:'rpt-quality', utilization:'rpt-utilization' };
+  document.querySelectorAll('.rpt-tab-content').forEach(c => c.style.display = 'none');
+  const target = document.getElementById(tabMap[tab]);
+  if (target) target.style.display = 'block';
+  const chips = document.getElementById('reports-chips');
+  if (chips) {
+    chips.querySelectorAll('.seg-btn').forEach(c => c.classList.remove('active'));
+    const idx = { bid:0, production:1, quality:2, utilization:3 }[tab];
+    if (chips.children[idx]) chips.children[idx].classList.add('active');
+  }
+  // Update period popover per tab
+  var periods = { bid: ['3M','6M','12M','YTD'], production: ['Today','This Week','This Month','Quarter'], quality: ['This Month','Quarter','12 Months','All Time'], utilization: ['Today','This Week','This Month','YTD'] };
+  var defaults = { bid: '12M', production: 'Today', quality: 'Quarter', utilization: 'Today' };
+  var def = defaults[tab];
+  var optsHtml = (periods[tab] || []).map(function(p) {
+    return '<div class="sort-opt' + (p === def ? ' active' : '') + '" data-period="' + p + '" onclick="pickRptPeriod(this)">' + p + '</div>';
+  }).join('');
+  var triggerHtml = '<div class="sort-wrap" id="rpt-period-wrap"><button class="sort-trigger" onclick="toggleSortPop(\'rpt-period-pop\')"><span id="rpt-period-label">' + def + '</span><span class="sort-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="6" fill="none"><path d="M1 1l4 4 4-4" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button><div class="sort-pop" id="rpt-period-pop">' + optsHtml + '</div></div>';
+  var ctrl = document.querySelector('.rpt-controls');
+  if (ctrl) ctrl.innerHTML = triggerHtml + '<button class="btn btn-secondary btn-md"><span class="mi" style="font-size:18px">download</span> Export</button>';
+
+  // Render with default period
+  renderReportsPeriod(tab, def);
+}
+function pickRptPeriod(el) {
+  var period = el.getAttribute('data-period');
+  var pop = document.getElementById('rpt-period-pop');
+  if (pop) {
+    pop.querySelectorAll('.sort-opt').forEach(function(o) { o.classList.remove('active'); });
+    el.classList.add('active');
+  }
+  var label = document.getElementById('rpt-period-label');
+  if (label) label.textContent = period;
+  var wrap = document.getElementById('rpt-period-wrap');
+  if (wrap) wrap.classList.remove('open');
+  if (pop) pop.classList.remove('open');
+  var tab = document.querySelector('#reports-chips .seg-btn.active');
+  var tabMap = { 'Bid Performance':'bid', 'Production':'production', 'Quality':'quality', 'Utilization':'utilization' };
+  var currentTab = tab ? tabMap[tab.textContent] : 'bid';
+  renderReportsPeriod(currentTab, period);
+}
+// Report period data and rendering functions
+var rptPeriodData = {
+  bid: {
+    '3M': {
+      kpis: [
+        { label: '3mo Hit Rate', value: '38%', sub: '12 won / 32 submitted', color: 'var(--success)', bars: [14,15,18] },
+        { label: 'Avg Quote Cycle', value: '3.8 days', sub: 'Target: 3.5 days', color: 'var(--yellow)', bars: [16,15,14] },
+        { label: 'Avg Margin', value: '23.1%', sub: '+1.8% vs 12mo', color: 'var(--success)', bars: [20,22,24] },
+        { label: 'Pipeline Value', value: '$312K', sub: '8 active RFQs', color: 'var(--cyan-400)', bars: [18,20,22] }
+      ],
+      hitrateShipyard: [
+        { name: 'HII-Ingalls', pct: 45, ratio: '5/11', color: 'var(--success)' },
+        { name: 'Electric Boat', pct: 40, ratio: '2/5', color: 'var(--success)' },
+        { name: 'Bath Iron Works', pct: 36, ratio: '4/11', color: 'var(--success)' },
+        { name: 'HII-Newport News', pct: 33, ratio: '1/3', color: 'var(--yellow)' },
+        { name: 'GD-NASSCO', pct: 25, ratio: '1/4', color: 'var(--yellow)' },
+        { name: 'Fincantieri Marinette', pct: 20, ratio: '0/1', color: 'var(--danger)' },
+        { name: 'Austal USA', pct: 0, ratio: '0/2', color: 'var(--danger)' }
+      ],
+      marginProgram: [
+        { name: 'DDG-51', pct: 27.2, barPct: 90 },
+        { name: 'CVN-81', pct: 24.1, barPct: 79 },
+        { name: 'SSN-810', pct: 20.5, barPct: 67 },
+        { name: 'LPD-32', pct: 18.3, barPct: 60 },
+        { name: 'FFG-62', pct: 16.0, barPct: 53 }
+      ],
+      cycleTrend: [
+        { label: 'Dec', val: 3.8 },
+        { label: 'Jan', val: 3.9 },
+        { label: 'Feb', val: 3.5 }
+      ],
+      hitrateCustomer: [
+        { name: 'HII-Ingalls', pct: 45, color: 'var(--success)' },
+        { name: 'Electric Boat', pct: 40, color: 'var(--success)' },
+        { name: 'Bath Iron Works', pct: 36, color: 'var(--success)' },
+        { name: 'HII-Newport News', pct: 33, color: 'var(--yellow)' },
+        { name: 'GD-NASSCO', pct: 25, color: 'var(--yellow)' },
+        { name: 'Fincantieri Marinette', pct: 20, color: 'var(--danger)' },
+        { name: 'Austal USA', pct: 0, color: 'var(--danger)' }
+      ],
+      bidHistory: [
+        { rfq: 'RFQ-2026-089', yard: 'HII-Ingalls', prog: 'DDG-51', val: '$48K', margin: '28.2%', marginColor: 'var(--success)', cycle: '2.1d', result: 'Won', badgeClass: 'badge-green' },
+        { rfq: 'RFQ-2026-085', yard: 'Bath Iron Works', prog: 'DDG-51', val: '$62K', margin: '24.5%', marginColor: 'var(--success)', cycle: '3.8d', result: 'Won', badgeClass: 'badge-green' },
+        { rfq: 'RFQ-2026-082', yard: 'HII-Newport News', prog: 'CVN-81', val: '$95K', margin: '18.3%', marginColor: 'var(--warning)', cycle: '5.2d', result: 'Lost', badgeClass: 'badge-red' }
+      ]
+    },
+    '6M': {
+      kpis: [
+        { label: '6mo Hit Rate', value: '35%', sub: '20 won / 57 submitted', color: 'var(--success)', bars: [10,11,12,13,14,16] },
+        { label: 'Avg Quote Cycle', value: '4.0 days', sub: 'Target: 3.5 days', color: 'var(--yellow)', bars: [18,19,20,19,18,17] },
+        { label: 'Avg Margin', value: '22.5%', sub: '+1.0% vs 12mo', color: 'var(--success)', bars: [16,17,18,19,21,22] },
+        { label: 'Pipeline Value', value: '$523K', sub: '15 active RFQs', color: 'var(--cyan-400)', bars: [12,13,15,17,19,21] }
+      ],
+      hitrateShipyard: [
+        { name: 'HII-Ingalls', pct: 42, ratio: '9/21', color: 'var(--success)' },
+        { name: 'Bath Iron Works', pct: 38, ratio: '8/21', color: 'var(--success)' },
+        { name: 'Electric Boat', pct: 35, ratio: '3/9', color: 'var(--success)' },
+        { name: 'HII-Newport News', pct: 32, ratio: '4/13', color: 'var(--yellow)' },
+        { name: 'GD-NASSCO', pct: 26, ratio: '2/8', color: 'var(--yellow)' },
+        { name: 'Fincantieri Marinette', pct: 17, ratio: '1/6', color: 'var(--danger)' },
+        { name: 'Austal USA', pct: 13, ratio: '1/8', color: 'var(--danger)' }
+      ],
+      marginProgram: [
+        { name: 'DDG-51', pct: 26.1, barPct: 87 },
+        { name: 'CVN-81', pct: 23.2, barPct: 77 },
+        { name: 'SSN-810', pct: 20.1, barPct: 67 },
+        { name: 'LPD-32', pct: 17.8, barPct: 59 },
+        { name: 'FFG-62', pct: 15.6, barPct: 52 }
+      ],
+      cycleTrend: [
+        { label: 'Sep', val: 4.1 },
+        { label: 'Oct', val: 3.8 },
+        { label: 'Nov', val: 4.0 },
+        { label: 'Dec', val: 3.8 },
+        { label: 'Jan', val: 3.9 },
+        { label: 'Feb', val: 3.5 }
+      ],
+      hitrateCustomer: [
+        { name: 'HII-Ingalls', pct: 42, color: 'var(--success)' },
+        { name: 'Bath Iron Works', pct: 38, color: 'var(--success)' },
+        { name: 'Electric Boat', pct: 35, color: 'var(--success)' },
+        { name: 'HII-Newport News', pct: 32, color: 'var(--yellow)' },
+        { name: 'GD-NASSCO', pct: 26, color: 'var(--yellow)' },
+        { name: 'Fincantieri Marinette', pct: 17, color: 'var(--danger)' },
+        { name: 'Austal USA', pct: 13, color: 'var(--danger)' }
+      ],
+      bidHistory: [
+        { rfq: 'RFQ-2026-089', yard: 'HII-Ingalls', prog: 'DDG-51', val: '$48K', margin: '28.2%', marginColor: 'var(--success)', cycle: '2.1d', result: 'Won', badgeClass: 'badge-green' },
+        { rfq: 'RFQ-2026-085', yard: 'Bath Iron Works', prog: 'DDG-51', val: '$62K', margin: '24.5%', marginColor: 'var(--success)', cycle: '3.8d', result: 'Won', badgeClass: 'badge-green' },
+        { rfq: 'RFQ-2026-082', yard: 'HII-Newport News', prog: 'CVN-81', val: '$95K', margin: '18.3%', marginColor: 'var(--warning)', cycle: '5.2d', result: 'Lost', badgeClass: 'badge-red' },
+        { rfq: 'RFQ-2026-078', yard: 'HII-Ingalls', prog: 'LPD-32', val: '$34K', margin: '22.1%', marginColor: 'var(--success)', cycle: '2.8d', result: 'Won', badgeClass: 'badge-green' },
+        { rfq: 'RFQ-2026-071', yard: 'GD-NASSCO', prog: 'FFG-62', val: '$41K', margin: '14.8%', marginColor: 'var(--danger)', cycle: '6.1d', result: 'Lost', badgeClass: 'badge-red' },
+        { rfq: 'RFQ-2026-068', yard: 'Electric Boat', prog: 'SSN-810', val: '$78K', margin: '19.2%', marginColor: 'var(--warning)', cycle: '4.5d', result: 'Won', badgeClass: 'badge-green' }
+      ]
+    },
+    '12M': {
+      kpis: [
+        { label: '12mo Hit Rate', value: '34%', sub: '47 won / 138 submitted', color: 'var(--success)', bars: [8,10,9,12,11,14,13,15,14,18,17,20] },
+        { label: 'Avg Quote Cycle', value: '4.2 days', sub: 'Target: 3.5 days', color: 'var(--yellow)', bars: [26,25,26,24,23,22,22,20,19,18,17,16] },
+        { label: 'Avg Margin', value: '22.4%', sub: '+2.1% vs prior year', color: 'var(--success)', bars: [12,13,14,14,16,17,18,19,20,22,24,26] },
+        { label: 'Pipeline Value', value: '$734K', sub: '22 active RFQs', color: 'var(--cyan-400)', bars: [14,16,15,18,17,20,19,22,21,24,26,28] }
+      ],
+      hitrateShipyard: [
+        { name: 'HII-Ingalls', pct: 42, ratio: '18/43', color: 'var(--success)' },
+        { name: 'Bath Iron Works', pct: 38, ratio: '15/39', color: 'var(--success)' },
+        { name: 'Electric Boat', pct: 35, ratio: '7/20', color: 'var(--success)' },
+        { name: 'HII-Newport News', pct: 29, ratio: '9/31', color: 'var(--yellow)' },
+        { name: 'GD-NASSCO', pct: 25, ratio: '5/20', color: 'var(--yellow)' },
+        { name: 'Fincantieri Marinette', pct: 20, ratio: '2/10', color: 'var(--danger)' },
+        { name: 'Austal USA', pct: 17, ratio: '2/12', color: 'var(--danger)' }
+      ],
+      marginProgram: [
+        { name: 'DDG-51', pct: 26.1, barPct: 86 },
+        { name: 'CVN-81', pct: 22.8, barPct: 75 },
+        { name: 'SSN-810', pct: 19.7, barPct: 65 },
+        { name: 'LPD-32', pct: 17.1, barPct: 56 },
+        { name: 'FFG-62', pct: 15.2, barPct: 50 }
+      ],
+      cycleTrend: [
+        { label: 'Mar', val: 5.1 },
+        { label: 'Apr', val: 4.8 },
+        { label: 'May', val: 4.5 },
+        { label: 'Jun', val: 5.0 },
+        { label: 'Jul', val: 4.6 },
+        { label: 'Aug', val: 4.3 },
+        { label: 'Sep', val: 4.1 },
+        { label: 'Oct', val: 3.8 },
+        { label: 'Nov', val: 4.0 },
+        { label: 'Dec', val: 3.5 },
+        { label: 'Jan', val: 3.9 },
+        { label: 'Feb', val: 4.2 }
+      ],
+      hitrateCustomer: [
+        { name: 'HII-Ingalls', pct: 42, color: 'var(--success)' },
+        { name: 'Electric Boat', pct: 40, color: 'var(--success)' },
+        { name: 'Bath Iron Works', pct: 34, color: 'var(--success)' },
+        { name: 'HII-Newport News', pct: 29, color: 'var(--yellow)' },
+        { name: 'GD-NASSCO', pct: 24, color: 'var(--yellow)' },
+        { name: 'Fincantieri Marinette', pct: 20, color: 'var(--danger)' },
+        { name: 'Austal USA', pct: 17, color: 'var(--danger)' }
+      ],
+      bidHistory: [
+        { rfq: 'RFQ-2026-089', yard: 'HII-Ingalls', prog: 'DDG-51', val: '$48K', margin: '28.2%', marginColor: 'var(--success)', cycle: '2.1d', result: 'Won', badgeClass: 'badge-green' },
+        { rfq: 'RFQ-2026-085', yard: 'Bath Iron Works', prog: 'DDG-51', val: '$62K', margin: '24.5%', marginColor: 'var(--success)', cycle: '3.8d', result: 'Won', badgeClass: 'badge-green' },
+        { rfq: 'RFQ-2026-082', yard: 'HII-Newport News', prog: 'CVN-81', val: '$95K', margin: '18.3%', marginColor: 'var(--warning)', cycle: '5.2d', result: 'Lost', badgeClass: 'badge-red' },
+        { rfq: 'RFQ-2026-078', yard: 'HII-Ingalls', prog: 'LPD-32', val: '$34K', margin: '22.1%', marginColor: 'var(--success)', cycle: '2.8d', result: 'Won', badgeClass: 'badge-green' },
+        { rfq: 'RFQ-2026-071', yard: 'GD-NASSCO', prog: 'FFG-62', val: '$41K', margin: '14.8%', marginColor: 'var(--danger)', cycle: '6.1d', result: 'Lost', badgeClass: 'badge-red' },
+        { rfq: 'RFQ-2026-068', yard: 'Electric Boat', prog: 'SSN-810', val: '$78K', margin: '19.2%', marginColor: 'var(--warning)', cycle: '4.5d', result: 'Won', badgeClass: 'badge-green' },
+        { rfq: 'RFQ-2026-065', yard: 'HII-Ingalls', prog: 'DDG-51', val: '$55K', margin: '25.7%', marginColor: 'var(--success)', cycle: '3.2d', result: 'Won', badgeClass: 'badge-green' },
+        { rfq: 'RFQ-2026-059', yard: 'GD-NASSCO', prog: 'T-AO-205', val: '$120K', margin: '16.9%', marginColor: 'var(--warning)', cycle: '5.8d', result: 'Lost', badgeClass: 'badge-red' },
+        { rfq: 'RFQ-2026-054', yard: 'Electric Boat', prog: 'SSN-810', val: '$145K', margin: '18.8%', marginColor: 'var(--warning)', cycle: '4.8d', result: 'Won', badgeClass: 'badge-green' },
+        { rfq: 'RFQ-2026-048', yard: 'Fincantieri Marinette', prog: 'FFG-62', val: '$38K', margin: '12.4%', marginColor: 'var(--danger)', cycle: '5.5d', result: 'Lost', badgeClass: 'badge-red' }
+      ]
+    },
+    'YTD': {
+      kpis: [
+        { label: 'YTD Hit Rate', value: '36%', sub: '8 won / 22 submitted', color: 'var(--success)', bars: [17,20] },
+        { label: 'Avg Quote Cycle', value: '3.7 days', sub: 'Target: 3.5 days', color: 'var(--yellow)', bars: [14,13] },
+        { label: 'Avg Margin', value: '23.8%', sub: '+2.9% vs full year', color: 'var(--success)', bars: [24,26] },
+        { label: 'Pipeline Value', value: '$218K', sub: '5 active RFQs', color: 'var(--cyan-400)', bars: [18,20] }
+      ],
+      hitrateShipyard: [
+        { name: 'HII-Ingalls', pct: 50, ratio: '3/6', color: 'var(--success)' },
+        { name: 'Bath Iron Works', pct: 40, ratio: '2/5', color: 'var(--success)' },
+        { name: 'Electric Boat', pct: 50, ratio: '1/2', color: 'var(--success)' },
+        { name: 'HII-Newport News', pct: 25, ratio: '1/4', color: 'var(--yellow)' },
+        { name: 'GD-NASSCO', pct: 33, ratio: '1/3', color: 'var(--yellow)' },
+        { name: 'Fincantieri Marinette', pct: 0, ratio: '0/1', color: 'var(--danger)' },
+        { name: 'Austal USA', pct: 0, ratio: '0/1', color: 'var(--danger)' }
+      ],
+      marginProgram: [
+        { name: 'DDG-51', pct: 28.5, barPct: 95 },
+        { name: 'CVN-81', pct: 24.3, barPct: 81 },
+        { name: 'SSN-810', pct: 21.2, barPct: 70 },
+        { name: 'LPD-32', pct: 19.4, barPct: 64 },
+        { name: 'FFG-62', pct: 16.8, barPct: 56 }
+      ],
+      cycleTrend: [
+        { label: 'Jan', val: 3.9 },
+        { label: 'Feb', val: 3.5 }
+      ],
+      hitrateCustomer: [
+        { name: 'HII-Ingalls', pct: 50, color: 'var(--success)' },
+        { name: 'Electric Boat', pct: 50, color: 'var(--success)' },
+        { name: 'Bath Iron Works', pct: 40, color: 'var(--success)' },
+        { name: 'GD-NASSCO', pct: 33, color: 'var(--yellow)' },
+        { name: 'HII-Newport News', pct: 25, color: 'var(--yellow)' },
+        { name: 'Fincantieri Marinette', pct: 0, color: 'var(--danger)' },
+        { name: 'Austal USA', pct: 0, color: 'var(--danger)' }
+      ],
+      bidHistory: [
+        { rfq: 'RFQ-2026-089', yard: 'HII-Ingalls', prog: 'DDG-51', val: '$48K', margin: '28.2%', marginColor: 'var(--success)', cycle: '2.1d', result: 'Won', badgeClass: 'badge-green' },
+        { rfq: 'RFQ-2026-085', yard: 'Bath Iron Works', prog: 'DDG-51', val: '$62K', margin: '24.5%', marginColor: 'var(--success)', cycle: '3.8d', result: 'Won', badgeClass: 'badge-green' },
+        { rfq: 'RFQ-2026-082', yard: 'HII-Newport News', prog: 'CVN-81', val: '$95K', margin: '18.3%', marginColor: 'var(--warning)', cycle: '5.2d', result: 'Lost', badgeClass: 'badge-red' }
+      ]
+    }
+  },
+  production: {
+    'Today': {
+      kpis: [
+        { label: 'Active Jobs (Today)', value: '6', sub: '2 due today', color: 'var(--cyan-400)', bars: [13] },
+        { label: 'On-Time Rate', value: '92%', sub: '+5% vs week avg', color: 'var(--success)', bars: [25] },
+        { label: 'Overdue Jobs', value: '1', sub: '0 critical', color: 'var(--warning)', bars: [1] },
+        { label: 'Throughput', value: '5.2 jobs', sub: 'On pace for 4.3/wk', color: '#fff', bars: [17] }
+      ],
+      readiness: [
+        { name: 'Planned', count: 1, pct: 17, color: 'var(--steel-500)' },
+        { name: 'RTW Ready', count: 1, pct: 17, color: 'var(--yellow)' },
+        { name: 'RTW Released', count: 1, pct: 17, color: 'var(--cyan-500)' },
+        { name: 'In Work', count: 2, pct: 33, color: 'var(--success)' },
+        { name: 'Complete', count: 1, pct: 16, color: 'var(--teal-500)' }
+      ],
+      schedule: [
+        { label: 'On Track', count: 4, pct: 67, color: 'var(--success)' },
+        { label: 'At Risk', count: 1, pct: 16, color: 'var(--yellow)' },
+        { label: 'Behind', count: 1, pct: 17, color: 'var(--danger)' }
+      ],
+      costJobs: [
+        { name: 'J-2026-038', estPct: 75, color: 'var(--success)' },
+        { name: 'J-2026-042', estPct: 30, color: 'var(--cyan-500)' },
+        { name: 'J-2026-031', estPct: 60, color: 'var(--warning)' }
+      ],
+      pipeline: [
+        { stage: 'New RFQ', value: '$95K', barPct: 35, color: 'var(--cyan-500)' },
+        { stage: 'Quoting', value: '$68K', barPct: 25, color: 'var(--yellow)' },
+        { stage: 'Submitted', value: '$54K', barPct: 20, color: 'var(--warning)' },
+        { stage: 'Awarded', value: '$40K', barPct: 15, color: 'var(--success)' }
+      ],
+      jobs: [
+        { id: 'J-2026-038', part: 'Valve body', prog: 'DDG-51', status: 'In Work', statusBadge: 'badge-green', due: 'Today', progress: 75, progressColor: 'green', health: 'On Track', healthColor: 'success' },
+        { id: 'J-2026-042', part: 'Pump bracket', prog: 'CVN-81', status: 'RTW Released', statusBadge: 'badge-cyan', due: 'Mar 15', progress: 30, progressColor: 'cyan', health: 'On Track', healthColor: 'success' },
+        { id: 'J-2026-031', part: 'Motor mount', prog: 'DDG-51', status: 'In Work', statusBadge: 'badge-green', due: 'Feb 28', progress: 60, progressColor: 'orange', health: 'Behind', healthColor: 'danger' }
+      ]
+    },
+    'This Week': {
+      kpis: [
+        { label: 'Active Jobs (Week)', value: '14', sub: '5 due this week', color: 'var(--cyan-400)', bars: [13,14,15,16,17] },
+        { label: 'On-Time Rate', value: '89%', sub: '+3% vs month avg', color: 'var(--success)', bars: [22,22,23,24,24] },
+        { label: 'Overdue Jobs', value: '2', sub: '0 critical', color: 'var(--warning)', bars: [2,2,1,1,2] },
+        { label: 'Throughput', value: '4.1 jobs/wk', sub: 'Weekly average', color: '#fff', bars: [13,13,14,15,16] }
+      ],
+      readiness: [
+        { name: 'Planned', count: 2, pct: 14, color: 'var(--steel-500)' },
+        { name: 'RTW Ready', count: 3, pct: 21, color: 'var(--yellow)' },
+        { name: 'RTW Released', count: 3, pct: 21, color: 'var(--cyan-500)' },
+        { name: 'In Work', count: 4, pct: 29, color: 'var(--success)' },
+        { name: 'Complete', count: 2, pct: 15, color: 'var(--teal-500)' }
+      ],
+      schedule: [
+        { label: 'On Track', count: 10, pct: 71, color: 'var(--success)' },
+        { label: 'At Risk', count: 2, pct: 14, color: 'var(--yellow)' },
+        { label: 'Behind', count: 2, pct: 15, color: 'var(--danger)' }
+      ],
+      costJobs: [
+        { name: 'J-2026-038', estPct: 75, color: 'var(--success)' },
+        { name: 'J-2026-042', estPct: 30, color: 'var(--cyan-500)' },
+        { name: 'J-2026-031', estPct: 60, color: 'var(--warning)' },
+        { name: 'J-2026-047', estPct: 10, color: 'var(--yellow)' }
+      ],
+      pipeline: [
+        { stage: 'New RFQ', value: '$198K', barPct: 32, color: 'var(--cyan-500)' },
+        { stage: 'Quoting', value: '$165K', barPct: 27, color: 'var(--yellow)' },
+        { stage: 'Submitted', value: '$142K', barPct: 23, color: 'var(--warning)' },
+        { stage: 'Awarded', value: '$112K', barPct: 18, color: 'var(--success)' }
+      ],
+      jobs: [
+        { id: 'J-2026-038', part: 'Valve body', prog: 'DDG-51', status: 'In Work', statusBadge: 'badge-green', due: 'Mar 5', progress: 75, progressColor: 'green', health: 'On Track', healthColor: 'success' },
+        { id: 'J-2026-042', part: 'Pump bracket', prog: 'CVN-81', status: 'RTW Released', statusBadge: 'badge-cyan', due: 'Mar 15', progress: 30, progressColor: 'cyan', health: 'On Track', healthColor: 'success' },
+        { id: 'J-2026-031', part: 'Motor mount', prog: 'DDG-51', status: 'In Work', statusBadge: 'badge-green', due: 'Feb 28', progress: 60, progressColor: 'orange', health: 'Behind', healthColor: 'danger' },
+        { id: 'J-2026-047', part: 'Bearing housing', prog: 'FFG-62', status: 'RTW Ready', statusBadge: 'badge-yellow', due: 'Mar 25', progress: 10, progressColor: 'yellow', health: 'At Risk', healthColor: 'yellow' }
+      ]
+    },
+    'This Month': {
+      kpis: [
+        { label: 'Active Jobs (Month)', value: '18', sub: '6 due this month', color: 'var(--cyan-400)', bars: [16,17,18,19] },
+        { label: 'On-Time Rate', value: '87%', sub: '+5% vs last month', color: 'var(--success)', bars: [22,23,24,25] },
+        { label: 'Overdue Jobs', value: '3', sub: '2 critical', color: 'var(--danger)', bars: [3,2,2,3] },
+        { label: 'Throughput', value: '4.0 jobs/wk', sub: 'Month-to-date average', color: '#fff', bars: [13,13,14,14] }
+      ],
+      readiness: [
+        { name: 'Planned', count: 2, pct: 11, color: 'var(--steel-500)' },
+        { name: 'RTW Ready', count: 3, pct: 17, color: 'var(--yellow)' },
+        { name: 'RTW Released', count: 4, pct: 22, color: 'var(--cyan-500)' },
+        { name: 'In Work', count: 6, pct: 33, color: 'var(--success)' },
+        { name: 'Complete', count: 3, pct: 17, color: 'var(--teal-500)' }
+      ],
+      schedule: [
+        { label: 'On Track', count: 12, pct: 67, color: 'var(--success)' },
+        { label: 'At Risk', count: 3, pct: 17, color: 'var(--yellow)' },
+        { label: 'Behind', count: 3, pct: 16, color: 'var(--danger)' }
+      ],
+      costJobs: [
+        { name: 'J-2026-038', estPct: 92, color: 'var(--success)' },
+        { name: 'J-2026-031', estPct: 108, color: 'var(--warning)' },
+        { name: 'J-2026-042', estPct: 64, color: 'var(--success)' },
+        { name: 'J-2026-028', estPct: 124, color: 'var(--danger)' }
+      ],
+      pipeline: [
+        { stage: 'New RFQ', value: '$278K', barPct: 35, color: 'var(--cyan-500)' },
+        { stage: 'Quoting', value: '$215K', barPct: 27, color: 'var(--yellow)' },
+        { stage: 'Submitted', value: '$184K', barPct: 23, color: 'var(--warning)' },
+        { stage: 'Awarded', value: '$131K', barPct: 15, color: 'var(--success)' }
+      ],
+      jobs: [
+        { id: 'J-2026-038', part: 'Valve body', prog: 'DDG-51', status: 'In Work', statusBadge: 'badge-green', due: 'Mar 5', progress: 75, progressColor: 'green', health: 'On Track', healthColor: 'success' },
+        { id: 'J-2026-042', part: 'Pump bracket', prog: 'CVN-81', status: 'RTW Released', statusBadge: 'badge-cyan', due: 'Mar 15', progress: 30, progressColor: 'cyan', health: 'On Track', healthColor: 'success' },
+        { id: 'J-2026-031', part: 'Motor mount', prog: 'DDG-51', status: 'In Work', statusBadge: 'badge-green', due: 'Feb 28', progress: 60, progressColor: 'orange', health: 'Behind', healthColor: 'danger' },
+        { id: 'J-2026-028', part: 'Hatch frame', prog: 'SSN-810', status: 'NCR Rework', statusBadge: 'badge-red', due: 'Mar 10', progress: 45, progressColor: 'orange', health: 'Behind', healthColor: 'danger' },
+        { id: 'J-2026-045', part: 'Pipe spool', prog: 'LPD-32', status: 'RTW Ready', statusBadge: 'badge-yellow', due: 'Mar 20', progress: 10, progressColor: 'yellow', health: 'At Risk', healthColor: 'yellow' },
+        { id: 'J-2026-047', part: 'Bearing housing', prog: 'FFG-62', status: 'In Work', statusBadge: 'badge-green', due: 'Mar 25', progress: 55, progressColor: 'green', health: 'On Track', healthColor: 'success' }
+      ]
+    },
+    'Quarter': {
+      kpis: [
+        { label: 'Active Jobs (Q1)', value: '22', sub: '12 due this quarter', color: 'var(--cyan-400)', bars: [18,19,21] },
+        { label: 'On-Time Rate', value: '84%', sub: '+2% vs Q4', color: 'var(--success)', bars: [21,23,24] },
+        { label: 'Overdue Jobs', value: '5', sub: '3 critical', color: 'var(--danger)', bars: [3,4,5] },
+        { label: 'Throughput', value: '4.1 jobs/wk', sub: 'Quarterly average', color: '#fff', bars: [13,14,15] }
+      ],
+      readiness: [
+        { name: 'Planned', count: 3, pct: 14, color: 'var(--steel-500)' },
+        { name: 'RTW Ready', count: 4, pct: 18, color: 'var(--yellow)' },
+        { name: 'RTW Released', count: 5, pct: 23, color: 'var(--cyan-500)' },
+        { name: 'In Work', count: 7, pct: 32, color: 'var(--success)' },
+        { name: 'Complete', count: 3, pct: 13, color: 'var(--teal-500)' }
+      ],
+      schedule: [
+        { label: 'On Track', count: 14, pct: 64, color: 'var(--success)' },
+        { label: 'At Risk', count: 4, pct: 18, color: 'var(--yellow)' },
+        { label: 'Behind', count: 4, pct: 18, color: 'var(--danger)' }
+      ],
+      costJobs: [
+        { name: 'J-2026-038', estPct: 92, color: 'var(--success)' },
+        { name: 'J-2026-031', estPct: 108, color: 'var(--warning)' },
+        { name: 'J-2026-042', estPct: 64, color: 'var(--success)' },
+        { name: 'J-2026-028', estPct: 124, color: 'var(--danger)' },
+        { name: 'J-2026-051', estPct: 87, color: 'var(--success)' },
+        { name: 'J-2026-053', estPct: 115, color: 'var(--warning)' }
+      ],
+      pipeline: [
+        { stage: 'New RFQ', value: '$412K', barPct: 36, color: 'var(--cyan-500)' },
+        { stage: 'Quoting', value: '$298K', barPct: 26, color: 'var(--yellow)' },
+        { stage: 'Submitted', value: '$276K', barPct: 24, color: 'var(--warning)' },
+        { stage: 'Awarded', value: '$155K', barPct: 14, color: 'var(--success)' }
+      ],
+      jobs: [
+        { id: 'J-2026-038', part: 'Valve body', prog: 'DDG-51', status: 'In Work', statusBadge: 'badge-green', due: 'Mar 5', progress: 75, progressColor: 'green', health: 'On Track', healthColor: 'success' },
+        { id: 'J-2026-042', part: 'Pump bracket', prog: 'CVN-81', status: 'RTW Released', statusBadge: 'badge-cyan', due: 'Mar 15', progress: 30, progressColor: 'cyan', health: 'On Track', healthColor: 'success' },
+        { id: 'J-2026-031', part: 'Motor mount', prog: 'DDG-51', status: 'In Work', statusBadge: 'badge-green', due: 'Feb 28', progress: 60, progressColor: 'orange', health: 'Behind', healthColor: 'danger' },
+        { id: 'J-2026-028', part: 'Hatch frame', prog: 'SSN-810', status: 'NCR Rework', statusBadge: 'badge-red', due: 'Mar 10', progress: 45, progressColor: 'orange', health: 'Behind', healthColor: 'danger' },
+        { id: 'J-2026-045', part: 'Pipe spool', prog: 'LPD-32', status: 'RTW Ready', statusBadge: 'badge-yellow', due: 'Mar 20', progress: 10, progressColor: 'yellow', health: 'At Risk', healthColor: 'yellow' },
+        { id: 'J-2026-047', part: 'Bearing housing', prog: 'FFG-62', status: 'In Work', statusBadge: 'badge-green', due: 'Mar 25', progress: 55, progressColor: 'green', health: 'On Track', healthColor: 'success' },
+        { id: 'J-2026-051', part: 'Propeller hub', prog: 'DDG-51', status: 'Planned', statusBadge: 'badge-orange', due: 'Apr 10', progress: 5, progressColor: 'yellow', health: 'On Track', healthColor: 'success' },
+        { id: 'J-2026-053', part: 'Main bearing', prog: 'CVN-81', status: 'RTW Ready', statusBadge: 'badge-yellow', due: 'Apr 5', progress: 15, progressColor: 'yellow', health: 'At Risk', healthColor: 'yellow' }
+      ]
+    }
+  },
+  quality: {
+    'This Month': {
+      kpis: [
+        { label: 'Open NCRs (Month)', value: '4', sub: '1 critical', color: 'var(--danger)', bars: [4,4,5,6] },
+        { label: 'First Pass Yield', value: '95.8%', sub: 'Target: 95%', color: 'var(--success)', bars: [24,25,25,26] },
+        { label: 'Avg NCR Resolution', value: '2.1 days', sub: 'Target: 2 days', color: 'var(--success)', bars: [18,17,16,16] },
+        { label: 'Customer Rejections', value: '0', sub: 'this month', color: 'var(--success)', bars: [2,1,1,0] }
+      ],
+      rootCause: [
+        { name: 'Weld defect', count: 2, barPct: 50, color: 'var(--danger)' },
+        { name: 'Dimension OOT', count: 1, barPct: 25, color: 'var(--warning)' },
+        { name: 'Surface finish', count: 1, barPct: 25, color: 'var(--steel-500)' }
+      ],
+      ncrTrend: [
+        { label: 'Jan', val: 6, color: 'var(--danger)' },
+        { label: 'Feb', val: 4, color: 'var(--warning)' }
+      ],
+      ncrByWC: [
+        { name: 'Weld Cell 2', count: 2, barPct: 50, color: 'var(--danger)' },
+        { name: 'Haas VF-4', count: 1, barPct: 25, color: 'var(--warning)' },
+        { name: 'NDT Lab', count: 1, barPct: 25, color: 'var(--steel-500)' }
+      ],
+      fpyByWC: [
+        { name: 'Saw Bay', pct: 99.1, color: 'var(--success)' },
+        { name: 'NDT Lab', pct: 98.5, color: 'var(--success)' },
+        { name: 'Haas VF-4', pct: 96.2, color: 'var(--success)' },
+        { name: 'Weld Cell 2', pct: 91.4, color: 'var(--warning)' }
+      ],
+      ncrs: [
+        { id: 'NCR-0045', job: 'J-2026-055', part: 'Coupling', cause: 'Weld defect', severity: 'Critical', sevColor: 'danger', age: '2d', status: 'Open', statusBadge: 'badge-red' },
+        { id: 'NCR-0044', job: 'J-2026-051', part: 'Propeller hub', cause: 'Dimension OOT', severity: 'Major', sevColor: 'warning', age: '1d', status: 'Under Review', statusBadge: 'badge-yellow' },
+        { id: 'NCR-0043', job: 'J-2026-042', part: 'Pump bracket', cause: 'Surface finish', severity: 'Minor', sevColor: 'yellow', age: '3d', status: 'Disposition', statusBadge: 'badge-cyan' },
+        { id: 'NCR-0042', job: 'J-2026-038', part: 'Valve body', cause: 'Weld defect', severity: 'Major', sevColor: 'warning', age: '5d', status: 'Rework', statusBadge: 'badge-orange' }
+      ]
+    },
+    'Quarter': {
+      kpis: [
+        { label: 'Open NCRs (Q1)', value: '7', sub: '3 critical', color: 'var(--danger)', bars: [7,8,9] },
+        { label: 'First Pass Yield', value: '94.2%', sub: 'Target: 95%', color: 'var(--yellow)', bars: [23,24,25] },
+        { label: 'Avg NCR Resolution', value: '3.4 days', sub: 'Target: 2 days', color: 'var(--yellow)', bars: [18,17,18] },
+        { label: 'Customer Rejections', value: '1', sub: 'this quarter', color: 'var(--warning)', bars: [2,1,1] }
+      ],
+      rootCause: [
+        { name: 'Weld defect', count: 8, barPct: 40, color: 'var(--danger)' },
+        { name: 'Dimension OOT', count: 6, barPct: 30, color: 'var(--warning)' },
+        { name: 'Material cert', count: 3, barPct: 15, color: 'var(--yellow)' },
+        { name: 'Surface finish', count: 2, barPct: 10, color: 'var(--steel-500)' },
+        { name: 'Process error', count: 1, barPct: 5, color: 'var(--steel-500)' }
+      ],
+      ncrTrend: [
+        { label: 'Dec', val: 3, color: 'var(--yellow)' },
+        { label: 'Jan', val: 7, color: 'var(--danger)' },
+        { label: 'Feb', val: 4, color: 'var(--warning)' }
+      ],
+      ncrByWC: [
+        { name: 'Weld Cell 2', count: 5, barPct: 50, color: 'var(--danger)' },
+        { name: 'Haas VF-4', count: 3, barPct: 30, color: 'var(--warning)' },
+        { name: 'Saw Bay', count: 1, barPct: 10, color: 'var(--steel-500)' },
+        { name: 'NDT Lab', count: 1, barPct: 10, color: 'var(--steel-500)' }
+      ],
+      fpyByWC: [
+        { name: 'Saw Bay', pct: 99.1, color: 'var(--success)' },
+        { name: 'NDT Lab', pct: 98.5, color: 'var(--success)' },
+        { name: 'Haas VF-4', pct: 94.8, color: 'var(--yellow)' },
+        { name: 'Weld Cell 2', pct: 88.3, color: 'var(--danger)' }
+      ],
+      ncrs: [
+        { id: 'NCR-0041', job: 'J-2026-028', part: 'Hatch frame', cause: 'Weld defect', severity: 'Critical', sevColor: 'danger', age: '8d', status: 'Open', statusBadge: 'badge-red' },
+        { id: 'NCR-0040', job: 'J-2026-031', part: 'Motor mount', cause: 'Dimension OOT', severity: 'Critical', sevColor: 'danger', age: '5d', status: 'Under Review', statusBadge: 'badge-yellow' },
+        { id: 'NCR-0039', job: 'J-2026-038', part: 'Valve body', cause: 'Weld defect', severity: 'Major', sevColor: 'warning', age: '4d', status: 'Under Review', statusBadge: 'badge-yellow' },
+        { id: 'NCR-0038', job: 'J-2026-042', part: 'Pump bracket', cause: 'Material cert', severity: 'Minor', sevColor: 'yellow', age: '3d', status: 'Disposition', statusBadge: 'badge-cyan' },
+        { id: 'NCR-0037', job: 'J-2026-047', part: 'Bearing housing', cause: 'Surface finish', severity: 'Minor', sevColor: 'yellow', age: '2d', status: 'Under Review', statusBadge: 'badge-yellow' },
+        { id: 'NCR-0036', job: 'J-2026-028', part: 'Hatch frame', cause: 'Weld defect', severity: 'Critical', sevColor: 'danger', age: '12d', status: 'Rework', statusBadge: 'badge-orange' },
+        { id: 'NCR-0035', job: 'J-2026-031', part: 'Motor mount', cause: 'Dimension OOT', severity: 'Major', sevColor: 'warning', age: '6d', status: 'Rework', statusBadge: 'badge-orange' }
+      ]
+    },
+    '12 Months': {
+      kpis: [
+        { label: 'Open NCRs (12mo)', value: '7', sub: '3 critical', color: 'var(--danger)', bars: [6,7,8,8,9,10] },
+        { label: 'First Pass Yield', value: '94.2%', sub: 'Target: 95%', color: 'var(--yellow)', bars: [22,22,23,23,24,24] },
+        { label: 'Avg NCR Resolution', value: '3.4 days', sub: 'Target: 2 days', color: 'var(--yellow)', bars: [18,18,19,18,18,19] },
+        { label: 'Customer Rejections', value: '2', sub: 'last 12mo', color: 'var(--warning)', bars: [2,2,2,1,2,1] }
+      ],
+      rootCause: [
+        { name: 'Weld defect', count: 34, barPct: 42, color: 'var(--danger)' },
+        { name: 'Dimension OOT', count: 22, barPct: 27, color: 'var(--warning)' },
+        { name: 'Material cert', count: 12, barPct: 15, color: 'var(--yellow)' },
+        { name: 'Surface finish', count: 8, barPct: 10, color: 'var(--steel-500)' },
+        { name: 'Process error', count: 5, barPct: 6, color: 'var(--steel-500)' }
+      ],
+      ncrTrend: [
+        { label: 'Mar', val: 5, color: 'var(--warning)' },
+        { label: 'Apr', val: 6, color: 'var(--danger)' },
+        { label: 'May', val: 4, color: 'var(--warning)' },
+        { label: 'Jun', val: 7, color: 'var(--danger)' },
+        { label: 'Jul', val: 5, color: 'var(--warning)' },
+        { label: 'Aug', val: 8, color: 'var(--danger)' },
+        { label: 'Sep', val: 6, color: 'var(--danger)' },
+        { label: 'Oct', val: 5, color: 'var(--warning)' },
+        { label: 'Nov', val: 4, color: 'var(--warning)' },
+        { label: 'Dec', val: 3, color: 'var(--yellow)' },
+        { label: 'Jan', val: 7, color: 'var(--danger)' },
+        { label: 'Feb', val: 4, color: 'var(--warning)' }
+      ],
+      ncrByWC: [
+        { name: 'Weld Cell 2', count: 28, barPct: 48, color: 'var(--danger)' },
+        { name: 'Haas VF-4', count: 18, barPct: 31, color: 'var(--warning)' },
+        { name: 'Saw Bay', count: 7, barPct: 12, color: 'var(--steel-500)' },
+        { name: 'NDT Lab', count: 5, barPct: 9, color: 'var(--steel-500)' }
+      ],
+      fpyByWC: [
+        { name: 'Saw Bay', pct: 99.1, color: 'var(--success)' },
+        { name: 'NDT Lab', pct: 98.2, color: 'var(--success)' },
+        { name: 'Haas VF-4', pct: 93.6, color: 'var(--yellow)' },
+        { name: 'Weld Cell 2', pct: 85.9, color: 'var(--danger)' }
+      ],
+      ncrs: [
+        { id: 'NCR-0041', job: 'J-2026-028', part: 'Hatch frame', cause: 'Weld defect', severity: 'Critical', sevColor: 'danger', age: '8d', status: 'Open', statusBadge: 'badge-red' },
+        { id: 'NCR-0040', job: 'J-2026-031', part: 'Motor mount', cause: 'Dimension OOT', severity: 'Critical', sevColor: 'danger', age: '5d', status: 'Under Review', statusBadge: 'badge-yellow' },
+        { id: 'NCR-0039', job: 'J-2026-038', part: 'Valve body', cause: 'Weld defect', severity: 'Major', sevColor: 'warning', age: '4d', status: 'Under Review', statusBadge: 'badge-yellow' },
+        { id: 'NCR-0038', job: 'J-2026-042', part: 'Pump bracket', cause: 'Material cert', severity: 'Minor', sevColor: 'yellow', age: '3d', status: 'Disposition', statusBadge: 'badge-cyan' },
+        { id: 'NCR-0037', job: 'J-2026-047', part: 'Bearing housing', cause: 'Surface finish', severity: 'Minor', sevColor: 'yellow', age: '2d', status: 'Under Review', statusBadge: 'badge-yellow' },
+        { id: 'NCR-0036', job: 'J-2026-028', part: 'Hatch frame', cause: 'Weld defect', severity: 'Critical', sevColor: 'danger', age: '12d', status: 'Rework', statusBadge: 'badge-orange' },
+        { id: 'NCR-0035', job: 'J-2026-031', part: 'Motor mount', cause: 'Dimension OOT', severity: 'Major', sevColor: 'warning', age: '6d', status: 'Rework', statusBadge: 'badge-orange' }
+      ]
+    },
+    'All Time': {
+      kpis: [
+        { label: 'Total NCRs Created', value: '247', sub: 'shop history', color: 'var(--cyan-400)', bars: [20,22,24,26,28,30] },
+        { label: 'Avg First Pass Yield', value: '93.1%', sub: 'all-time average', color: 'var(--yellow)', bars: [20,21,22,23,24,25] },
+        { label: 'Avg NCR Resolution', value: '4.2 days', sub: 'all-time average', color: 'var(--yellow)', bars: [18,19,20,19,20,21] },
+        { label: 'Total Customer Escapes', value: '11', sub: 'all-time count', color: 'var(--warning)', bars: [2,2,2,2,2,2] }
+      ],
+      rootCause: [
+        { name: 'Weld defect', count: 98, barPct: 40, color: 'var(--danger)' },
+        { name: 'Dimension OOT', count: 62, barPct: 25, color: 'var(--warning)' },
+        { name: 'Material cert', count: 37, barPct: 15, color: 'var(--yellow)' },
+        { name: 'Surface finish', count: 30, barPct: 12, color: 'var(--steel-500)' },
+        { name: 'Process error', count: 20, barPct: 8, color: 'var(--steel-500)' }
+      ],
+      ncrTrend: [
+        { label: 'Mar', val: 5, color: 'var(--warning)' },
+        { label: 'Apr', val: 6, color: 'var(--danger)' },
+        { label: 'May', val: 4, color: 'var(--warning)' },
+        { label: 'Jun', val: 7, color: 'var(--danger)' },
+        { label: 'Jul', val: 5, color: 'var(--warning)' },
+        { label: 'Aug', val: 8, color: 'var(--danger)' },
+        { label: 'Sep', val: 6, color: 'var(--danger)' },
+        { label: 'Oct', val: 5, color: 'var(--warning)' },
+        { label: 'Nov', val: 4, color: 'var(--warning)' },
+        { label: 'Dec', val: 3, color: 'var(--yellow)' },
+        { label: 'Jan', val: 7, color: 'var(--danger)' },
+        { label: 'Feb', val: 4, color: 'var(--warning)' }
+      ],
+      ncrByWC: [
+        { name: 'Weld Cell 2', count: 92, barPct: 49, color: 'var(--danger)' },
+        { name: 'Haas VF-4', count: 56, barPct: 30, color: 'var(--warning)' },
+        { name: 'Saw Bay', count: 22, barPct: 12, color: 'var(--steel-500)' },
+        { name: 'NDT Lab', count: 17, barPct: 9, color: 'var(--steel-500)' }
+      ],
+      fpyByWC: [
+        { name: 'Saw Bay', pct: 99.1, color: 'var(--success)' },
+        { name: 'NDT Lab', pct: 97.8, color: 'var(--success)' },
+        { name: 'Haas VF-4', pct: 91.2, color: 'var(--yellow)' },
+        { name: 'Weld Cell 2', pct: 82.4, color: 'var(--danger)' }
+      ],
+      ncrs: [
+        { id: 'NCR-0041', job: 'J-2026-028', part: 'Hatch frame', cause: 'Weld defect', severity: 'Critical', sevColor: 'danger', age: '8d', status: 'Open', statusBadge: 'badge-red' },
+        { id: 'NCR-0040', job: 'J-2026-031', part: 'Motor mount', cause: 'Dimension OOT', severity: 'Critical', sevColor: 'danger', age: '5d', status: 'Under Review', statusBadge: 'badge-yellow' },
+        { id: 'NCR-0039', job: 'J-2026-038', part: 'Valve body', cause: 'Weld defect', severity: 'Major', sevColor: 'warning', age: '4d', status: 'Under Review', statusBadge: 'badge-yellow' },
+        { id: 'NCR-0038', job: 'J-2026-042', part: 'Pump bracket', cause: 'Material cert', severity: 'Minor', sevColor: 'yellow', age: '3d', status: 'Disposition', statusBadge: 'badge-cyan' },
+        { id: 'NCR-0037', job: 'J-2026-047', part: 'Bearing housing', cause: 'Surface finish', severity: 'Minor', sevColor: 'yellow', age: '2d', status: 'Under Review', statusBadge: 'badge-yellow' },
+        { id: 'NCR-0036', job: 'J-2026-028', part: 'Hatch frame', cause: 'Weld defect', severity: 'Critical', sevColor: 'danger', age: '12d', status: 'Rework', statusBadge: 'badge-orange' },
+        { id: 'NCR-0035', job: 'J-2026-031', part: 'Motor mount', cause: 'Dimension OOT', severity: 'Major', sevColor: 'warning', age: '6d', status: 'Rework', statusBadge: 'badge-orange' }
+      ]
+    }
+  },
+  utilization: {
+    'Today': {
+      kpis: [
+        { label: 'Overall Util. (Today)', value: '82%', sub: 'Target: 80%', color: 'var(--success)', bars: [23] },
+        { label: 'Hours Logged (Today)', value: '26.5', sub: 'of 32 available', color: 'var(--cyan-400)', bars: [27] },
+        { label: 'Active Operators', value: '4', sub: 'of 5 on shift', color: '#fff', bars: [5] },
+        { label: 'Idle Time (Today)', value: '5.5 hrs', sub: 'Material wait: 3.2 hrs', color: 'var(--yellow)', bars: [6] }
+      ],
+      hoursWC: [
+        { name: 'Weld Cell 2', logged: 7.5, available: 8, pct: 94, color: 'var(--success)' },
+        { name: 'Haas VF-4', logged: 7.0, available: 8, pct: 88, color: 'var(--success)' },
+        { name: 'Saw Bay', logged: 6.0, available: 8, pct: 75, color: 'var(--yellow)' },
+        { name: 'NDT Lab', logged: 6.0, available: 8, pct: 75, color: 'var(--yellow)' }
+      ],
+      utilTrend: [
+        { label: 'W1', pct: 72, color: 'var(--warning)' },
+        { label: 'W2', pct: 76, color: 'var(--yellow)' },
+        { label: 'W3', pct: 81, color: 'var(--success)' },
+        { label: 'W4', pct: 74, color: 'var(--warning)' },
+        { label: 'W5', pct: 82, color: 'var(--success)' },
+        { label: 'W6', pct: 82, color: 'var(--success)' }
+      ],
+      hoursJob: [
+        { id: 'J-2026-038', hours: 10.5, barPct: 60, color: 'var(--cyan-500)' },
+        { id: 'J-2026-031', hours: 8.0, barPct: 45, color: 'var(--cyan-500)' },
+        { id: 'J-2026-042', hours: 5.0, barPct: 28, color: 'var(--cyan-500)' },
+        { id: 'J-2026-028', hours: 3.0, barPct: 17, color: 'var(--warning)' }
+      ],
+      idle: [
+        { name: 'Material Wait', pct: 42, color: 'var(--warning)' },
+        { name: 'Setup/Changeover', pct: 25, color: 'var(--yellow)' },
+        { name: 'Maintenance', pct: 18, color: 'var(--steel-500)' },
+        { name: 'NCR Hold', pct: 15, color: 'var(--danger)' }
+      ],
+      operators: [
+        { name: 'Mike R.', wc: 'Weld Cell 2', job: 'J-2026-038', hours: 7.5, idle: 0.5, status: 'Active', statusBadge: 'badge-green' },
+        { name: 'Sarah K.', wc: 'Haas VF-4', job: 'J-2026-042', hours: 7.0, idle: 1.0, status: 'Active', statusBadge: 'badge-green' },
+        { name: 'Tom B.', wc: 'Saw Bay', job: 'J-2026-031', hours: 6.0, idle: 2.0, status: 'Mat. Wait', statusBadge: 'badge-yellow' },
+        { name: 'James L.', wc: 'NDT Lab', job: 'J-2026-038', hours: 6.0, idle: 2.0, status: 'Active', statusBadge: 'badge-green' }
+      ],
+      periodLabels: { hoursWC: 'today', hoursJob: 'today', idle: 'today', table: 'today' }
+    },
+    'This Week': {
+      kpis: [
+        { label: 'Overall Util. (Week)', value: '78%', sub: 'Target: 80%', color: 'var(--warning)', bars: [19,20,20,21,22] },
+        { label: 'Hours Logged (Week)', value: '159.2', sub: 'of 200 available', color: 'var(--cyan-400)', bars: [23,24,25,26,27] },
+        { label: 'Active Operators', value: '4.6 avg', sub: 'of 5 per shift', color: '#fff', bars: [4,5,5,5,5] },
+        { label: 'Idle Time (Week)', value: '11.2 hrs', sub: 'Mostly material wait', color: 'var(--yellow)', bars: [11,11,12,11,12] }
+      ],
+      hoursWC: [
+        { name: 'Weld Cell 2', logged: 39.0, available: 40, pct: 98, color: 'var(--success)' },
+        { name: 'Haas VF-4', logged: 35.0, available: 40, pct: 88, color: 'var(--success)' },
+        { name: 'Saw Bay', logged: 30.0, available: 40, pct: 75, color: 'var(--yellow)' },
+        { name: 'NDT Lab', logged: 30.0, available: 40, pct: 75, color: 'var(--yellow)' }
+      ],
+      utilTrend: [
+        { label: 'Mon', pct: 80, color: 'var(--success)' },
+        { label: 'Tue', pct: 76, color: 'var(--yellow)' },
+        { label: 'Wed', pct: 81, color: 'var(--success)' },
+        { label: 'Thu', pct: 74, color: 'var(--warning)' },
+        { label: 'Fri', pct: 82, color: 'var(--success)' }
+      ],
+      hoursJob: [
+        { id: 'J-2026-038', hours: 48.0, barPct: 60, color: 'var(--cyan-500)' },
+        { id: 'J-2026-031', hours: 38.0, barPct: 48, color: 'var(--cyan-500)' },
+        { id: 'J-2026-042', hours: 28.0, barPct: 35, color: 'var(--cyan-500)' },
+        { id: 'J-2026-028', hours: 18.0, barPct: 23, color: 'var(--warning)' },
+        { id: 'J-2026-047', hours: 8.0, barPct: 10, color: 'var(--cyan-500)' }
+      ],
+      idle: [
+        { name: 'Material Wait', pct: 38, color: 'var(--warning)' },
+        { name: 'Setup/Changeover', pct: 28, color: 'var(--yellow)' },
+        { name: 'Maintenance', pct: 20, color: 'var(--steel-500)' },
+        { name: 'NCR Hold', pct: 14, color: 'var(--danger)' }
+      ],
+      operators: [
+        { name: 'Mike R.', wc: 'Weld Cell 2', job: 'J-2026-038', hours: 38.5, idle: 1.5, status: 'Active', statusBadge: 'badge-green' },
+        { name: 'Sarah K.', wc: 'Haas VF-4', job: 'J-2026-042', hours: 35.0, idle: 5.0, status: 'Active', statusBadge: 'badge-green' },
+        { name: 'Tom B.', wc: 'Saw Bay', job: 'J-2026-031', hours: 30.0, idle: 10.0, status: 'Active', statusBadge: 'badge-green' },
+        { name: 'James L.', wc: 'NDT Lab', job: 'J-2026-038', hours: 30.0, idle: 10.0, status: 'Active', statusBadge: 'badge-green' },
+        { name: 'Ana M.', wc: 'Weld Cell 2', job: '—', hours: 16.0, idle: 24.0, status: 'Part-time', statusBadge: 'badge-yellow' }
+      ],
+      periodLabels: { hoursWC: 'this week', hoursJob: 'this week', idle: 'this week', table: 'this week' }
+    },
+    'This Month': {
+      kpis: [
+        { label: 'Overall Util. (Month)', value: '76%', sub: 'Target: 80%', color: 'var(--warning)', bars: [19,19,20,21] },
+        { label: 'Hours Logged (Month)', value: '584.8', sub: 'of 800 available', color: 'var(--cyan-400)', bars: [24,24,25,26] },
+        { label: 'Active Operators', value: '4.5 avg', sub: 'of 5 per shift', color: '#fff', bars: [5,5,5,5] },
+        { label: 'Idle Time (Month)', value: '45.2 hrs', sub: 'Material, setup, maintenance', color: 'var(--yellow)', bars: [12,13,12,13] }
+      ],
+      hoursWC: [
+        { name: 'Weld Cell 2', logged: 152.0, available: 160, pct: 95, color: 'var(--success)' },
+        { name: 'Haas VF-4', logged: 138.0, available: 160, pct: 86, color: 'var(--success)' },
+        { name: 'Saw Bay', logged: 118.0, available: 160, pct: 74, color: 'var(--yellow)' },
+        { name: 'NDT Lab', logged: 118.0, available: 160, pct: 74, color: 'var(--yellow)' }
+      ],
+      utilTrend: [
+        { label: 'W1', pct: 78, color: 'var(--yellow)' },
+        { label: 'W2', pct: 74, color: 'var(--warning)' },
+        { label: 'W3', pct: 78, color: 'var(--yellow)' },
+        { label: 'W4', pct: 76, color: 'var(--yellow)' }
+      ],
+      hoursJob: [
+        { id: 'J-2026-038', hours: 168.0, barPct: 58, color: 'var(--cyan-500)' },
+        { id: 'J-2026-031', hours: 140.0, barPct: 48, color: 'var(--cyan-500)' },
+        { id: 'J-2026-042', hours: 104.0, barPct: 36, color: 'var(--cyan-500)' },
+        { id: 'J-2026-028', hours: 92.0, barPct: 32, color: 'var(--warning)' },
+        { id: 'J-2026-047', hours: 48.0, barPct: 17, color: 'var(--cyan-500)' },
+        { id: 'J-2026-045', hours: 32.0, barPct: 11, color: 'var(--yellow)' }
+      ],
+      idle: [
+        { name: 'Material Wait', pct: 40, color: 'var(--warning)' },
+        { name: 'Setup/Changeover', pct: 26, color: 'var(--yellow)' },
+        { name: 'Maintenance', pct: 22, color: 'var(--steel-500)' },
+        { name: 'NCR Hold', pct: 12, color: 'var(--danger)' }
+      ],
+      operators: [
+        { name: 'Mike R.', wc: 'Weld Cell 2', job: 'J-2026-038', hours: 152.0, idle: 8.0, status: 'Active', statusBadge: 'badge-green' },
+        { name: 'Sarah K.', wc: 'Haas VF-4', job: 'J-2026-042', hours: 138.0, idle: 22.0, status: 'Active', statusBadge: 'badge-green' },
+        { name: 'Tom B.', wc: 'Saw Bay', job: 'J-2026-031', hours: 118.0, idle: 42.0, status: 'Active', statusBadge: 'badge-green' },
+        { name: 'James L.', wc: 'NDT Lab', job: 'J-2026-038', hours: 118.0, idle: 42.0, status: 'Active', statusBadge: 'badge-green' },
+        { name: 'Ana M.', wc: 'Weld Cell 2', job: '—', hours: 80.0, idle: 80.0, status: 'Part-time', statusBadge: 'badge-yellow' }
+      ],
+      periodLabels: { hoursWC: 'this month', hoursJob: 'this month', idle: 'this month', table: 'this month' }
+    },
+    'YTD': {
+      kpis: [
+        { label: 'Overall Util. (YTD)', value: '75%', sub: 'Target: 80%', color: 'var(--warning)', bars: [20,21] },
+        { label: 'Hours Logged (YTD)', value: '1159.6', sub: 'of 1600 available', color: 'var(--cyan-400)', bars: [25,26] },
+        { label: 'Active Operators', value: '4.4 avg', sub: 'of 5 per shift', color: '#fff', bars: [5,5] },
+        { label: 'Idle Time (YTD)', value: '92.4 hrs', sub: '5.8% of available time', color: 'var(--yellow)', bars: [12,13] }
+      ],
+      hoursWC: [
+        { name: 'Weld Cell 2', logged: 312.0, available: 320, pct: 98, color: 'var(--success)' },
+        { name: 'Haas VF-4', logged: 276.0, available: 320, pct: 86, color: 'var(--success)' },
+        { name: 'Saw Bay', logged: 232.0, available: 320, pct: 73, color: 'var(--yellow)' },
+        { name: 'NDT Lab', logged: 232.0, available: 320, pct: 73, color: 'var(--yellow)' }
+      ],
+      utilTrend: [
+        { label: 'W1', pct: 78, color: 'var(--yellow)' },
+        { label: 'W2', pct: 74, color: 'var(--warning)' }
+      ],
+      hoursJob: [
+        { id: 'J-2026-038', hours: 336.0, barPct: 58, color: 'var(--cyan-500)' },
+        { id: 'J-2026-031', hours: 280.0, barPct: 48, color: 'var(--cyan-500)' },
+        { id: 'J-2026-042', hours: 208.0, barPct: 36, color: 'var(--cyan-500)' },
+        { id: 'J-2026-028', hours: 184.0, barPct: 32, color: 'var(--warning)' }
+      ],
+      idle: [
+        { name: 'Material Wait', pct: 41, color: 'var(--warning)' },
+        { name: 'Setup/Changeover', pct: 27, color: 'var(--yellow)' },
+        { name: 'Maintenance', pct: 21, color: 'var(--steel-500)' },
+        { name: 'NCR Hold', pct: 11, color: 'var(--danger)' }
+      ],
+      operators: [
+        { name: 'Mike R.', wc: 'Weld Cell 2', job: 'J-2026-038', hours: 304.0, idle: 16.0, status: 'Active', statusBadge: 'badge-green' },
+        { name: 'Sarah K.', wc: 'Haas VF-4', job: 'J-2026-042', hours: 276.0, idle: 44.0, status: 'Active', statusBadge: 'badge-green' },
+        { name: 'Tom B.', wc: 'Saw Bay', job: 'J-2026-031', hours: 232.0, idle: 88.0, status: 'Active', statusBadge: 'badge-green' },
+        { name: 'James L.', wc: 'NDT Lab', job: 'J-2026-038', hours: 232.0, idle: 88.0, status: 'Active', statusBadge: 'badge-green' },
+        { name: 'Ana M.', wc: 'Weld Cell 2', job: '—', hours: 160.0, idle: 160.0, status: 'Part-time', statusBadge: 'badge-yellow' }
+      ],
+      periodLabels: { hoursWC: 'YTD', hoursJob: 'YTD', idle: 'YTD', table: 'YTD' }
+    }
+  }
+};
+

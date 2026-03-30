@@ -1,0 +1,1152 @@
+// ===== REPORT RENDERERS =====
+// Report rendering functions and metrics overlay
+
+function buildSparkHTML(bars, color) {
+  var maxH = 28;
+  var maxVal = Math.max.apply(null, bars);
+  var html = '';
+  bars.forEach(function(v, idx) {
+    var h = Math.round((v / maxVal) * maxH);
+    var op = bars.length === 1 ? 1 : (0.4 + (0.6 * idx / (bars.length - 1)));
+    if (idx === bars.length - 1) op = 1;
+    html += '<div style="width:4px;border-radius:1px;background:' + color + ';opacity:' + op.toFixed(1) + ';height:' + h + 'px"></div>';
+  });
+  return html;
+}
+
+function renderBidKPIs(period) {
+  var data = rptPeriodData.bid[period];
+  if (!data) return;
+  var kpis = data.kpis;
+  var tab = document.getElementById('rpt-bid');
+  if (!tab) return;
+  var cards = tab.querySelectorAll('.rpt-kpi');
+  for (var i = 0; i < kpis.length && i < cards.length; i++) {
+    var k = kpis[i];
+    var label = cards[i].querySelector('.stat-label');
+    var val = cards[i].querySelector('.stat-value');
+    var sub = cards[i].querySelector('.stat-sub');
+    if (label) label.innerHTML = k.label + '<span class="mi">north_east</span>';
+    var dynColor = getKpiColor('bid', i, k.value) || k.color;
+    if (val) { val.textContent = k.value; val.style.color = dynColor; }
+    if (sub) {
+      sub.textContent = k.sub;
+      sub.className = 'stat-sub';
+      if (k.sub.includes('+')) sub.classList.add('success');
+    }
+    if (k.bars) {
+      var sparkContainer = cards[i].querySelector('[style*="display:flex"][style*="gap:2px"][style*="height:28px"]');
+      if (sparkContainer) sparkContainer.innerHTML = buildSparkHTML(k.bars, dynColor);
+    }
+  }
+}
+
+function renderBidCharts(period) {
+  var data = rptPeriodData.bid[period];
+  if (!data) return;
+
+  // Hit Rate by Shipyard
+  var hitrateDiv = document.getElementById('rpt-chart-hitrate-shipyard');
+  if (hitrateDiv) {
+    var html = '';
+    data.hitrateShipyard.forEach(function(item) {
+      html += '<div style="display:flex;align-items:center;gap:12px">' +
+        '<div style="width:130px;font-size:12px;color:var(--steel-300);text-align:right;flex-shrink:0">' + item.name + '</div>' +
+        '<div style="flex:1;height:20px;background:var(--steel-700);border-radius:3px;position:relative;overflow:hidden">' +
+        '<div style="width:' + item.pct + '%;height:100%;background:' + item.color + ';border-radius:3px;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;font-size:10px;font-weight:700;color:var(--steel-900)">' + item.pct + '%</div>' +
+        '</div><div style="width:40px;font-size:11px;color:var(--steel-400);text-align:right">' + item.ratio + '</div></div>';
+    });
+    hitrateDiv.innerHTML = html;
+  }
+
+  // Margin by Program
+  var marginDiv = document.getElementById('rpt-chart-margin-program');
+  if (marginDiv) {
+    var html = '';
+    data.marginProgram.forEach(function(item) {
+      var barColor = item.pct >= 22 ? 'var(--success)' : item.pct >= 17 ? 'var(--warning)' : 'var(--danger)';
+      html += '<div style="display:flex;align-items:center;gap:12px">' +
+        '<div style="width:80px;font-size:12px;color:var(--steel-300);text-align:right;flex-shrink:0">' + item.name + '</div>' +
+        '<div style="flex:1;height:20px;background:var(--steel-700);border-radius:3px;position:relative;overflow:hidden">' +
+        '<div style="width:' + item.barPct + '%;height:100%;background:' + barColor + ';border-radius:3px;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;font-size:10px;font-weight:700;color:var(--steel-900)">' + item.pct.toFixed(1) + '%</div>' +
+        '</div></div>';
+    });
+    marginDiv.innerHTML = html;
+  }
+
+  // Quote Cycle Time Trend (floor=2, range=5, target=3.5 → 30%)
+  var cycleDiv = document.getElementById('rpt-chart-cycle-trend');
+  if (cycleDiv && data.cycleTrend) {
+    var floor = 2, range = 5, barH = 130;
+    var targetPx = Math.round(((3.5 - floor) / range) * barH);
+    // Value labels row
+    var html = '<div style="display:flex;gap:0;margin-bottom:2px">';
+    data.cycleTrend.forEach(function(item) {
+      html += '<div style="flex:1;text-align:center;font-size:9px;color:var(--steel-400);font-weight:600">' + item.val + '</div>';
+    });
+    html += '</div>';
+    // Bar area with target line
+    html += '<div style="position:relative;height:' + barH + 'px;display:flex;align-items:flex-end;gap:0">';
+    html += '<div style="position:absolute;left:0;right:0;bottom:' + targetPx + 'px;height:0;border-top:1px dashed var(--steel-300);box-shadow:0 -0.5px 0 0 var(--steel-800),0 0.5px 0 0 var(--steel-800);z-index:1"></div>';
+    data.cycleTrend.forEach(function(item) {
+      var barColor = item.val > 4.5 ? 'var(--danger)' : item.val > 3.5 ? (item.val > 4.0 ? 'var(--warning)' : 'var(--yellow)') : 'var(--success)';
+      var barPx = Math.round(((item.val - floor) / range) * barH);
+      html += '<div style="flex:1;display:flex;justify-content:center"><div style="width:60%;height:' + barPx + 'px;background:' + barColor + ';border-radius:3px 3px 0 0;min-width:12px"></div></div>';
+    });
+    html += '</div>';
+    // Month labels row
+    html += '<div style="display:flex;gap:0;margin-top:2px">';
+    data.cycleTrend.forEach(function(item) {
+      html += '<div style="flex:1;text-align:center;font-size:9px;color:var(--steel-400)">' + item.label + '</div>';
+    });
+    html += '</div>';
+    cycleDiv.innerHTML = html;
+  }
+
+  // Hit Rate by Customer
+  var custDiv = document.getElementById('rpt-chart-hitrate-customer');
+  if (custDiv && data.hitrateCustomer) {
+    var html = '';
+    data.hitrateCustomer.forEach(function(item) {
+      html += '<div style="display:flex;align-items:center;gap:12px">' +
+        '<div style="width:130px;font-size:12px;color:var(--steel-300);text-align:right;flex-shrink:0">' + item.name + '</div>' +
+        '<div style="flex:1;height:18px;background:var(--steel-700);border-radius:3px;overflow:hidden">' +
+        '<div style="width:' + item.pct + '%;height:100%;background:' + item.color + ';border-radius:3px;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;font-size:10px;font-weight:700;color:var(--steel-900)">' + item.pct + '%</div>' +
+        '</div></div>';
+    });
+    custDiv.innerHTML = html;
+  }
+}
+
+function renderBidTable(period) {
+  var rows = rptPeriodData.bid[period].bidHistory;
+  var tbody = document.querySelector('#rpt-bid .data-table tbody');
+  if (!tbody) return;
+
+  tbody.innerHTML = '';
+  rows.forEach(function(row) {
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td style="color:var(--cyan-400);font-weight:600">' + row.rfq + '</td>' +
+      '<td>' + row.yard + '</td>' +
+      '<td>' + row.prog + '</td>' +
+      '<td>' + row.val + '</td>' +
+      '<td style="color:' + row.marginColor + '">' + row.margin + '</td>' +
+      '<td>' + row.cycle + '</td>' +
+      '<td><span class="badge ' + row.badgeClass + '">' + row.result + '</span></td>';
+    tbody.appendChild(tr);
+  });
+}
+
+function renderProductionCharts(period) {
+  var data = rptPeriodData.production[period];
+  if (!data) return;
+
+  // Job Readiness
+  var readinessDiv = document.getElementById('rpt-prod-readiness');
+  if (readinessDiv && data.readiness) {
+    var html = '<div style="display:flex;height:32px;border-radius:4px;overflow:hidden;margin-bottom:8px">';
+    data.readiness.forEach(function(item) {
+      html += '<div style="width:' + item.pct + '%;background:' + item.color + ';display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--steel-900)" title="' + item.name + '">' + item.count + '</div>';
+    });
+    html += '</div><div style="display:flex;gap:16px;flex-wrap:wrap">';
+    data.readiness.forEach(function(item) {
+      html += '<div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--steel-300)"><div style="width:8px;height:8px;border-radius:2px;background:' + item.color + '"></div>' + item.name + ' (' + item.count + ')</div>';
+    });
+    html += '</div>';
+    readinessDiv.innerHTML = html;
+  }
+
+  // Schedule Health
+  var scheduleDiv = document.getElementById('rpt-prod-schedule');
+  if (scheduleDiv && data.schedule) {
+    var html = '';
+    data.schedule.forEach(function(item) {
+      html += '<div style="display:flex;align-items:center;gap:10px"><div style="width:10px;height:10px;border-radius:50%;background:' + item.color + '"></div><div style="flex:1;font-size:13px;color:var(--steel-200)">' + item.label + '</div><div style="font-size:20px;font-weight:700;color:' + item.color + '">' + item.count + '</div><div style="flex:2;height:8px;background:var(--steel-700);border-radius:4px;overflow:hidden"><div style="width:' + item.pct + '%;height:100%;background:' + item.color + ';border-radius:4px"></div></div></div>';
+    });
+    scheduleDiv.innerHTML = html;
+  }
+
+  // Cost vs Actual
+  var costDiv = document.getElementById('rpt-prod-cost');
+  if (costDiv && data.costJobs) {
+    var html = '';
+    data.costJobs.forEach(function(item) {
+      var color = item.estPct <= 100 ? 'var(--success)' : 'var(--warning)';
+      if (item.estPct > 110) color = 'var(--danger)';
+      html += '<div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:12px;color:var(--steel-300)">' + item.name + '</span><span style="font-size:11px;color:' + color + '">' + item.estPct + '% of est.</span></div><div style="height:8px;background:var(--steel-700);border-radius:4px;overflow:hidden;position:relative"><div style="position:absolute;left:0;top:0;width:100%;height:100%;background:var(--steel-600);border-radius:4px"></div><div style="position:absolute;left:0;top:0;width:' + item.estPct + '%;height:100%;background:' + color + ';border-radius:4px"></div></div></div>';
+    });
+    costDiv.innerHTML = html;
+  }
+
+  // Pipeline by Stage
+  var pipelineDiv = document.getElementById('rpt-prod-pipeline');
+  if (pipelineDiv && data.pipeline) {
+    var html = '';
+    data.pipeline.forEach(function(item) {
+      html += '<div style="display:flex;align-items:center;gap:12px"><div style="width:90px;font-size:12px;color:var(--steel-300);text-align:right;flex-shrink:0">' + item.stage + '</div><div style="flex:1;height:20px;background:var(--steel-700);border-radius:3px;overflow:hidden"><div style="width:' + item.barPct + '%;height:100%;background:' + item.color + ';border-radius:3px;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;font-size:10px;font-weight:700;color:var(--steel-900)">' + item.value + '</div></div></div>';
+    });
+    pipelineDiv.innerHTML = html;
+  }
+}
+
+function renderProductionTable(period) {
+  var data = rptPeriodData.production[period];
+  if (!data || !data.jobs) return;
+
+  var tbody = document.getElementById('rpt-prod-table');
+  var count = document.getElementById('rpt-prod-table-count');
+  if (tbody) {
+    tbody.innerHTML = '';
+    data.jobs.forEach(function(row) {
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td style="color:var(--cyan-400);font-weight:600">' + row.id + '</td>' +
+        '<td>' + row.part + '</td>' +
+        '<td>' + row.prog + '</td>' +
+        '<td><span class="badge ' + row.statusBadge + '">' + row.status + '</span></td>' +
+        '<td>' + row.due + '</td>' +
+        '<td><div style="display:flex;align-items:center;gap:6px"><div class="progress-bar" style="width:80px"><div class="progress-fill ' + row.progressColor + '" style="width:' + row.progress + '%"></div></div><span style="font-size:11px;color:var(--steel-400)">' + row.progress + '%</span></div></td>' +
+        '<td><span style="color:var(--' + row.healthColor + ')">' + row.health + '</span></td>';
+      tbody.appendChild(tr);
+    });
+  }
+  if (count) count.textContent = data.jobs.length + ' jobs';
+}
+
+function renderQualityCharts(period) {
+  var data = rptPeriodData.quality[period];
+  if (!data) return;
+
+  // NCR by Root Cause
+  var rootCauseDiv = document.getElementById('rpt-qual-rootcause');
+  if (rootCauseDiv && data.rootCause) {
+    var html = '';
+    data.rootCause.forEach(function(item) {
+      html += '<div style="display:flex;align-items:center;gap:12px"><div style="width:100px;font-size:12px;color:var(--steel-300);text-align:right;flex-shrink:0">' + item.name + '</div><div style="flex:1;height:20px;background:var(--steel-700);border-radius:3px;overflow:hidden"><div style="width:' + item.barPct + '%;height:100%;background:' + item.color + ';border-radius:3px;display:flex;align-items:center;padding-left:6px;font-size:10px;font-weight:700;color:#fff">' + item.count + '</div></div></div>';
+    });
+    rootCauseDiv.innerHTML = html;
+  }
+
+  // NCR Trend (uses max-value scaling, no floor needed — values vary enough)
+  var ncrTrendDiv = document.getElementById('rpt-qual-ncrtrend');
+  if (ncrTrendDiv && data.ncrTrend) {
+    var maxVal = Math.max.apply(null, data.ncrTrend.map(function(x) { return x.val; }));
+    // Value labels row
+    var html = '<div style="display:flex;gap:0;margin-bottom:2px">';
+    data.ncrTrend.forEach(function(item) {
+      html += '<div style="flex:1;text-align:center;font-size:9px;color:var(--steel-400);font-weight:600">' + item.val + '</div>';
+    });
+    html += '</div>';
+    // Bar area
+    var barH = 130;
+    html += '<div style="position:relative;height:' + barH + 'px;display:flex;align-items:flex-end;gap:0">';
+    data.ncrTrend.forEach(function(item) {
+      var barPx = maxVal > 0 ? Math.round((item.val / maxVal) * barH) : 0;
+      html += '<div style="flex:1;display:flex;justify-content:center"><div style="width:60%;height:' + barPx + 'px;background:' + item.color + ';border-radius:3px 3px 0 0;min-width:12px"></div></div>';
+    });
+    html += '</div>';
+    // Month labels row
+    html += '<div style="display:flex;gap:0;margin-top:2px">';
+    data.ncrTrend.forEach(function(item) {
+      html += '<div style="flex:1;text-align:center;font-size:9px;color:var(--steel-400)">' + item.label + '</div>';
+    });
+    html += '</div>';
+    ncrTrendDiv.innerHTML = html;
+  }
+
+  // NCR by Work Center
+  var ncrWCDiv = document.getElementById('rpt-qual-ncrbywc');
+  if (ncrWCDiv && data.ncrByWC) {
+    var html = '';
+    data.ncrByWC.forEach(function(item) {
+      html += '<div style="display:flex;align-items:center;gap:12px"><div style="width:90px;font-size:12px;color:var(--steel-300);text-align:right;flex-shrink:0">' + item.name + '</div><div style="flex:1;height:18px;background:var(--steel-700);border-radius:3px;overflow:hidden"><div style="width:' + item.barPct + '%;height:100%;background:' + item.color + ';border-radius:3px;display:flex;align-items:center;padding-left:6px;font-size:10px;font-weight:700;color:#fff">' + item.count + '</div></div></div>';
+    });
+    ncrWCDiv.innerHTML = html;
+  }
+
+  // FPY by Work Center
+  var fpyDiv = document.getElementById('rpt-qual-fpybywc');
+  if (fpyDiv && data.fpyByWC) {
+    var html = '';
+    data.fpyByWC.forEach(function(item) {
+      html += '<div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:12px;color:var(--steel-300)">' + item.name + '</span><span style="font-size:12px;font-weight:600;color:' + item.color + '">' + item.pct + '%</span></div><div style="height:6px;background:var(--steel-700);border-radius:3px;overflow:hidden"><div style="width:' + item.pct + '%;height:100%;background:' + item.color + ';border-radius:3px"></div></div></div>';
+    });
+    fpyDiv.innerHTML = html;
+  }
+}
+
+function renderQualityTable(period) {
+  var data = rptPeriodData.quality[period];
+  if (!data || !data.ncrs) return;
+
+  var tbody = document.getElementById('rpt-qual-table');
+  var count = document.getElementById('rpt-qual-table-count');
+  if (tbody) {
+    tbody.innerHTML = '';
+    data.ncrs.forEach(function(row) {
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td style="color:var(--cyan-400);font-weight:600">' + row.id + '</td>' +
+        '<td>' + row.job + '</td>' +
+        '<td>' + row.part + '</td>' +
+        '<td>' + row.cause + '</td>' +
+        '<td><span style="color:var(--' + row.sevColor + ');font-weight:600">' + row.severity + '</span></td>' +
+        '<td>' + row.age + '</td>' +
+        '<td><span class="badge ' + row.statusBadge + '">' + row.status + '</span></td>';
+      tbody.appendChild(tr);
+    });
+  }
+  if (count) count.textContent = data.ncrs.length + ' open';
+}
+
+function renderUtilizationCharts(period) {
+  var data = rptPeriodData.utilization[period];
+  if (!data) return;
+
+  // Hours by Work Center
+  var hoursWCDiv = document.getElementById('rpt-util-hourswc');
+  if (hoursWCDiv && data.hoursWC) {
+    var html = '';
+    data.hoursWC.forEach(function(item) {
+      html += '<div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:12px;color:var(--steel-300)">' + item.name + '</span><span style="font-size:12px;color:var(--steel-200)">' + item.logged + ' / ' + item.available + ' hrs</span></div><div style="height:12px;background:var(--steel-700);border-radius:4px;overflow:hidden"><div style="width:' + item.pct + '%;height:100%;background:' + item.color + ';border-radius:4px"></div></div></div>';
+    });
+    hoursWCDiv.innerHTML = html;
+  }
+
+  // Utilization Trend (floor=50, range=50, target=80 → 60%)
+  var trendDiv = document.getElementById('rpt-util-trend');
+  if (trendDiv && data.utilTrend) {
+    var floor = 50, range = 50, barH = 130;
+    var targetPx = Math.round(((80 - floor) / range) * barH);
+    // Value labels row
+    var html = '<div style="display:flex;gap:0;margin-bottom:2px">';
+    data.utilTrend.forEach(function(item) {
+      html += '<div style="flex:1;text-align:center;font-size:9px;color:var(--steel-400);font-weight:600">' + item.pct + '%</div>';
+    });
+    html += '</div>';
+    // Bar area with target line
+    html += '<div style="position:relative;height:' + barH + 'px;display:flex;align-items:flex-end;gap:0">';
+    html += '<div style="position:absolute;left:0;right:0;bottom:' + targetPx + 'px;height:0;border-top:1px dashed var(--steel-300);box-shadow:0 -0.5px 0 0 var(--steel-800),0 0.5px 0 0 var(--steel-800);z-index:1"></div>';
+    data.utilTrend.forEach(function(item) {
+      var barPx = Math.round(((item.pct - floor) / range) * barH);
+      html += '<div style="flex:1;display:flex;justify-content:center"><div style="width:60%;height:' + barPx + 'px;background:' + item.color + ';border-radius:3px 3px 0 0;min-width:12px"></div></div>';
+    });
+    html += '</div>';
+    // Week labels row
+    html += '<div style="display:flex;gap:0;margin-top:2px">';
+    data.utilTrend.forEach(function(item) {
+      html += '<div style="flex:1;text-align:center;font-size:9px;color:var(--steel-400)">' + item.label + '</div>';
+    });
+    html += '</div>';
+    trendDiv.innerHTML = html;
+  }
+
+  // Hours by Job
+  var hoursJobDiv = document.getElementById('rpt-util-hoursjob');
+  if (hoursJobDiv && data.hoursJob) {
+    var html = '';
+    data.hoursJob.forEach(function(item) {
+      html += '<div style="display:flex;align-items:center;gap:12px"><div style="width:110px;font-size:12px;color:var(--steel-300);text-align:right;flex-shrink:0">' + item.id + '</div><div style="flex:1;height:18px;background:var(--steel-700);border-radius:3px;overflow:hidden"><div style="width:' + item.barPct + '%;height:100%;background:' + item.color + ';border-radius:3px;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;font-size:10px;font-weight:700;color:var(--steel-900)">' + item.hours + ' hrs</div></div></div>';
+    });
+    hoursJobDiv.innerHTML = html;
+  }
+
+  // Idle Time Breakdown
+  var idleDiv = document.getElementById('rpt-util-idle');
+  if (idleDiv && data.idle) {
+    var html = '<div style="display:flex;height:24px;border-radius:4px;overflow:hidden;margin-bottom:8px">';
+    data.idle.forEach(function(item) {
+      html += '<div style="width:' + item.pct + '%;background:' + item.color + ';display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--steel-900)" title="' + item.name + '">' + item.pct + '%</div>';
+    });
+    html += '</div><div style="display:flex;gap:12px;flex-wrap:wrap">';
+    data.idle.forEach(function(item) {
+      html += '<div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--steel-300)"><div style="width:8px;height:8px;border-radius:2px;background:' + item.color + '"></div>' + item.name + '</div>';
+    });
+    html += '</div>';
+    idleDiv.innerHTML = html;
+  }
+
+  // Update period labels
+  if (data.periodLabels) {
+    var labels = data.periodLabels;
+    var el;
+    if (labels.hoursWC && (el = document.getElementById('rpt-util-hourswc-period'))) el.textContent = labels.hoursWC;
+    if (labels.hoursJob && (el = document.getElementById('rpt-util-hoursjob-period'))) el.textContent = labels.hoursJob;
+    if (labels.idle && (el = document.getElementById('rpt-util-idle-period'))) el.textContent = labels.idle;
+    if (labels.table && (el = document.getElementById('rpt-util-table-period'))) el.textContent = labels.table;
+  }
+}
+
+function renderUtilizationTable(period) {
+  var data = rptPeriodData.utilization[period];
+  if (!data || !data.operators) return;
+
+  var tbody = document.getElementById('rpt-util-table');
+  if (tbody) {
+    tbody.innerHTML = '';
+    data.operators.forEach(function(row) {
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td style="font-weight:600;color:var(--steel-200)">' + row.name + '</td>' +
+        '<td>' + row.wc + '</td>' +
+        '<td style="color:var(--cyan-400)">' + row.job + '</td>' +
+        '<td>' + row.hours + ' hrs</td>' +
+        '<td style="color:var(--' + (row.idle > 5 ? 'yellow' : 'success') + ')">' + row.idle + ' hrs</td>' +
+        '<td><span class="badge ' + row.statusBadge + '">' + row.status + '</span></td>';
+      tbody.appendChild(tr);
+    });
+  }
+}
+
+function renderReportsPeriod(tab, period) {
+  if (tab === 'bid') {
+    renderBidKPIs(period);
+    renderBidCharts(period);
+    renderBidTable(period);
+  } else if (tab === 'production' && rptPeriodData.production[period]) {
+    var kpis = rptPeriodData.production[period].kpis;
+    renderTabKPIs(kpis, '#rpt-production', 'production');
+    renderProductionCharts(period);
+    renderProductionTable(period);
+  } else if (tab === 'quality' && rptPeriodData.quality[period]) {
+    var kpis = rptPeriodData.quality[period].kpis;
+    renderTabKPIs(kpis, '#rpt-quality', 'quality');
+    renderQualityCharts(period);
+    renderQualityTable(period);
+  } else if (tab === 'utilization' && rptPeriodData.utilization[period]) {
+    var kpis = rptPeriodData.utilization[period].kpis;
+    renderTabKPIs(kpis, '#rpt-utilization', 'utilization');
+    renderUtilizationCharts(period);
+    renderUtilizationTable(period);
+  }
+}
+
+function renderTabKPIs(kpis, tabSelector, tabName) {
+  var tab = document.querySelector(tabSelector);
+  if (!tab) return;
+  var cards = tab.querySelectorAll('.rpt-kpi');
+  for (var i = 0; i < kpis.length && i < cards.length; i++) {
+    var k = kpis[i];
+    var label = cards[i].querySelector('.stat-label');
+    var val = cards[i].querySelector('.stat-value');
+    var sub = cards[i].querySelector('.stat-sub');
+
+    if (label) label.innerHTML = k.label + '<span class="mi">north_east</span>';
+    var dynColor = getKpiColor(tabName, i, k.value) || k.color;
+    if (val) {
+      val.textContent = k.value;
+      val.style.color = dynColor;
+    }
+    if (sub) {
+      sub.textContent = k.sub;
+      sub.className = 'stat-sub';
+    }
+    if (k.bars) {
+      var sparkContainer = cards[i].querySelector('[style*="display:flex"][style*="gap:2px"][style*="height:28px"]');
+      if (sparkContainer) sparkContainer.innerHTML = buildSparkHTML(k.bars, dynColor);
+    }
+  }
+}
+
+function selectRptPeriod(el) {
+  el.parentNode.querySelectorAll('.mm-period-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+
+  var period = el.textContent.trim();
+  var tabContent = null;
+  document.querySelectorAll('.rpt-tab-content').forEach(function(tc) {
+    if (tc.style.display === 'block') tabContent = tc;
+  });
+  if (!tabContent) tabContent = document.getElementById('rpt-bid');
+  if (!tabContent) return;
+
+  var currentTab = tabContent.id.replace('rpt-', '');
+  renderReportsPeriod(currentTab, period);
+}
+
+var rptOverlayData = {
+  'bid-hitrate': { title:'12-Month Hit Rate', value:'34%', change:'↑ 6%', changeDir:'positive', theme:'success', subtitle:'Monthly Win Rate %',
+    periods: {
+      '3M':{d:[{l:'Dec',v:31},{l:'Jan',v:33},{l:'Feb',v:34}],max:40},
+      '6M':{d:[{l:'Sep',v:28},{l:'Oct',v:30},{l:'Nov',v:29},{l:'Dec',v:31},{l:'Jan',v:33},{l:'Feb',v:34}],max:40},
+      '12M':{d:[{l:'Mar',v:24},{l:'Apr',v:25},{l:'May',v:26},{l:'Jun',v:25},{l:'Jul',v:27},{l:'Aug',v:28},{l:'Sep',v:28},{l:'Oct',v:30},{l:'Nov',v:29},{l:'Dec',v:31},{l:'Jan',v:33},{l:'Feb',v:34}],max:40},
+      'YTD':{d:[{l:'Jan',v:33},{l:'Feb',v:34}],max:40}
+    },
+    periodValues: {
+      '3M': { value: '34%', change: '↑ 3%', changeDir: 'positive' },
+      '6M': { value: '34%', change: '↑ 6%', changeDir: 'positive' },
+      '12M': { value: '34%', change: '↑ 10%', changeDir: 'positive' },
+      'YTD': { value: '34%', change: '↑ 1%', changeDir: 'positive' }
+    },
+    breakdown:[['DDG-51','18/32','56%','↑ 4%'],['CVN-81','9/28','32%','↓ 2%'],['SSN-810','8/22','36%','↑ 8%'],['LPD-32','6/31','19%','—'],['FFG-62','6/25','24%','↑ 3%']],
+    headers:['Program','Won/Submitted','Rate','Trend'],
+    aiInsight:'<strong>DDG-51 is your strongest program at 56% win rate.</strong> CVN-81 dipped 2% — review recent lost bids for pricing pattern shifts. Consider focusing quote resources on DDG-51 and SSN-810 where momentum is building.' },
+  'bid-cycle': { title:'Average Quote Cycle Time', value:'4.2 days', change:'↓ 0.6d', changeDir:'positive', theme:'yellow', subtitle:'Avg Days to Submit',
+    periods: {
+      '3M':{d:[{l:'Dec',v:4.8},{l:'Jan',v:4.5},{l:'Feb',v:4.2}],max:7},
+      '6M':{d:[{l:'Sep',v:5.8},{l:'Oct',v:5.2},{l:'Nov',v:5.0},{l:'Dec',v:4.8},{l:'Jan',v:4.5},{l:'Feb',v:4.2}],max:7},
+      '12M':{d:[{l:'Mar',v:6.5},{l:'Apr',v:6.2},{l:'May',v:6.4},{l:'Jun',v:6.0},{l:'Jul',v:5.9},{l:'Aug',v:5.8},{l:'Sep',v:5.8},{l:'Oct',v:5.2},{l:'Nov',v:5.0},{l:'Dec',v:4.8},{l:'Jan',v:4.5},{l:'Feb',v:4.2}],max:7},
+      'YTD':{d:[{l:'Jan',v:4.5},{l:'Feb',v:4.2}],max:7}
+    },
+    periodValues: {
+      '3M': { value: '4.2 days', change: '↓ 0.6d', changeDir: 'positive' },
+      '6M': { value: '4.2 days', change: '↓ 1.6d', changeDir: 'positive' },
+      '12M': { value: '4.2 days', change: '↓ 2.3d', changeDir: 'positive' },
+      'YTD': { value: '4.2 days', change: '↓ 0.3d', changeDir: 'positive' }
+    },
+    breakdown:[['HII-Ingalls','3.1d','2.8d','↓ 0.3d'],['Bath Iron Works','4.8d','4.5d','↓ 0.3d'],['Electric Boat','4.2d','3.8d','↓ 0.4d'],['HII-Newport News','5.4d','5.1d','↓ 0.3d'],['GD-NASSCO','5.8d','5.2d','↓ 0.6d'],['Fincantieri Marinette','5.2d','—','New'],['Austal USA','4.6d','4.4d','↓ 0.2d']],
+    headers:['Shipyard','Current','Prior','Change'],
+    aiInsight:'<strong>Cycle times improving across all shipyards.</strong> GD-NASSCO saw the biggest improvement (↓ 0.6d). HII-Ingalls at 3.1d is approaching the 3-day target. Electric Boat quotes are fast at 4.2d despite complexity — your sub-work estimating is efficient.' },
+  'bid-margin': { title:'Average Bid Margin', value:'22.4%', change:'↑ 2.1%', changeDir:'positive', theme:'success', subtitle:'Monthly Avg Margin %',
+    periods: {
+      '3M':{d:[{l:'Dec',v:21.2},{l:'Jan',v:21.8},{l:'Feb',v:22.4}],max:28},
+      '6M':{d:[{l:'Sep',v:19.8},{l:'Oct',v:20.5},{l:'Nov',v:21.1},{l:'Dec',v:21.2},{l:'Jan',v:21.8},{l:'Feb',v:22.4}],max:28},
+      '12M':{d:[{l:'Mar',v:18.2},{l:'Apr',v:18.9},{l:'May',v:19.1},{l:'Jun',v:19.8},{l:'Jul',v:20.2},{l:'Aug',v:20.5},{l:'Sep',v:19.8},{l:'Oct',v:20.5},{l:'Nov',v:21.1},{l:'Dec',v:21.2},{l:'Jan',v:21.8},{l:'Feb',v:22.4}],max:28},
+      'YTD':{d:[{l:'Jan',v:21.8},{l:'Feb',v:22.4}],max:28}
+    },
+    periodValues: {
+      '3M': { value: '22.4%', change: '↑ 1.2%', changeDir: 'positive' },
+      '6M': { value: '22.4%', change: '↑ 2.6%', changeDir: 'positive' },
+      '12M': { value: '22.4%', change: '↑ 4.2%', changeDir: 'positive' },
+      'YTD': { value: '22.4%', change: '↑ 0.6%', changeDir: 'positive' }
+    },
+    breakdown:[['DDG-51','26.1%','$892K','12 bids'],['CVN-81','22.8%','$1.1M','8 bids'],['SSN-810','19.7%','$624K','6 bids'],['LPD-32','17.1%','$340K','5 bids'],['FFG-62','15.2%','$205K','4 bids']],
+    headers:['Program','Avg Margin','Total Value','Bids'],
+    aiInsight:'<strong>DDG-51 margins lead at 26.1%</strong> due to your deep experience with HY-80 weldments. FFG-62 margins are thin at 15.2% — evaluate whether the volume justifies the lower returns.' },
+  'bid-pipeline': { title:'Active Pipeline Value', value:'$734K', change:'↑ $124K', changeDir:'positive', theme:'', subtitle:'Monthly Pipeline Value ($K)',
+    periods: {
+      '3M':{d:[{l:'Dec',v:610},{l:'Jan',v:672},{l:'Feb',v:734}],max:900},
+      '6M':{d:[{l:'Sep',v:512},{l:'Oct',v:568},{l:'Nov',v:601},{l:'Dec',v:610},{l:'Jan',v:672},{l:'Feb',v:734}],max:900},
+      '12M':{d:[{l:'Mar',v:380},{l:'Apr',v:420},{l:'May',v:390},{l:'Jun',v:445},{l:'Jul',v:478},{l:'Aug',v:501},{l:'Sep',v:512},{l:'Oct',v:568},{l:'Nov',v:601},{l:'Dec',v:610},{l:'Jan',v:672},{l:'Feb',v:734}],max:900},
+      'YTD':{d:[{l:'Jan',v:672},{l:'Feb',v:734}],max:900}
+    },
+    periodValues: {
+      '3M': { value: '$734K', change: '↑ $124K', changeDir: 'positive' },
+      '6M': { value: '$734K', change: '↑ $222K', changeDir: 'positive' },
+      '12M': { value: '$734K', change: '↑ $354K', changeDir: 'positive' },
+      'YTD': { value: '$734K', change: '↑ $62K', changeDir: 'positive' }
+    },
+    breakdown:[['In Estimating','8','$312K','42.5%'],['Submitted','6','$224K','30.5%'],['In Review','4','$128K','17.4%'],['Negotiating','4','$70K','9.5%']],
+    headers:['Stage','Count','Value','% of Total'],
+    aiInsight:'<strong>42.5% of pipeline is still in estimating.</strong> Prioritize the 8 in-estimating RFQs by due date to avoid late submissions. The $70K in negotiation stage has strong close probability based on historical patterns.' },
+  'bid-hitrate-shipyard': { title:'Hit Rate by Shipyard — Detail', value:'34%', change:'47/138 total', changeDir:'neutral', theme:'success', subtitle:'Hit Rate by Shipyard %',
+    periods: {
+      '3M':{d:[{l:'Dec',v:40},{l:'Jan',v:41},{l:'Feb',v:42}],max:50},
+      '6M':{d:[{l:'Sep',v:38},{l:'Oct',v:39},{l:'Nov',v:40},{l:'Dec',v:40},{l:'Jan',v:41},{l:'Feb',v:42}],max:50},
+      '12M':{d:[{l:'Mar',v:35},{l:'Apr',v:36},{l:'May',v:37},{l:'Jun',v:37},{l:'Jul',v:38},{l:'Aug',v:39},{l:'Sep',v:38},{l:'Oct',v:39},{l:'Nov',v:40},{l:'Dec',v:40},{l:'Jan',v:41},{l:'Feb',v:42}],max:50},
+      'YTD':{d:[{l:'Jan',v:41},{l:'Feb',v:42}],max:50}
+    },
+    periodValues: {
+      '3M': { value: '42%', change: '↑ 2%', changeDir: 'positive' },
+      '6M': { value: '42%', change: '↑ 4%', changeDir: 'positive' },
+      '12M': { value: '42%', change: '↑ 7%', changeDir: 'positive' },
+      'YTD': { value: '42%', change: '↑ 1%', changeDir: 'positive' }
+    },
+    breakdown:[['HII-Ingalls','18','43','42%','$892K'],['Bath Iron Works','15','39','38%','$710K'],['Electric Boat','7','20','35%','$480K'],['HII-Newport News','9','31','29%','$580K'],['GD-NASSCO','5','20','25%','$310K'],['Fincantieri Marinette','2','10','20%','$120K'],['Austal USA','2','12','17%','$90K']],
+    headers:['Shipyard','Won','Submitted','Rate','Won Value'],
+    aiInsight:'<strong>HII-Ingalls is your best-performing relationship at 42%.</strong> Austal USA and Fincantieri Marinette win rates are below 20% — consider whether to invest more estimating effort in these newer relationships or stay focused on your top 4 yards where conversion is stronger.' },
+  'bid-margin-program': { title:'Avg Margin by Program — Detail', value:'22.4%', change:'weighted avg', changeDir:'neutral', theme:'success', subtitle:'Avg Margin by Program %',
+    periods: {
+      '3M':{d:[{l:'Dec',v:21.2},{l:'Jan',v:21.8},{l:'Feb',v:22.4}],max:28},
+      '6M':{d:[{l:'Sep',v:19.8},{l:'Oct',v:20.5},{l:'Nov',v:21.1},{l:'Dec',v:21.2},{l:'Jan',v:21.8},{l:'Feb',v:22.4}],max:28},
+      '12M':{d:[{l:'Mar',v:18.2},{l:'Apr',v:18.9},{l:'May',v:19.1},{l:'Jun',v:19.8},{l:'Jul',v:20.2},{l:'Aug',v:20.5},{l:'Sep',v:19.8},{l:'Oct',v:20.5},{l:'Nov',v:21.1},{l:'Dec',v:21.2},{l:'Jan',v:21.8},{l:'Feb',v:22.4}],max:28},
+      'YTD':{d:[{l:'Jan',v:21.8},{l:'Feb',v:22.4}],max:28}
+    },
+    periodValues: {
+      '3M': { value: '22.4%', change: '↑ 1.2%', changeDir: 'positive' },
+      '6M': { value: '22.4%', change: '↑ 2.6%', changeDir: 'positive' },
+      '12M': { value: '22.4%', change: '↑ 4.2%', changeDir: 'positive' },
+      'YTD': { value: '22.4%', change: '↑ 0.6%', changeDir: 'positive' }
+    },
+    breakdown:[['DDG-51','26.1%','$48K','12','$576K'],['CVN-81','22.8%','$82K','8','$656K'],['SSN-810','19.7%','$71K','6','$426K'],['LPD-32','17.1%','$38K','5','$190K'],['FFG-62','15.2%','$41K','4','$164K']],
+    headers:['Program','Margin','Avg Deal','Bids','Total Value'],
+    aiInsight:'<strong>DDG-51 delivers the best margin-per-bid at $48K average deal size.</strong> CVN-81 has higher total value but fewer bids — there may be growth opportunity. FFG-62 margins suggest these are filler work rather than strategic wins.' },
+  'bid-cycle-trend': { title:'Quote Cycle Time Trend — Detail', value:'4.2 days', change:'Feb 2026', changeDir:'neutral', theme:'yellow', subtitle:'Quote Cycle Time Trend (days)',
+    periods: {
+      '3M':{d:[{l:'Dec',v:3.5},{l:'Jan',v:3.9},{l:'Feb',v:4.2}],max:6},
+      '6M':{d:[{l:'Sep',v:4.1},{l:'Oct',v:3.8},{l:'Nov',v:4.0},{l:'Dec',v:3.5},{l:'Jan',v:3.9},{l:'Feb',v:4.2}],max:6},
+      '12M':{d:[{l:'Mar',v:5.1},{l:'Apr',v:4.8},{l:'May',v:4.5},{l:'Jun',v:5.0},{l:'Jul',v:4.6},{l:'Aug',v:4.3},{l:'Sep',v:4.1},{l:'Oct',v:3.8},{l:'Nov',v:4.0},{l:'Dec',v:3.5},{l:'Jan',v:3.9},{l:'Feb',v:4.2}],max:6},
+      'YTD':{d:[{l:'Jan',v:3.9},{l:'Feb',v:4.2}],max:6}
+    },
+    periodValues: {
+      '3M': { value: '4.2 days', change: '↓ 0.7d', changeDir: 'positive' },
+      '6M': { value: '4.2 days', change: '↓ 0.1d', changeDir: 'neutral' },
+      '12M': { value: '4.2 days', change: '↓ 0.9d', changeDir: 'positive' },
+      'YTD': { value: '4.2 days', change: '↓ 0.3d', changeDir: 'positive' }
+    },
+    breakdown:[['Mar','5.1d','8','$380K','3 overdue'],['Apr','4.8d','11','$420K','2 overdue'],['May','4.5d','9','$350K','1 overdue'],['Jun','5.0d','14','$520K','4 overdue'],['Jul','4.6d','10','$410K','2 overdue'],['Aug','4.3d','12','$460K','1 overdue'],['Sep','4.1d','11','$430K','0 overdue'],['Oct','3.8d','13','$490K','0 overdue'],['Nov','4.0d','10','$380K','1 overdue'],['Dec','3.5d','9','$360K','0 overdue'],['Jan','3.9d','12','$470K','1 overdue'],['Feb','4.2d','11','$440K','1 overdue']],
+    headers:['Month','Cycle','Bids','Value','Late'],
+    aiInsight:'<strong>December was your fastest month at 3.5 days</strong> — only month to beat the 3-day target. June spike (5.0d) correlates with 14 simultaneous bids. Consider capping concurrent quotes at 12 to maintain quality cycle times.' },
+  'bid-hitrate-customer': { title:'Hit Rate by Customer — Detail', value:'34%', change:'all customers', changeDir:'neutral', theme:'success', subtitle:'Hit Rate by Customer %',
+    periods: {
+      '3M':{d:[{l:'Dec',v:40},{l:'Jan',v:41},{l:'Feb',v:34}],max:50},
+      '6M':{d:[{l:'Sep',v:38},{l:'Oct',v:39},{l:'Nov',v:40},{l:'Dec',v:40},{l:'Jan',v:41},{l:'Feb',v:34}],max:50},
+      '12M':{d:[{l:'Mar',v:35},{l:'Apr',v:36},{l:'May',v:37},{l:'Jun',v:37},{l:'Jul',v:38},{l:'Aug',v:39},{l:'Sep',v:38},{l:'Oct',v:39},{l:'Nov',v:40},{l:'Dec',v:40},{l:'Jan',v:41},{l:'Feb',v:34}],max:50},
+      'YTD':{d:[{l:'Jan',v:41},{l:'Feb',v:34}],max:50}
+    },
+    periodValues: {
+      '3M': { value: '34%', change: '↓ 6%', changeDir: 'negative' },
+      '6M': { value: '34%', change: '↓ 4%', changeDir: 'negative' },
+      '12M': { value: '34%', change: '↓ 1%', changeDir: 'neutral' },
+      'YTD': { value: '34%', change: '↓ 7%', changeDir: 'negative' }
+    },
+    breakdown:[['HII-Ingalls','18','43','42%','$892K'],['Electric Boat','7','20','35%','$480K'],['Bath Iron Works','15','39','38%','$710K'],['HII-Newport News','9','31','29%','$580K'],['GD-NASSCO','5','20','25%','$310K'],['Fincantieri Marinette','2','10','20%','$120K'],['Austal USA','2','12','17%','$90K']],
+    headers:['Customer','Won','Submitted','Rate','Won Value'],
+    aiInsight:'<strong>HII-Ingalls is your highest-converting customer at 42%.</strong> Austal USA at 17% and Fincantieri Marinette at 20% are newer relationships — track whether deal sizes justify the lower win rates. Electric Boat at 35% shows strong submarine work potential.' },
+  'prod-activejobs': { title:'Active Jobs — Detail', value:'6', change:'2 due today', changeDir:'neutral', theme:'', subtitle:'Jobs in Active Status',
+    periods: {
+      'Today':{d:[{l:'Jobs',v:6}],max:25},
+      'This Week':{d:[{l:'Mon',v:12},{l:'Tue',v:13},{l:'Wed',v:14},{l:'Thu',v:13},{l:'Fri',v:11}],max:25},
+      'This Month':{d:[{l:'W1',v:14},{l:'W2',v:16},{l:'W3',v:17},{l:'W4',v:18}],max:25},
+      'Quarter':{d:[{l:'Jan',v:15},{l:'Feb',v:17},{l:'Mar',v:18}],max:25}
+    },
+    periodValues: {
+      'Today': { value: '6', change: '2 due today', changeDir: 'neutral' },
+      'This Week': { value: '14', change: '↑ 8 vs today', changeDir: 'positive' },
+      'This Month': { value: '18', change: '↑ 12 vs today', changeDir: 'positive' },
+      'Quarter': { value: '18', change: '↑ 12 vs today', changeDir: 'positive' }
+    },
+    breakdown:[['In Work','6','33%','On Track'],['RTW Released','4','22%','On Track'],['RTW Ready','3','17%','Pending'],['Planned','2','11%','Scheduled'],['NCR Rework','3','17%','At Risk']],
+    headers:['Status','Count','% Total','Health'],
+    aiInsight:'<strong>3 jobs in NCR Rework status represent 17% of active work.</strong> This is above the 10% target. Clearing J-2026-028 (hatch frame) should be the priority as it has been in rework for 5 days.' },
+  'prod-ontime': { title:'On-Time Delivery Rate', value:'87%', change:'↑ 5%', changeDir:'positive', theme:'success', subtitle:'Cumulative On-Time %',
+    periods: {
+      'Today':{d:[{l:'T',v:87}],max:100},
+      'This Week':{d:[{l:'Mon',v:88},{l:'Tue',v:86},{l:'Wed',v:87},{l:'Thu',v:89},{l:'Fri',v:87}],max:100},
+      'This Month':{d:[{l:'W1',v:84},{l:'W2',v:85},{l:'W3',v:86},{l:'W4',v:87}],max:100},
+      'Quarter':{d:[{l:'Jan',v:85},{l:'Feb',v:86},{l:'Mar',v:87}],max:100}
+    },
+    periodValues: {
+      'Today': { value: '87%', change: '↑ 5%', changeDir: 'positive' },
+      'This Week': { value: '87%', change: '↑ 1%', changeDir: 'positive' },
+      'This Month': { value: '87%', change: '↑ 3%', changeDir: 'positive' },
+      'Quarter': { value: '87%', change: '↑ 2%', changeDir: 'positive' }
+    },
+    breakdown:[['DDG-51','92%','12','↑ 3%'],['CVN-81','88%','6','↑ 8%'],['SSN-810','83%','4','—'],['LPD-32','80%','3','↓ 2%'],['FFG-62','75%','2','↑ 5%']],
+    headers:['Program','Rate','Jobs','Trend'],
+    aiInsight:'<strong>DDG-51 on-time rate of 92% is excellent.</strong> LPD-32 at 80% and trending down needs attention — check if the routing templates for LPD parts need updating. Overall 87% is strong but 2 programs are pulling it down.' },
+  'prod-overdue': { title:'Overdue Jobs', value:'3', change:'2 critical', changeDir:'negative', theme:'danger', subtitle:'Overdue Job Count',
+    periods: {
+      'Today':{d:[{l:'T',v:3}],max:6},
+      'This Week':{d:[{l:'Mon',v:2},{l:'Tue',v:2},{l:'Wed',v:3},{l:'Thu',v:3},{l:'Fri',v:3}],max:6},
+      'This Month':{d:[{l:'W1',v:2},{l:'W2',v:3},{l:'W3',v:4},{l:'W4',v:3}],max:6},
+      'Quarter':{d:[{l:'Jan',v:4},{l:'Feb',v:3},{l:'Mar',v:3}],max:6}
+    },
+    periodValues: {
+      'Today': { value: '3', change: '2 critical', changeDir: 'negative' },
+      'This Week': { value: '3', change: 'same as today', changeDir: 'neutral' },
+      'This Month': { value: '3', change: '↓ 1 from week 3', changeDir: 'positive' },
+      'Quarter': { value: '3', change: 'stable', changeDir: 'neutral' }
+    },
+    breakdown:[['J-2026-031','Motor mount','DDG-51','2d late','Behind'],['J-2026-028','Hatch frame','SSN-810','5d late','Critical'],['J-2026-033','Pipe spool','LPD-32','1d late','At Risk']],
+    headers:['Job','Part','Program','Delay','Severity'],
+    aiInsight:'<strong>J-2026-028 at 5 days late is critical.</strong> The hatch frame is blocking NDT inspection queue. Recommend escalating to shift lead and authorizing overtime to close this gap before it cascades to downstream jobs.' },
+  'prod-duration': { title:'Avg Job Duration', value:'12.4 days', change:'Plan: 10d', changeDir:'negative', theme:'warn', subtitle:'Avg Job Duration (days)',
+    periods: {
+      'Today':{d:[{l:'T',v:12.4}],max:16},
+      'This Week':{d:[{l:'Mon',v:12.1},{l:'Tue',v:12.2},{l:'Wed',v:12.3},{l:'Thu',v:12.4},{l:'Fri',v:12.4}],max:16},
+      'This Month':{d:[{l:'W1',v:11.9},{l:'W2',v:12.1},{l:'W3',v:12.2},{l:'W4',v:12.4}],max:16},
+      'Quarter':{d:[{l:'Jan',v:12.1},{l:'Feb',v:12.3},{l:'Mar',v:12.4}],max:16}
+    },
+    periodValues: {
+      'Today': { value: '12.4 days', change: 'Plan: 10d', changeDir: 'negative' },
+      'This Week': { value: '12.4 days', change: '↑ 0.3d', changeDir: 'negative' },
+      'This Month': { value: '12.4 days', change: '↑ 0.5d', changeDir: 'negative' },
+      'Quarter': { value: '12.4 days', change: '↑ 0.3d', changeDir: 'negative' }
+    },
+    breakdown:[['Machining','4.2d','3.5d','↑ 0.7d'],['Welding','3.8d','3.0d','↑ 0.8d'],['NDT/QA','2.1d','1.5d','↑ 0.6d'],['Assembly','1.5d','1.2d','↑ 0.3d'],['Finishing','0.8d','0.8d','—']],
+    headers:['Phase','Actual','Plan','Variance'],
+    aiInsight:'<strong>Welding phase has the largest variance at +0.8d.</strong> Combined with machining (+0.7d), these two phases account for 75% of the duration overrun. Consider reviewing setup procedures and fixture availability.' },
+  'qual-openncrs': { title:'Open NCRs', value:'5', change:'2 critical', changeDir:'negative', theme:'danger', subtitle:'Open NCRs Count',
+    periods: {
+      'This Month':{d:[{l:'W1',v:3},{l:'W2',v:4},{l:'W3',v:5},{l:'W4',v:5}],max:8},
+      'Quarter':{d:[{l:'Jan',v:4},{l:'Feb',v:5},{l:'Mar',v:5}],max:8},
+      '12 Months':{d:[{l:'Mar',v:2},{l:'Apr',v:2},{l:'May',v:3},{l:'Jun',v:3},{l:'Jul',v:4},{l:'Aug',v:3},{l:'Sep',v:4},{l:'Oct',v:5},{l:'Nov',v:4},{l:'Dec',v:4},{l:'Jan',v:4},{l:'Feb',v:5}],max:8},
+      'All Time':{d:[{l:'2025',v:3},{l:'2026',v:4}],max:8}
+    },
+    periodValues: {
+      'This Month': { value: '5', change: '↑ 2 from W1', changeDir: 'negative' },
+      'Quarter': { value: '5', change: '↑ 1 from Jan', changeDir: 'negative' },
+      '12 Months': { value: '5', change: '↑ 3 from Mar', changeDir: 'negative' },
+      'All Time': { value: '4', change: '2026 vs 2025', changeDir: 'neutral' }
+    },
+    breakdown:[['NCR-042','Weld defect','J-2026-038','Critical','2d'],['NCR-041','Dimension OOS','J-2026-028','Major','5d'],['NCR-040','Surface finish','J-2026-031','Minor','3d'],['NCR-039','Material cert','J-2026-042','Major','7d'],['NCR-038','Thread gauge','J-2026-045','Minor','4d']],
+    headers:['NCR','Type','Job','Severity','Age'],
+    aiInsight:'<strong>NCR-042 and NCR-041 are both critical severity</strong> and should be dispositioned within 48 hours per your QMS. NCR-039 at 7 days age is overdue for resolution — escalate to quality manager.' },
+  'qual-firstpass': { title:'First Pass Yield', value:'94.2%', change:'↑ 1.8%', changeDir:'positive', theme:'success', subtitle:'First Pass Yield %',
+    periods: {
+      'This Month':{d:[{l:'W1',v:92},{l:'W2',v:93},{l:'W3',v:93},{l:'W4',v:94}],max:100},
+      'Quarter':{d:[{l:'Jan',v:92},{l:'Feb',v:93},{l:'Mar',v:94}],max:100},
+      '12 Months':{d:[{l:'Mar',v:88},{l:'Apr',v:89},{l:'May',v:90},{l:'Jun',v:90},{l:'Jul',v:91},{l:'Aug',v:91},{l:'Sep',v:92},{l:'Oct',v:92},{l:'Nov',v:93},{l:'Dec',v:93},{l:'Jan',v:92},{l:'Feb',v:94}],max:100},
+      'All Time':{d:[{l:'2025',v:90},{l:'2026',v:93}],max:100}
+    },
+    periodValues: {
+      'This Month': { value: '94%', change: '↑ 2%', changeDir: 'positive' },
+      'Quarter': { value: '94%', change: '↑ 2%', changeDir: 'positive' },
+      '12 Months': { value: '94%', change: '↑ 6%', changeDir: 'positive' },
+      'All Time': { value: '93%', change: '↑ 3%', changeDir: 'positive' }
+    },
+    breakdown:[['Machining','96.1%','↑ 0.5%','245 ops'],['Welding','91.8%','↑ 2.1%','189 ops'],['NDT','97.3%','↑ 0.8%','156 ops'],['Assembly','93.5%','↑ 1.2%','98 ops']],
+    headers:['Process','Yield','Trend','Ops Inspected'],
+    aiInsight:'<strong>Welding FPY improved the most at +2.1%</strong> after the training initiative. NDT at 97.3% is best-in-class. Assembly at 93.5% has room to improve — common defects there are fit-up related, suggesting upstream tolerance issues.' },
+  'qual-escaperate': { title:'Escape Rate', value:'0.8%', change:'↓ 0.3%', changeDir:'positive', theme:'success', subtitle:'Escape Rate %',
+    periods: {
+      'This Month':{d:[{l:'W1',v:1.2},{l:'W2',v:1.0},{l:'W3',v:0.9},{l:'W4',v:0.8}],max:2},
+      'Quarter':{d:[{l:'Jan',v:1.1},{l:'Feb',v:0.9},{l:'Mar',v:0.8}],max:2},
+      '12 Months':{d:[{l:'Mar',v:1.8},{l:'Apr',v:1.6},{l:'May',v:1.5},{l:'Jun',v:1.4},{l:'Jul',v:1.2},{l:'Aug',v:1.1},{l:'Sep',v:1.0},{l:'Oct',v:1.0},{l:'Nov',v:0.9},{l:'Dec',v:0.9},{l:'Jan',v:1.1},{l:'Feb',v:0.8}],max:2},
+      'All Time':{d:[{l:'2025',v:1.3},{l:'2026',v:0.9}],max:2}
+    },
+    periodValues: {
+      'This Month': { value: '0.8%', change: '↓ 0.4%', changeDir: 'positive' },
+      'Quarter': { value: '0.8%', change: '↓ 0.3%', changeDir: 'positive' },
+      '12 Months': { value: '0.8%', change: '↓ 1.0%', changeDir: 'positive' },
+      'All Time': { value: '0.9%', change: '↓ 0.4%', changeDir: 'positive' }
+    },
+    breakdown:[['Weld porosity','2','Customer','DDG-51'],['Dimension OOS','1','Final QA','CVN-81'],['Surface defect','1','Customer','SSN-810']],
+    headers:['Defect Type','Count','Detected At','Program'],
+    aiInsight:'<strong>2 of 4 escapes reached the customer</strong> (weld porosity and surface defect). Both are visual/surface defects detectable at final QA. Consider adding a dedicated surface inspection step before pack-out.' },
+  'qual-costncr': { title:'Cost of Quality (NCR)', value:'$18.4K', change:'↓ $3.2K', changeDir:'positive', theme:'warn', subtitle:'Cost of Quality NCR ($K)',
+    periods: {
+      'This Month':{d:[{l:'W1',v:21},{l:'W2',v:20},{l:'W3',v:19},{l:'W4',v:18}],max:25},
+      'Quarter':{d:[{l:'Jan',v:20},{l:'Feb',v:19},{l:'Mar',v:18}],max:25},
+      '12 Months':{d:[{l:'Mar',v:28},{l:'Apr',v:27},{l:'May',v:26},{l:'Jun',v:25},{l:'Jul',v:24},{l:'Aug',v:22},{l:'Sep',v:22},{l:'Oct',v:20},{l:'Nov',v:20},{l:'Dec',v:20},{l:'Jan',v:20},{l:'Feb',v:18}],max:30},
+      'All Time':{d:[{l:'2025',v:25},{l:'2026',v:19}],max:30}
+    },
+    periodValues: {
+      'This Month': { value: '$18K', change: '↓ $3K', changeDir: 'positive' },
+      'Quarter': { value: '$18K', change: '↓ $2K', changeDir: 'positive' },
+      '12 Months': { value: '$18K', change: '↓ $10K', changeDir: 'positive' },
+      'All Time': { value: '$19K', change: '↓ $6K', changeDir: 'positive' }
+    },
+    breakdown:[['Rework labor','$8.2K','44.6%','↓ $1.4K'],['Scrap material','$4.8K','26.1%','↓ $0.8K'],['Re-inspection','$3.1K','16.8%','↓ $0.6K'],['Admin/docs','$2.3K','12.5%','↓ $0.4K']],
+    headers:['Category','Cost','% Total','Trend'],
+    aiInsight:'<strong>Rework labor drives 44.6% of quality costs.</strong> The $3.2K reduction this period is encouraging. Continued focus on first-pass yield in welding could reduce rework labor another $2-3K per quarter.' },
+  'util-machinetime': { title:'Machine Utilization', value:'72%', change:'↑ 4%', changeDir:'positive', theme:'success', subtitle:'Machine Utilization %',
+    periods: {
+      'Today':{d:[{l:'T',v:72}],max:100},
+      'This Week':{d:[{l:'Mon',v:70},{l:'Tue',v:71},{l:'Wed',v:72},{l:'Thu',v:73},{l:'Fri',v:72}],max:100},
+      'This Month':{d:[{l:'W1',v:68},{l:'W2',v:70},{l:'W3',v:71},{l:'W4',v:72}],max:100},
+      'YTD':{d:[{l:'Jan',v:70},{l:'Feb',v:72}],max:100}
+    },
+    periodValues: {
+      'Today': { value: '72%', change: '↑ 4%', changeDir: 'positive' },
+      'This Week': { value: '72%', change: '↑ 2%', changeDir: 'positive' },
+      'This Month': { value: '72%', change: '↑ 4%', changeDir: 'positive' },
+      'YTD': { value: '72%', change: '↑ 2%', changeDir: 'positive' }
+    },
+    breakdown:[['CNC Mill #1','84%','DDG-51 bracket','On Track'],['CNC Mill #2','78%','CVN-81 valve','On Track'],['CNC Lathe #1','71%','SSN-810 housing','Available'],['Welding Cell A','68%','Mixed jobs','Available'],['Welding Cell B','59%','Maintenance','Down 2hrs']],
+    headers:['Machine','Util %','Current Job','Status'],
+    aiInsight:'<strong>Welding Cell B at 59% is your lowest-utilized asset</strong> with 2 hours of maintenance downtime today. Check PM schedule — if this is recurring, consider shifting Cell B jobs to Cell A during maintenance windows.' },
+  'util-laborutil': { title:'Labor Utilization', value:'84%', change:'↑ 2%', changeDir:'positive', theme:'success', subtitle:'Labor Utilization %',
+    periods: {
+      'Today':{d:[{l:'T',v:84}],max:100},
+      'This Week':{d:[{l:'Mon',v:82},{l:'Tue',v:83},{l:'Wed',v:84},{l:'Thu',v:85},{l:'Fri',v:84}],max:100},
+      'This Month':{d:[{l:'W1',v:81},{l:'W2',v:82},{l:'W3',v:83},{l:'W4',v:84}],max:100},
+      'YTD':{d:[{l:'Jan',v:82},{l:'Feb',v:84}],max:100}
+    },
+    periodValues: {
+      'Today': { value: '84%', change: '↑ 2%', changeDir: 'positive' },
+      'This Week': { value: '84%', change: '↑ 3%', changeDir: 'positive' },
+      'This Month': { value: '84%', change: '↑ 3%', changeDir: 'positive' },
+      'YTD': { value: '84%', change: '↑ 2%', changeDir: 'positive' }
+    },
+    breakdown:[['Machinists','88%','6','DDG/CVN'],['Welders','82%','5','Mixed'],['NDT Techs','79%','3','Backlog'],['Assemblers','86%','4','LPD/FFG'],['QA Inspectors','81%','2','Queue']],
+    headers:['Role','Util %','Headcount','Focus'],
+    aiInsight:'<strong>NDT Techs at 79% with a backlog</strong> suggest this is a bottleneck. With only 3 techs, any absence creates delays. Consider cross-training 1-2 machinists for basic NDT to build surge capacity.' },
+  'util-throughput': { title:'Throughput', value:'4.2 jobs/wk', change:'↑ 0.3', changeDir:'positive', theme:'success', subtitle:'Throughput (jobs/week)',
+    periods: {
+      'Today':{d:[{l:'T',v:4.2}],max:5},
+      'This Week':{d:[{l:'Mon',v:3.8},{l:'Tue',v:4.0},{l:'Wed',v:4.1},{l:'Thu',v:4.2},{l:'Fri',v:4.2}],max:5},
+      'This Month':{d:[{l:'W1',v:3.8},{l:'W2',v:4.0},{l:'W3',v:4.1},{l:'W4',v:4.2}],max:5},
+      'YTD':{d:[{l:'Jan',v:4.0},{l:'Feb',v:4.2}],max:5}
+    },
+    periodValues: {
+      'Today': { value: '4.2', change: '↑ 0.3', changeDir: 'positive' },
+      'This Week': { value: '4.2', change: '↑ 0.4', changeDir: 'positive' },
+      'This Month': { value: '4.2', change: '↑ 0.4', changeDir: 'positive' },
+      'YTD': { value: '4.2', change: '↑ 0.2', changeDir: 'positive' }
+    },
+    breakdown:[['Week -4','3.8','14','$182K'],['Week -3','4.1','16','$198K'],['Week -2','4.5','18','$215K'],['Week -1','4.0','15','$190K'],['This Week','4.2','17','$205K']],
+    headers:['Period','Jobs/Wk','Ops Done','Value'],
+    aiInsight:'<strong>Throughput trending upward consistently.</strong> The 4.5 jobs/week peak in Week -2 shows capacity ceiling. Current 4.2 is healthy and sustainable. Focus on maintaining this rate rather than pushing higher, which risks quality.' },
+  'util-scrap': { title:'Scrap Rate', value:'2.1%', change:'↓ 0.4%', changeDir:'positive', theme:'success', subtitle:'Scrap Rate %',
+    periods: {
+      'Today':{d:[{l:'T',v:2.1}],max:4},
+      'This Week':{d:[{l:'Mon',v:2.4},{l:'Tue',v:2.3},{l:'Wed',v:2.2},{l:'Thu',v:2.1},{l:'Fri',v:2.1}],max:4},
+      'This Month':{d:[{l:'W1',v:2.5},{l:'W2',v:2.3},{l:'W3',v:2.2},{l:'W4',v:2.1}],max:4},
+      'YTD':{d:[{l:'Jan',v:2.3},{l:'Feb',v:2.1}],max:4}
+    },
+    periodValues: {
+      'Today': { value: '2.1%', change: '↓ 0.4%', changeDir: 'positive' },
+      'This Week': { value: '2.1%', change: '↓ 0.3%', changeDir: 'positive' },
+      'This Month': { value: '2.1%', change: '↓ 0.4%', changeDir: 'positive' },
+      'YTD': { value: '2.1%', change: '↓ 0.2%', changeDir: 'positive' }
+    },
+    breakdown:[['HY-80 steel','3.2%','$4,800','Weld prep'],['CRES 316L','1.8%','$2,100','Machining'],['CuNi 70/30','2.4%','$1,900','Forming'],['AL 5083','0.8%','$600','Cutting'],['HY-100','1.9%','$1,400','Welding']],
+    headers:['Material','Rate','Cost','Primary Cause'],
+    aiInsight:'<strong>HY-80 scrap at 3.2% is double the shop average.</strong> Primary cause is weld prep — aligns with the NCR data showing weld defects as #1 root cause. Improving weld prep procedures could save ~$2K/quarter in scrap alone.' },
+  'prod-readiness': { title:'Job Readiness Breakdown — Detail', value:'18 Jobs', change:'pipeline overview', changeDir:'neutral', theme:'', subtitle:'Active Jobs Count',
+    periods: {
+      'Today':{d:[{l:'T',v:18}],max:25},
+      'This Week':{d:[{l:'Mon',v:17},{l:'Tue',v:17},{l:'Wed',v:18},{l:'Thu',v:18},{l:'Fri',v:18}],max:25},
+      'This Month':{d:[{l:'W1',v:16},{l:'W2',v:17},{l:'W3',v:17},{l:'W4',v:18}],max:25},
+      'Quarter':{d:[{l:'Jan',v:17},{l:'Feb',v:18},{l:'Mar',v:18}],max:25}
+    },
+    periodValues: {
+      'Today': { value: '18', change: 'pipeline overview', changeDir: 'neutral' },
+      'This Week': { value: '18', change: 'avg 18 active', changeDir: 'neutral' },
+      'This Month': { value: '18', change: '↑ 2 from W1', changeDir: 'positive' },
+      'Quarter': { value: '18', change: '↑ 1 from Jan', changeDir: 'positive' }
+    },
+    breakdown:[['Planned','2','11%','$85K','Mar 20+'],['RTW Ready','3','17%','$120K','Materials OK'],['RTW Released','4','22%','$165K','Scheduled'],['In Work','6','33%','$280K','On floor'],['Complete','3','17%','$140K','Shipped']],
+    headers:['Stage','Count','%','Value','Notes'],
+    aiInsight:'<strong>3 jobs in RTW Ready status</strong> have materials approved — these can be released to the floor immediately. Releasing them would increase In Work count to 9, which is within your shop capacity of 10 concurrent jobs.' },
+  'prod-schedule': { title:'Schedule Health — Detail', value:'18 Jobs', change:'3 behind', changeDir:'negative', theme:'', subtitle:'Jobs On Track Count',
+    periods: {
+      'Today':{d:[{l:'T',v:18}],max:25},
+      'This Week':{d:[{l:'Mon',v:17},{l:'Tue',v:17},{l:'Wed',v:18},{l:'Thu',v:18},{l:'Fri',v:18}],max:25},
+      'This Month':{d:[{l:'W1',v:16},{l:'W2',v:17},{l:'W3',v:17},{l:'W4',v:18}],max:25},
+      'Quarter':{d:[{l:'Jan',v:17},{l:'Feb',v:18},{l:'Mar',v:18}],max:25}
+    },
+    periodValues: {
+      'Today': { value: '18', change: '3 behind', changeDir: 'negative' },
+      'This Week': { value: '18', change: '3 behind', changeDir: 'negative' },
+      'This Month': { value: '18', change: '3 behind', changeDir: 'negative' },
+      'Quarter': { value: '18', change: '3 behind', changeDir: 'negative' }
+    },
+    breakdown:[['On Track','12','67%','Avg 2.1d ahead'],['At Risk','3','17%','Avg 0.5d behind'],['Behind','3','17%','Avg 3.2d behind']],
+    headers:['Status','Count','%','Detail'],
+    aiInsight:'<strong>67% On Track is good, but 3 jobs behind schedule</strong> averaging 3.2 days late is concerning. The behind-schedule jobs share a common bottleneck at welding. Consider temporary overtime authorization for Weld Cells to clear the backlog.' },
+  'prod-cost': { title:'Cost: Estimated vs Actual — Detail', value:'Avg 96%', change:'of estimate', changeDir:'neutral', theme:'', subtitle:'Cost vs Estimate %',
+    periods: {
+      'Today':{d:[{l:'T',v:96}],max:130},
+      'This Week':{d:[{l:'Mon',v:95},{l:'Tue',v:96},{l:'Wed',v:96},{l:'Thu',v:96},{l:'Fri',v:96}],max:130},
+      'This Month':{d:[{l:'W1',v:94},{l:'W2',v:95},{l:'W3',v:95},{l:'W4',v:96}],max:130},
+      'Quarter':{d:[{l:'Jan',v:95},{l:'Feb',v:96},{l:'Mar',v:96}],max:130}
+    },
+    periodValues: {
+      'Today': { value: '96%', change: 'of estimate', changeDir: 'neutral' },
+      'This Week': { value: '96%', change: 'of estimate', changeDir: 'neutral' },
+      'This Month': { value: '96%', change: '↑ 2% from W1', changeDir: 'negative' },
+      'Quarter': { value: '96%', change: '↑ 1% from Jan', changeDir: 'negative' }
+    },
+    breakdown:[['J-2026-038','Valve body','92%','$44K','$40.5K'],['J-2026-031','Motor mount','108%','$32K','$34.6K'],['J-2026-042','Pump bracket','64%','$28K','$17.9K'],['J-2026-028','Hatch frame','124%','$52K','$64.5K']],
+    headers:['Job','Part','% of Est','Estimate','Actual'],
+    aiInsight:'<strong>J-2026-028 at 124% of estimate is a cost overrun alert.</strong> The hatch frame rework from NCR is the primary driver. J-2026-042 at 64% is early-stage and tracking well. Update the estimate template for hatch-type parts based on this data.' },
+  'prod-pipeline': { title:'Pipeline by Stage — Detail', value:'$734K', change:'total pipeline', changeDir:'neutral', theme:'', subtitle:'Pipeline Value ($K)',
+    periods: {
+      'Today':{d:[{l:'T',v:734}],max:900},
+      'This Week':{d:[{l:'Mon',v:720},{l:'Tue',v:725},{l:'Wed',v:730},{l:'Thu',v:732},{l:'Fri',v:734}],max:900},
+      'This Month':{d:[{l:'W1',v:700},{l:'W2',v:715},{l:'W3',v:725},{l:'W4',v:734}],max:900},
+      'Quarter':{d:[{l:'Jan',v:710},{l:'Feb',v:725},{l:'Mar',v:734}],max:900}
+    },
+    periodValues: {
+      'Today': { value: '$734K', change: 'total pipeline', changeDir: 'neutral' },
+      'This Week': { value: '$734K', change: '↑ $14K', changeDir: 'positive' },
+      'This Month': { value: '$734K', change: '↑ $34K', changeDir: 'positive' },
+      'Quarter': { value: '$734K', change: '↑ $24K', changeDir: 'positive' }
+    },
+    breakdown:[['New RFQ','7','$258K','35%'],['Quoting','5','$205K','28%'],['Submitted','4','$164K','22%'],['Awarded','3','$107K','15%']],
+    headers:['Stage','Count','Value','%'],
+    aiInsight:'<strong>35% of pipeline value is in New RFQ stage.</strong> These 7 RFQs need estimating attention within the next week. The awarded $107K should convert to jobs soon — confirm PO receipt to avoid delays in job creation.' },
+  'qual-ncrbycause': { title:'NCR by Root Cause — Detail', value:'7 NCRs', change:'last 90 days', changeDir:'neutral', theme:'danger', subtitle:'NCR Count (90 days)',
+    periods: {
+      'This Month':{d:[{l:'W1',v:2},{l:'W2',v:2},{l:'W3',v:2},{l:'W4',v:1}],max:4},
+      'Quarter':{d:[{l:'Jan',v:2},{l:'Feb',v:2},{l:'Mar',v:3}],max:4},
+      '12 Months':{d:[{l:'Mar',v:2},{l:'Apr',v:1},{l:'May',v:2},{l:'Jun',v:2},{l:'Jul',v:2},{l:'Aug',v:2},{l:'Sep',v:3},{l:'Oct',v:2},{l:'Nov',v:1},{l:'Dec',v:2},{l:'Jan',v:2},{l:'Feb',v:2}],max:4},
+      'All Time':{d:[{l:'2025',v:2},{l:'2026',v:2}],max:4}
+    },
+    periodValues: {
+      'This Month': { value: '1', change: '↓ 1 from W3', changeDir: 'positive' },
+      'Quarter': { value: '3', change: '↑ 1 from Jan', changeDir: 'negative' },
+      '12 Months': { value: '2', change: 'Feb value', changeDir: 'neutral' },
+      'All Time': { value: '2', change: 'stable', changeDir: 'neutral' }
+    },
+    breakdown:[['Weld defect','3','43%','$8.2K','Weld Cell A/B'],['Dimension OOS','2','29%','$4.6K','CNC Mill #1'],['Surface finish','1','14%','$2.1K','Finishing'],['Material cert','1','14%','$1.8K','Incoming QA']],
+    headers:['Root Cause','Count','%','Cost Impact','Area'],
+    aiInsight:'<strong>Weld defects account for 43% of NCRs</strong> and $8.2K in rework. Recommend scheduling refresher training for Weld Cell A operators and auditing gas flow settings on MIG units.' },
+  'qual-ncrtrend': { title:'NCR Trend — Monthly Count', value:'Avg 2.4/mo', change:'↓ from 3.1', changeDir:'positive', theme:'success', subtitle:'Monthly NCR Avg',
+    periods: {
+      'This Month':{d:[{l:'W1',v:1},{l:'W2',v:1},{l:'W3',v:0},{l:'W4',v:0}],max:4},
+      'Quarter':{d:[{l:'Jan',v:1},{l:'Feb',v:2},{l:'Mar',v:3}],max:4},
+      '12 Months':{d:[{l:'Mar',v:4},{l:'Apr',v:3},{l:'May',v:2},{l:'Jun',v:2},{l:'Jul',v:3},{l:'Aug',v:3},{l:'Sep',v:4},{l:'Oct',v:3},{l:'Nov',v:2},{l:'Dec',v:3},{l:'Jan',v:1},{l:'Feb',v:2}],max:5},
+      'All Time':{d:[{l:'2025',v:3},{l:'2026',v:2}],max:5}
+    },
+    periodValues: {
+      'This Month': { value: '0', change: '↓ from W3', changeDir: 'positive' },
+      'Quarter': { value: '3', change: 'Mar spike', changeDir: 'negative' },
+      '12 Months': { value: '2', change: 'Feb value', changeDir: 'neutral' },
+      'All Time': { value: '2', change: 'stable', changeDir: 'neutral' }
+    },
+    breakdown:[['Sep','4','$6.8K','2 Critical'],['Oct','3','$4.2K','1 Critical'],['Nov','2','$2.9K','0 Critical'],['Dec','3','$5.1K','1 Critical'],['Jan','1','$1.4K','0 Critical'],['Feb','2','$3.8K','1 Critical']],
+    headers:['Month','NCRs','Cost','Critical'],
+    aiInsight:'<strong>NCR frequency trending downward 23%</strong> over 6 months. Critical NCR rate also improving. Current trajectory projects sub-2.0/mo average by Q3 if weld process controls remain in place.' },
+  'qual-ncrbyarea': { title:'NCRs by Work Center — Detail', value:'7 Open', change:'across 4 centers', changeDir:'neutral', theme:'', subtitle:'NCRs Open Count',
+    periods: {
+      'This Month':{d:[{l:'W1',v:2},{l:'W2',v:2},{l:'W3',v:2},{l:'W4',v:1}],max:4},
+      'Quarter':{d:[{l:'Jan',v:2},{l:'Feb',v:2},{l:'Mar',v:3}],max:4},
+      '12 Months':{d:[{l:'Mar',v:2},{l:'Apr',v:1},{l:'May',v:2},{l:'Jun',v:2},{l:'Jul',v:2},{l:'Aug',v:2},{l:'Sep',v:3},{l:'Oct',v:2},{l:'Nov',v:1},{l:'Dec',v:2},{l:'Jan',v:2},{l:'Feb',v:2}],max:4},
+      'All Time':{d:[{l:'2025',v:2},{l:'2026',v:2}],max:4}
+    },
+    periodValues: {
+      'This Month': { value: '1', change: '↓ 1 from W3', changeDir: 'positive' },
+      'Quarter': { value: '3', change: 'Mar value', changeDir: 'neutral' },
+      '12 Months': { value: '2', change: 'Feb value', changeDir: 'neutral' },
+      'All Time': { value: '2', change: 'stable', changeDir: 'neutral' }
+    },
+    breakdown:[['Weld Cell A','3','$6.4K','2 Critical, 1 Major'],['CNC Mill #1','2','$3.2K','1 Major, 1 Minor'],['Finishing','1','$1.2K','1 Minor'],['Assembly','1','$1.8K','1 Major']],
+    headers:['Work Center','NCRs','Cost','Severity Mix'],
+    aiInsight:'<strong>Weld Cell A drives 43% of NCR volume.</strong> The two critical items are both porosity-related. Consider scheduling gas nozzle maintenance and re-validating purge procedures before next shift rotation.' },
+  'qual-fpybyarea': { title:'First Pass Yield by Work Center', value:'94.2%', change:'↑ 1.8%', changeDir:'positive', theme:'success', subtitle:'First Pass Yield %',
+    periods: {
+      'This Month':{d:[{l:'W1',v:92},{l:'W2',v:93},{l:'W3',v:93},{l:'W4',v:94}],max:100},
+      'Quarter':{d:[{l:'Jan',v:92},{l:'Feb',v:93},{l:'Mar',v:94}],max:100},
+      '12 Months':{d:[{l:'Mar',v:88},{l:'Apr',v:89},{l:'May',v:90},{l:'Jun',v:90},{l:'Jul',v:91},{l:'Aug',v:91},{l:'Sep',v:92},{l:'Oct',v:92},{l:'Nov',v:93},{l:'Dec',v:93},{l:'Jan',v:92},{l:'Feb',v:94}],max:100},
+      'All Time':{d:[{l:'2025',v:90},{l:'2026',v:93}],max:100}
+    },
+    periodValues: {
+      'This Month': { value: '94%', change: '↑ 2%', changeDir: 'positive' },
+      'Quarter': { value: '94%', change: '↑ 2%', changeDir: 'positive' },
+      '12 Months': { value: '94%', change: '↑ 6%', changeDir: 'positive' },
+      'All Time': { value: '93%', change: '↑ 3%', changeDir: 'positive' }
+    },
+    breakdown:[['NDT Lab','97.3%','↑ 0.8%','156 inspections'],['CNC Mill #1','96.1%','↑ 0.5%','245 ops'],['Assembly','93.5%','↑ 1.2%','98 ops'],['Weld Cell A','92.4%','↑ 2.8%','108 ops'],['Weld Cell B','91.2%','↑ 1.4%','81 ops']],
+    headers:['Work Center','FPY','Trend','Volume'],
+    aiInsight:'<strong>Weld Cell A improved 2.8%</strong> after the operator training initiative. Weld Cell B is lagging — consider extending the same training. Overall trajectory puts shop-wide FPY on track for 95% target by Q2.' },
+  'util-hoursbywc': { title:'Hours by Work Center — Today', value:'52.5 hrs', change:'8 operators active', changeDir:'neutral', theme:'', subtitle:'Total Hours Today',
+    periods: {
+      'Today':{d:[{l:'T',v:52.5}],max:75},
+      'This Week':{d:[{l:'Mon',v:48},{l:'Tue',v:49},{l:'Wed',v:50},{l:'Thu',v:52},{l:'Fri',v:52.5}],max:75},
+      'This Month':{d:[{l:'W1',v:45},{l:'W2',v:48},{l:'W3',v:50},{l:'W4',v:52.5}],max:75},
+      'YTD':{d:[{l:'Jan',v:50},{l:'Feb',v:52.5}],max:75}
+    },
+    periodValues: {
+      'Today': { value: '52.5 hrs', change: '8 operators', changeDir: 'neutral' },
+      'This Week': { value: '52.5 hrs', change: 'Fri value', changeDir: 'neutral' },
+      'This Month': { value: '52.5 hrs', change: 'W4 value', changeDir: 'neutral' },
+      'YTD': { value: '52.5 hrs', change: 'Feb value', changeDir: 'neutral' }
+    },
+    breakdown:[['Weld Cell A','14.5 hrs','87%','2 operators'],['CNC Mill #1','12.0 hrs','80%','2 operators'],['NDT Lab','8.0 hrs','67%','1 operator'],['Assembly','10.0 hrs','83%','2 operators'],['Saw Bay','8.0 hrs','67%','1 operator']],
+    headers:['Work Center','Hours','Utilization','Operators'],
+    aiInsight:'<strong>Weld Cell A running at 87% utilization</strong> — highest in the shop today. CNC Mill #1 has 20% available capacity. If J-2026-042 machining op is ready, consider pulling it forward to maximize throughput.' },
+  'util-weeklytrend': { title:'Weekly Utilization Trend — Detail', value:'76%', change:'↑ 3%', changeDir:'positive', theme:'success', subtitle:'Weekly Utilization %',
+    periods: {
+      'Today':{d:[{l:'T',v:76}],max:100},
+      'This Week':{d:[{l:'Mon',v:70},{l:'Tue',v:72},{l:'Wed',v:74},{l:'Thu',v:75},{l:'Fri',v:76}],max:100},
+      'This Month':{d:[{l:'W1',v:68},{l:'W2',v:71},{l:'W3',v:74},{l:'W4',v:76}],max:100},
+      'YTD':{d:[{l:'Jan',v:72},{l:'Feb',v:76}],max:100}
+    },
+    periodValues: {
+      'Today': { value: '76%', change: '↑ 3%', changeDir: 'positive' },
+      'This Week': { value: '76%', change: 'Fri value', changeDir: 'neutral' },
+      'This Month': { value: '76%', change: '↑ 8% from W1', changeDir: 'positive' },
+      'YTD': { value: '76%', change: '↑ 4% from Jan', changeDir: 'positive' }
+    },
+    breakdown:[['Week -4','68%','42.5 hrs','14 jobs'],['Week -3','71%','44.8 hrs','16 jobs'],['Week -2','74%','46.2 hrs','15 jobs'],['Week -1','73%','45.6 hrs','14 jobs'],['This Week','76%','47.8 hrs','17 jobs']],
+    headers:['Period','Utilization','Productive Hrs','Jobs Touched'],
+    aiInsight:'<strong>Utilization up 8 points over 5 weeks.</strong> Driven by better job sequencing and reduced idle time between ops. Current pace supports 4.2 jobs/week throughput — recommend maintaining RTW queue discipline.' },
+  'util-hoursbyjob': { title:'Hours Logged by Job — This Week', value:'47.8 hrs', change:'17 jobs active', changeDir:'neutral', theme:'', subtitle:'Avg Hours per Job',
+    periods: {
+      'Today':{d:[{l:'T',v:9.6}],max:15},
+      'This Week':{d:[{l:'Mon',v:8.2},{l:'Tue',v:8.8},{l:'Wed',v:9.2},{l:'Thu',v:9.5},{l:'Fri',v:9.6}],max:15},
+      'This Month':{d:[{l:'W1',v:8},{l:'W2',v:8.8},{l:'W3',v:9},{l:'W4',v:9.6}],max:15},
+      'YTD':{d:[{l:'Jan',v:8.5},{l:'Feb',v:9.6}],max:15}
+    },
+    periodValues: {
+      'Today': { value: '9.6 hrs', change: '17 jobs', changeDir: 'neutral' },
+      'This Week': { value: '9.6 hrs', change: 'Fri value', changeDir: 'neutral' },
+      'This Month': { value: '9.6 hrs', change: 'W4 value', changeDir: 'neutral' },
+      'YTD': { value: '9.6 hrs', change: 'Feb value', changeDir: 'neutral' }
+    },
+    breakdown:[['J-2026-038','Valve body','14.2 hrs','DDG-51','On Track'],['J-2026-042','Pump bracket','8.5 hrs','CVN-81','On Track'],['J-2026-031','Motor mount','7.8 hrs','DDG-51','Behind'],['J-2026-028','Hatch frame','6.4 hrs','SSN-810','Behind'],['J-2026-045','Pipe spool','5.2 hrs','LPD-32','At Risk'],['Other (12)','Various','5.7 hrs','Mixed','On Track']],
+    headers:['Job','Part','Hours','Program','Status'],
+    aiInsight:'<strong>J-2026-031 and J-2026-028 are both behind schedule</strong> and consuming 30% of this week\'s hours. Consider reallocating 1 operator from the \'Other\' jobs pool to accelerate the critical path on J-2026-028.' },
+  'util-idlereasons': { title:'Idle Time Breakdown — This Week', value:'11.2 hrs', change:'19% of capacity', changeDir:'negative', theme:'warn', subtitle:'Idle Hours Breakdown',
+    periods: {
+      'Today':{d:[{l:'T',v:2.2}],max:4},
+      'This Week':{d:[{l:'Mon',v:2},{l:'Tue',v:2.1},{l:'Wed',v:2.2},{l:'Thu',v:2.1},{l:'Fri',v:2.2}],max:4},
+      'This Month':{d:[{l:'W1',v:2},{l:'W2',v:2.1},{l:'W3',v:2.2},{l:'W4',v:2.2}],max:4},
+      'YTD':{d:[{l:'Jan',v:2.1},{l:'Feb',v:2.2}],max:4}
+    },
+    periodValues: {
+      'Today': { value: '2.2 hrs', change: '19% of capacity', changeDir: 'negative' },
+      'This Week': { value: '2.2 hrs', change: 'Fri value', changeDir: 'negative' },
+      'This Month': { value: '2.2 hrs', change: 'W4 value', changeDir: 'negative' },
+      'YTD': { value: '2.2 hrs', change: 'Feb value', changeDir: 'negative' }
+    },
+    breakdown:[['Material wait','4.2 hrs','37.5%','J-2026-042, J-2026-045'],['Setup/changeover','3.1 hrs','27.7%','All cells'],['Maintenance','2.4 hrs','21.4%','Weld Cell B'],['No work queued','1.5 hrs','13.4%','Saw Bay']],
+    headers:['Reason','Hours','%','Affected'],
+    aiInsight:'<strong>Material wait is the #1 idle driver at 37.5%.</strong> Two jobs waiting on HY-80 plate from the same supplier. Recommend checking with purchasing on ETA and consider pre-staging materials for next week\'s queue.' }
+};
+
+function getRptOverlayTheme(key) {
+  var d = rptOverlayData[key];
+  var colorFn = rptOverlayBarColor[key];
+  if (!d || !colorFn) return d && d.theme ? d.theme : '';
+  var numVal = parseFloat(d.value.replace(/[^0-9.\-]/g, ''));
+  if (isNaN(numVal)) return d.theme || '';
+  var barClass = colorFn(numVal);
+  var map = {'bar-success':'success','bar-yellow':'yellow','bar-warn':'warn','bar-danger':'danger'};
+  return map[barClass] || '';
+}
+
+function openRptOverlay(key) {
+  var d = rptOverlayData[key];
+  if (!d) return;
+  _currentRptOverlayKey = key;
+  var modal = document.getElementById('rpt-modal');
+  var computedTheme = getRptOverlayTheme(key);
+  var theme = computedTheme ? ' mm-theme-' + computedTheme : '';
+  modal.className = 'metric-modal' + theme;
+  var thHtml = d.headers.map(function(h){return '<th>'+h+'</th>'}).join('');
+  var rowsHtml = d.breakdown.map(function(r){return '<tr>'+r.map(function(c){return colorCodeCell(c)}).join('')+'</tr>'}).join('');
+  var aiInsightHtml = d.aiInsight ? '<div class="mm-ai-insight" id="rpt-ai-insight"><div class="mm-ai-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6Z"/></svg></div><div class="mm-ai-text">' + d.aiInsight + '</div><button class="mm-ai-dismiss" onclick="document.getElementById(\'rpt-ai-insight\').remove()" title="Dismiss"><span class="mi" style="font-size:16px">close</span></button></div>' : '';
+  var aiOpen = document.getElementById('ai-panel').classList.contains('open');
+  var aiBtnActive = aiOpen ? ' active' : '';
+
+  // Detect period tabs based on overlay key prefix
+  var periodTabsHtml = '';
+  var defaultPeriod = '12M';
+  var periods = [];
+
+  if (key.startsWith('bid-')) {
+    periods = ['3M', '6M', '12M', 'YTD'];
+    defaultPeriod = '12M';
+  } else if (key.startsWith('prod-')) {
+    periods = ['Today', 'This Week', 'This Month', 'Quarter'];
+    defaultPeriod = 'Today';
+  } else if (key.startsWith('qual-')) {
+    periods = ['This Month', 'Quarter', '12 Months', 'All Time'];
+    defaultPeriod = 'Quarter';
+  } else if (key.startsWith('util-')) {
+    periods = ['Today', 'This Week', 'This Month', 'YTD'];
+    defaultPeriod = 'Today';
+  }
+
+  if (periods.length > 0) {
+    periodTabsHtml = '<div class="mm-period-tabs">';
+    periods.forEach(function(p) {
+      var activeClass = p === defaultPeriod ? ' active' : '';
+      periodTabsHtml += '<button class="mm-period-tab' + activeClass + '" onclick="selectRptOverlayPeriod(this,\'' + p + '\')">' + p + '</button>';
+    });
+    periodTabsHtml += '</div>';
+  }
+
+  modal.innerHTML = '<div class="mm-header"><div class="mm-title">'+d.title+'</div><div style="display:flex;align-items:center;gap:4px"><button class="mm-ai-btn' + aiBtnActive + '" onclick="event.stopPropagation();toggleAI()" title="Ask AI about this metric"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6Z"/></svg></button><button class="mm-close" id="rpt-overlay-close" onclick="closeRptOverlay()"><span class="mi" style="font-size:20px">close</span></button></div></div>'
+    +'<div class="mm-body"><div class="mm-body-top">'
+    + aiInsightHtml
+    +'<div class="mm-value-row"><div class="mm-current"><span class="mm-big-value">'+d.value+'</span><span class="mm-change '+d.changeDir+'">'+d.change+'</span>'+(d.subtitle ? '<div class="mm-subtitle">'+d.subtitle+'</div>' : '')+'</div>' + periodTabsHtml + '</div>'
+    +'<div class="mm-chart" id="rpt-chart-area"></div>'
+    +'</div>'
+    +'<div class="mm-breakdown"><h4>Breakdown</h4><div class="mm-breakdown-scroll"><table><thead><tr>'+thHtml+'</tr></thead><tbody>'+rowsHtml+'</tbody></table></div></div></div>';
+
+  if (periods.length > 0) {
+    renderRptOverlayChart(defaultPeriod);
+    // Update big value for default period
+    if (d.periodValues && d.periodValues[defaultPeriod]) {
+      var pv = d.periodValues[defaultPeriod];
+      var bigEl = modal.querySelector('.mm-big-value');
+      var changeEl = modal.querySelector('.mm-change');
+      if (bigEl) bigEl.textContent = pv.value;
+      if (changeEl) {
+        changeEl.textContent = pv.change;
+        changeEl.className = 'mm-change ' + (pv.changeDir || '');
+      }
+    }
+  }
+
+  document.getElementById('rpt-overlay').classList.add('open');
+}
+
+function closeRptOverlay() {
+  document.getElementById('rpt-overlay').classList.remove('open');
+}
+
+// Derive overlay theme from the current value using bar color thresholds
+function getMetricTheme(key) {
+  const d = metricData[key];
+  const colorFn = metricBarColor[key];
+  if (!d || !colorFn) return '';
+  // Parse numeric value from the display string
+  const numVal = parseFloat(d.value.replace(/[^0-9.\-]/g, ''));
+  if (isNaN(numVal)) return '';
+  const barClass = colorFn(numVal);
+  const map = {'bar-success':'success','bar-yellow':'yellow','bar-warn':'warn','bar-danger':'danger'};
+  return map[barClass] || '';
+}
+
+function openMetric(key) {
+  const d = metricData[key];
+  if (!d) return;
+  _currentMetricKey = key;
+  const modal = document.getElementById('metric-modal');
+  const theme = getMetricTheme(key);
+  modal.className = 'metric-modal' + (theme ? ' mm-theme-' + theme : '');
+  const rowsHtml = d.breakdown.map(r => '<tr>' + r.map(c => '<td>' + c + '</td>').join('') + '</tr>').join('');
+  const thHtml = d.breakdownHeaders.map(h => '<th>' + h + '</th>').join('');
+  const aiInsightHtml = d.aiInsight ? '<div class="mm-ai-insight" id="mm-ai-insight"><div class="mm-ai-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6Z"/></svg></div><div class="mm-ai-text">' + d.aiInsight + '</div><button class="mm-ai-dismiss" onclick="document.getElementById(\'mm-ai-insight\').remove()" title="Dismiss"><span class="mi" style="font-size:16px">close</span></button></div>' : '';
+  const aiBtnActive = aiOpen ? ' active' : '';
+  modal.innerHTML = '<div class="mm-header"><div class="mm-title">' + d.title + '</div><div style="display:flex;align-items:center;gap:4px"><button class="mm-ai-btn' + aiBtnActive + '" onclick="event.stopPropagation();toggleAI()" title="Ask AI about this metric"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6Z"/></svg></button><button class="mm-close" onclick="closeMetric()"><span class="mi" style="font-size:20px">close</span></button></div></div>'
+    + '<div class="mm-body">'
+    + '<div class="mm-body-top">'
+    + aiInsightHtml
+    + '<div class="mm-value-row"><div class="mm-current"><span class="mm-big-value">' + d.value + '</span><span class="mm-change ' + d.changeDir + '">' + d.change + '</span></div>'
+    + '<div class="mm-period-tabs"><button class="mm-period-tab" onclick="selectPeriod(this,\'3M\')">3M</button><button class="mm-period-tab active" onclick="selectPeriod(this,\'6M\')">6M</button><button class="mm-period-tab" onclick="selectPeriod(this,\'12M\')">12M</button><button class="mm-period-tab" onclick="selectPeriod(this,\'YTD\')">YTD</button></div></div>'
+    + '<div class="mm-chart" id="mm-chart-area"></div>'
+    + '</div>'
+    + '<div class="mm-breakdown"><h4>Breakdown</h4><div class="mm-breakdown-scroll"><table><thead><tr>' + thHtml + '</tr></thead><tbody>' + rowsHtml + '</tbody></table></div></div>'
+    + '</div>';
+  renderMetricChart('6M');
+  document.getElementById('metric-overlay').classList.add('open');
+}
+
+function closeMetric() {
+  document.getElementById('metric-overlay').classList.remove('open');
+  _currentMetricKey = null;
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' && document.getElementById('metric-overlay').classList.contains('open')) closeMetric();
+});
+
+// ===== REPORT TABLE ROW CLICKS =====
+function navFromReports(page) {
+  window._navFromReports = true;
+  navigateTo(page);
+}
+
+// Bid History → RFQ detail
+(function() {
+  var tbl = document.getElementById('bid-history-table');
+  if (!tbl) return;
+  tbl.querySelector('tbody').addEventListener('click', function(e) {
+    var row = e.target.closest('tr');
+    if (row) navFromReports('rfq-detail');
+  });
+})();
+
+// Production Active Jobs → Job overview
+(function() {
+  var tbody = document.getElementById('rpt-prod-table');
+  if (!tbody) return;
+  tbody.addEventListener('click', function(e) {
+    var row = e.target.closest('tr');
+    if (row) navFromReports('job-overview');
+  });
+})();
+
+// Quality Open NCRs → NCR detail
+(function() {
+  var tbody = document.getElementById('rpt-qual-table');
+  if (!tbody) return;
+  tbody.addEventListener('click', function(e) {
+    var row = e.target.closest('tr');
+    if (row) navFromReports('ncr-detail');
+  });
+})();
+
+// Utilization Operator Activity → Job overview
+(function() {
+  var tbody = document.getElementById('rpt-util-table');
+  if (!tbody) return;
+  tbody.addEventListener('click', function(e) {
+    var row = e.target.closest('tr');
+    if (row) navFromReports('job-overview');
+  });
+})();

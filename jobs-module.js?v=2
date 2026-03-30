@@ -1,0 +1,438 @@
+// ===== JOBS MODULE =====
+// Job data generation, table rendering, filtering, sorting
+
+// ===== DATA GENERATION =====
+function buildJobsData() {
+  var customers = ['HII-Ingalls','HII-Newport News','Bath Iron Works','Electric Boat','GD-NASSCO','Austal USA','Fincantieri Marinette'];
+  var progs = [{c:'DDG-51',n:'DDG-51 FIII'},{c:'CVN-81',n:'CVN-81 Ford'},{c:'SSN-810',n:'SSN-810 Virginia'},{c:'SSBN-826',n:'SSBN-826 Columbia'},{c:'LPD-32',n:'LPD-32'},{c:'FFG-62',n:'FFG-62 Constellation'},{c:'T-AO-205',n:'T-AO-205'}];
+  var parts = ['Pump bracket','Valve body','Motor mount','Deck plate insert','Bearing housing','Pipe spool assembly','Stanchion base','Structural bracket','Rudder bearing assembly','Anchor chain stopper','Hatch frame','Propeller shaft section','Hull insert plate','Bulkhead stiffener','Foundation pad','Cable tray support','Shaft coupling','Reduction gear housing','Exhaust duct section','Cooling water pipe','Stern tube bearing','Pump base plate','Condenser housing','Heat exchanger shell','Fire main tee','Watertight door frame','Thruster tunnel ring','Bilge pump mount','Davit arm','Sea chest grating'];
+  var statuses = ['Planned','RTW Ready','RTW Released','In Work','Complete'];
+  var schedules = ['On Track','On Track','On Track','Ahead','At Risk','Behind'];
+  var priorities = ['High','High','Medium','Medium','Medium','Low'];
+
+  var seed = 12345;
+  var r = function() { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+  var pick = function(a) { return a[Math.floor(r() * a.length)]; };
+
+  var data = [];
+  var now = new Date('2026-02-14T12:00:00');
+
+  for (var i = 0; i < 50; i++) {
+    var daysBack = i < 5 ? Math.floor(r() * 7) :
+                   i < 15 ? 7 + Math.floor(r() * 21) :
+                   i < 30 ? 28 + Math.floor(r() * 60) :
+                   88 + Math.floor(r() * 120);
+
+    var created = new Date(now);
+    created.setDate(created.getDate() - daysBack);
+    var due = new Date(created);
+    due.setDate(due.getDate() + 14 + Math.floor(r() * 42));
+
+    var status;
+    if (daysBack < 7) status = pick(['Planned','RTW Ready','RTW Ready']);
+    else if (daysBack < 28) status = pick(['RTW Ready','RTW Released','RTW Released','In Work']);
+    else if (daysBack < 88) status = pick(['In Work','In Work','In Work','Complete','RTW Released']);
+    else status = pick(['Complete','Complete','Complete','In Work']);
+
+    var schedule;
+    if (status === 'Complete') schedule = 'Complete';
+    else if (status === 'Planned') schedule = '—';
+    else schedule = pick(schedules);
+
+    var priority;
+    if (due < now) priority = 'High';
+    else priority = pick(priorities);
+
+    var qty = 1 + Math.floor(r() * 24);
+    var prog = pick(progs);
+    var progress = status === 'Complete' ? 100 :
+                   status === 'In Work' ? 30 + Math.floor(r() * 60) :
+                   status === 'RTW Released' ? 10 + Math.floor(r() * 25) :
+                   status === 'RTW Ready' ? Math.floor(r() * 10) : 0;
+
+    data.push({
+      id: 'J-2026-' + String(100 + i).padStart(3, '0'),
+      part: pick(parts),
+      customer: pick(customers),
+      program: prog.c,
+      programName: prog.n,
+      qty: qty,
+      status: status,
+      due: due.toISOString().slice(0, 10),
+      schedule: schedule,
+      priority: priority,
+      progress: progress
+    });
+  }
+
+  data.sort(function(a, b) { return a.due.localeCompare(b.due); });
+
+  // Inject J-2026-042 at the top — the demo's focal job
+  data.unshift({
+    id: 'J-2026-042',
+    part: 'Pump bracket',
+    customer: 'HII-Ingalls',
+    program: 'CVN-81',
+    programName: 'CVN-81 Ford',
+    qty: 12,
+    status: 'Planned',
+    due: '2026-03-15',
+    schedule: '\u2014',
+    priority: 'High',
+    progress: 0
+  });
+
+  return data;
+}
+
+var jobsData = buildJobsData();
+
+// ===== RENDERING =====
+function renderJobsTable() {
+  var tbody = document.getElementById('jobs-tbody');
+  if (!tbody) return;
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  var statusMap = {
+    'Planned': 'badge-blue',
+    'RTW Ready': 'badge-yellow',
+    'RTW Released': 'badge-cyan',
+    'In Work': 'badge-green',
+    'Complete': 'badge-emerald'
+  };
+
+  var scheduleColor = {
+    'On Track': 'var(--success)',
+    'Ahead': 'var(--cyan-400)',
+    'At Risk': 'var(--warning)',
+    'Behind': 'var(--danger)',
+    'Complete': 'var(--steel-400)',
+    '—': 'var(--steel-500)'
+  };
+
+  var priorityMap = {
+    'High': '<span class="badge badge-red">High</span>',
+    'Medium': '<span class="badge badge-yellow">Medium</span>',
+    'Low': '<span class="badge" style="background:rgba(107,114,128,.15);color:var(--steel-300)">Low</span>'
+  };
+
+  var html = '';
+  jobsData.forEach(function(d) {
+    var dueD = new Date(d.due + 'T12:00:00');
+    var dueStr = months[dueD.getMonth()] + ' ' + dueD.getDate();
+
+    var statusCls = statusMap[d.status] || '';
+    var statusBadge = '<span class="badge ' + statusCls + '">' + d.status + '</span>';
+
+    var schedColor = scheduleColor[d.schedule] || 'var(--steel-400)';
+    var schedHtml = '<span style="color:' + schedColor + ';font-weight:600;font-size:12px">' + d.schedule + '</span>';
+
+    var rowId = (d.id === 'J-2026-042') ? ' id="job-row-042"' : '';
+    html += '<tr' + rowId + ' onclick="navigateTo(\'job-overview\')"'
+      + ' data-status="' + d.status + '" data-customer="' + d.customer + '"'
+      + ' data-program="' + d.program + '" data-priority="' + d.priority + '"'
+      + ' data-due="' + d.due + '" data-schedule="' + d.schedule + '">'
+      + '<td style="color:var(--cyan-400);font-weight:600;font-family:var(--font-mono)">' + d.id + '</td>'
+      + '<td>' + d.part + '</td>'
+      + '<td>' + d.customer + '</td>'
+      + '<td>' + d.programName + '</td>'
+      + '<td style="text-align:center">' + d.qty + '</td>'
+      + '<td>' + statusBadge + '</td>'
+      + '<td>' + dueStr + '</td>'
+      + '<td>' + schedHtml + '</td>'
+      + '<td>' + (priorityMap[d.priority] || '') + '</td>'
+      + '</tr>';
+  });
+  tbody.innerHTML = html;
+  updateJobsCount();
+}
+
+function updateJobsCount() {
+  var rows = document.querySelectorAll('#jobs-tbody tr');
+  var visible = 0;
+  rows.forEach(function(r) { if (r.style.display !== 'none') visible++; });
+  var el = document.getElementById('jobs-row-count');
+  if (el) el.textContent = visible + ' Jobs';
+}
+
+// ===== FILTER SYSTEM =====
+var jobsFilters = { customer:'', program:'', statuses:[], priorities:[], dueFrom:'', dueTo:'', search:'' };
+
+function toggleJobsFilterPanel() {
+  var panel = document.getElementById('jobs-filter-panel');
+  var btn = document.getElementById('jobs-funnel');
+  if (panel) panel.classList.toggle('open');
+  if (btn) btn.classList.toggle('open');
+}
+
+function readJobsFilterPanel() {
+  var custInput = document.querySelector('#cb-jobs-customer input');
+  jobsFilters.customer = custInput?.dataset.selected || '';
+  var progInput = document.querySelector('#cb-jobs-program input');
+  jobsFilters.program = progInput?.dataset.selected || '';
+  jobsFilters.statuses = [];
+  document.querySelectorAll('#ck-jobs-status .ck-item.checked').forEach(function(el) {
+    jobsFilters.statuses.push(el.dataset.val);
+  });
+  jobsFilters.priorities = [];
+  document.querySelectorAll('#ck-jobs-priority .ck-item.checked').forEach(function(el) {
+    jobsFilters.priorities.push(el.dataset.val);
+  });
+  jobsFilters.dueFrom = document.getElementById('dp-jobs-due-from')?.dataset.value || '';
+  jobsFilters.dueTo = document.getElementById('dp-jobs-due-to')?.dataset.value || '';
+}
+
+function applyJobsFilters() {
+  readJobsFilterPanel();
+  var search = (document.getElementById('jobs-search')?.value || '').toLowerCase();
+  var rows = document.querySelectorAll('#jobs-tbody tr');
+  var visible = 0;
+  rows.forEach(function(row) {
+    var text = row.textContent.toLowerCase();
+    var show = true;
+    if (search && !text.includes(search)) show = false;
+    if (show && !matchesSearchPills('jobs', text)) show = false;
+    if (show && jobsFilters.customer && row.dataset.customer !== jobsFilters.customer) show = false;
+    if (show && jobsFilters.program && row.dataset.program !== jobsFilters.program) show = false;
+    if (show && jobsFilters.statuses.length > 0 && !jobsFilters.statuses.includes(row.dataset.status)) show = false;
+    if (show && jobsFilters.priorities.length > 0 && !jobsFilters.priorities.includes(row.dataset.priority)) show = false;
+    if (show && jobsFilters.dueFrom && row.dataset.due < jobsFilters.dueFrom) show = false;
+    if (show && jobsFilters.dueTo && row.dataset.due > jobsFilters.dueTo) show = false;
+    row.style.display = show ? '' : 'none';
+    if (show) visible++;
+  });
+  var el = document.getElementById('jobs-row-count');
+  if (el) el.textContent = visible + ' Jobs';
+  renderJobsFilterChips();
+}
+
+function renderJobsFilterChips() {
+  var container = document.getElementById('jobs-filter-chips');
+  if (!container) return;
+  var html = renderSearchPillsHtml('jobs');
+  if (jobsFilters.customer) html += '<span class="fb-chip">' + jobsFilters.customer + '<span class="mi fb-chip-x" onclick="clearJobsFilter(\'customer\')">close</span></span>';
+  if (jobsFilters.program) html += '<span class="fb-chip">' + jobsFilters.program + '<span class="mi fb-chip-x" onclick="clearJobsFilter(\'program\')">close</span></span>';
+  jobsFilters.statuses.forEach(function(s) {
+    html += '<span class="fb-chip">' + s + '<span class="mi fb-chip-x" onclick="clearJobsFilter(\'status\',\'' + s + '\')">close</span></span>';
+  });
+  jobsFilters.priorities.forEach(function(p) {
+    html += '<span class="fb-chip">' + p + '<span class="mi fb-chip-x" onclick="clearJobsFilter(\'priority\',\'' + p + '\')">close</span></span>';
+  });
+  container.innerHTML = html;
+}
+
+function clearJobsFilter(key, val) {
+  if (key === 'customer') {
+    jobsFilters.customer = '';
+    var inp = document.querySelector('#cb-jobs-customer input');
+    if (inp) { inp.value = ''; delete inp.dataset.selected; }
+  } else if (key === 'program') {
+    jobsFilters.program = '';
+    var inp2 = document.querySelector('#cb-jobs-program input');
+    if (inp2) { inp2.value = ''; delete inp2.dataset.selected; }
+  } else if (key === 'status') {
+    document.querySelectorAll('#ck-jobs-status .ck-item.checked').forEach(function(el) {
+      if (el.dataset.val === val) el.classList.remove('checked');
+    });
+  } else if (key === 'priority') {
+    document.querySelectorAll('#ck-jobs-priority .ck-item.checked').forEach(function(el) {
+      if (el.dataset.val === val) el.classList.remove('checked');
+    });
+  }
+  applyJobsFilters();
+}
+
+function resetJobsFilters() {
+  jobsFilters = { customer:'', program:'', statuses:[], priorities:[], dueFrom:'', dueTo:'', search:'' };
+  var search = document.getElementById('jobs-search');
+  if (search) search.value = '';
+  searchPillStore.jobs = [];
+  var custInp = document.querySelector('#cb-jobs-customer input');
+  if (custInp) { custInp.value = ''; delete custInp.dataset.selected; }
+  var progInp = document.querySelector('#cb-jobs-program input');
+  if (progInp) { progInp.value = ''; delete progInp.dataset.selected; }
+  document.querySelectorAll('#jobs-filter-panel .ck-item.checked').forEach(function(el) { el.classList.remove('checked'); });
+  jobsActiveViewKey = '';
+  updateJobsSvBtnLabel();
+  applyJobsFilters();
+}
+
+// ===== SAVED VIEWS =====
+var jobsSavedViews = {};
+var jobsActiveViewKey = '';
+var jobsSvNextId = 1;
+
+function toggleJobsSavedViews() {
+  var pop = document.getElementById('jobs-sv-pop');
+  var wrap = document.getElementById('jobs-sv-wrap');
+  if (!pop) return;
+  pop.classList.toggle('open');
+  if (wrap) wrap.classList.toggle('open', pop.classList.contains('open'));
+  if (pop.classList.contains('open')) renderJobsSvList();
+}
+
+function closeJobsSavedViews() {
+  var pop = document.getElementById('jobs-sv-pop');
+  var wrap = document.getElementById('jobs-sv-wrap');
+  if (pop) pop.classList.remove('open');
+  if (wrap) wrap.classList.remove('open');
+}
+
+function renderJobsSvList() {
+  var list = document.getElementById('jobs-sv-list');
+  if (!list) return;
+  var html = '<div class="sv-item' + (jobsActiveViewKey === '' ? ' active' : '') + '" onclick="loadJobsSavedView(\'\')"><span>All Jobs</span></div>';
+  Object.keys(jobsSavedViews).forEach(function(key) {
+    var v = jobsSavedViews[key];
+    var isActive = jobsActiveViewKey === key;
+    html += '<div class="sv-item' + (isActive ? ' active' : '') + '" data-key="' + key + '" onclick="loadJobsSavedView(\'' + key + '\')">';
+    html += '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + v.name + '</span>';
+    html += '<span class="sv-actions"><button class="sv-act" onclick="event.stopPropagation();deleteJobsSv(\'' + key + '\')" title="Delete"><span class="mi" style="font-size:14px">close</span></button></span>';
+    html += '</div>';
+  });
+  list.innerHTML = html;
+}
+
+function updateJobsSvBtnLabel() {
+  var label = document.getElementById('jobs-sv-btn-label');
+  if (!label) return;
+  label.textContent = (jobsActiveViewKey && jobsSavedViews[jobsActiveViewKey]) ? jobsSavedViews[jobsActiveViewKey].name : 'All Jobs';
+}
+
+function captureJobsCurrentFilters() {
+  var f = {};
+  var custInput = document.querySelector('#cb-jobs-customer input');
+  if (custInput && custInput.dataset.selected) f.customer = custInput.dataset.selected;
+  var progInput = document.querySelector('#cb-jobs-program input');
+  if (progInput && progInput.dataset.selected) f.program = progInput.dataset.selected;
+  var statuses = [];
+  document.querySelectorAll('#ck-jobs-status .ck-item.checked').forEach(function(el) { statuses.push(el.dataset.val); });
+  if (statuses.length) f.statuses = statuses;
+  var priorities = [];
+  document.querySelectorAll('#ck-jobs-priority .ck-item.checked').forEach(function(el) { priorities.push(el.dataset.val); });
+  if (priorities.length) f.priorities = priorities;
+  if (searchPillStore.jobs.length) f.searchPills = searchPillStore.jobs.map(function(p) { return p.text; });
+  return f;
+}
+
+function loadJobsSavedView(viewKey) {
+  jobsFilters = { customer:'', program:'', statuses:[], priorities:[], dueFrom:'', dueTo:'', search:'' };
+  var search = document.getElementById('jobs-search');
+  if (search) search.value = '';
+  searchPillStore.jobs = [];
+  var custInp = document.querySelector('#cb-jobs-customer input');
+  if (custInp) { custInp.value = ''; delete custInp.dataset.selected; }
+  var progInp = document.querySelector('#cb-jobs-program input');
+  if (progInp) { progInp.value = ''; delete progInp.dataset.selected; }
+  document.querySelectorAll('#jobs-filter-panel .ck-item.checked').forEach(function(el) { el.classList.remove('checked'); });
+  jobsActiveViewKey = viewKey;
+  updateJobsSvBtnLabel();
+  closeJobsSavedViews();
+  if (!viewKey || !jobsSavedViews[viewKey]) { applyJobsFilters(); return; }
+  var v = jobsSavedViews[viewKey].filters;
+  if (v.customer) { var i = document.querySelector('#cb-jobs-customer input'); if(i){ i.value=v.customer; i.dataset.selected=v.customer; } }
+  if (v.program) { var i2 = document.querySelector('#cb-jobs-program input'); if(i2){ i2.value=v.program; i2.dataset.selected=v.program; } }
+  if (v.statuses && v.statuses.length) {
+    document.querySelectorAll('#ck-jobs-status .ck-item').forEach(function(el) {
+      if (v.statuses.includes(el.dataset.val)) el.classList.add('checked');
+    });
+  }
+  if (v.priorities && v.priorities.length) {
+    document.querySelectorAll('#ck-jobs-priority .ck-item').forEach(function(el) {
+      if (v.priorities.includes(el.dataset.val)) el.classList.add('checked');
+    });
+  }
+  if (v.searchPills && v.searchPills.length) {
+    searchPillStore.jobs = v.searchPills.map(function(t) { return {text: t}; });
+  }
+  applyJobsFilters();
+}
+
+function saveJobsSvFromModal(name) {
+  var key = 'jobs-custom-' + (jobsSvNextId++);
+  jobsSavedViews[key] = { name: name, filters: captureJobsCurrentFilters() };
+  jobsActiveViewKey = key;
+  updateJobsSvBtnLabel();
+  closeSvModal();
+  applyJobsFilters();
+}
+
+function deleteJobsSv(key) {
+  delete jobsSavedViews[key];
+  if (jobsActiveViewKey === key) { jobsActiveViewKey = ''; updateJobsSvBtnLabel(); loadJobsSavedView(''); }
+  renderJobsSvList();
+}
+
+document.addEventListener('click', function(e) {
+  var wrap = document.getElementById('jobs-sv-wrap');
+  if (wrap && !wrap.contains(e.target)) closeJobsSavedViews();
+});
+
+// ===== SORTING =====
+var jobsSortField = 'due';
+var jobsSortDir = 'asc';
+
+function sortJobsCol(field) {
+  if (jobsSortField === field) {
+    jobsSortDir = jobsSortDir === 'asc' ? 'desc' : 'asc';
+  } else {
+    jobsSortField = field;
+    jobsSortDir = 'asc';
+  }
+  applyJobsSort();
+  updateJobsSortIndicators();
+}
+
+function pickJobsSort(el) {
+  var sort = el.dataset.sort;
+  var parts = sort.split('-');
+  jobsSortField = parts[0];
+  jobsSortDir = parts[1];
+  // Update active state in dropdown
+  el.parentNode.querySelectorAll('.sort-opt').forEach(function(o) { o.classList.remove('active'); });
+  el.classList.add('active');
+  // Update label
+  var label = document.getElementById('jobs-sort-label');
+  if (label) label.textContent = el.textContent;
+  // Close popover
+  var pop = document.getElementById('jobs-sort-pop');
+  if (pop) pop.classList.remove('open');
+  applyJobsSort();
+  updateJobsSortIndicators();
+}
+
+function applyJobsSort() {
+  var tbody = document.getElementById('jobs-tbody');
+  if (!tbody) return;
+  var rows = Array.prototype.slice.call(tbody.querySelectorAll('tr'));
+  var field = jobsSortField;
+  var dir = jobsSortDir === 'asc' ? 1 : -1;
+
+  var statusOrder = { 'Planned':0, 'RTW Ready':1, 'RTW Released':2, 'In Work':3, 'Complete':4 };
+  var priorityOrder = { 'High':0, 'Medium':1, 'Low':2 };
+  var schedOrder = { 'Behind':0, 'At Risk':1, 'On Track':2, 'Ahead':3, 'Complete':4, '—':5 };
+
+  rows.sort(function(a, b) {
+    var va, vb;
+    if (field === 'due') { va = a.dataset.due; vb = b.dataset.due; return dir * va.localeCompare(vb); }
+    if (field === 'status') { va = statusOrder[a.dataset.status]||0; vb = statusOrder[b.dataset.status]||0; return dir * (va - vb); }
+    if (field === 'customer') { va = a.dataset.customer; vb = b.dataset.customer; return dir * va.localeCompare(vb); }
+    if (field === 'priority') { va = priorityOrder[a.dataset.priority]||0; vb = priorityOrder[b.dataset.priority]||0; return dir * (va - vb); }
+    if (field === 'schedule') { va = schedOrder[a.dataset.schedule]||0; vb = schedOrder[b.dataset.schedule]||0; return dir * (va - vb); }
+    return 0;
+  });
+  rows.forEach(function(row) { tbody.appendChild(row); });
+}
+
+function updateJobsSortIndicators() {
+  document.querySelectorAll('#page-jobs .th-sort').forEach(function(th) {
+    var arrow = th.querySelector('.sort-arrow');
+    if (th.dataset.sort === jobsSortField) {
+      th.classList.add('th-sort-active');
+      if (arrow) arrow.textContent = jobsSortDir === 'asc' ? 'arrow_upward' : 'arrow_downward';
+    } else {
+      th.classList.remove('th-sort-active');
+      if (arrow) arrow.textContent = 'arrow_downward';
+    }
+  });
+}

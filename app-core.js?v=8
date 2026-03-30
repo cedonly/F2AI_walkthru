@@ -1,0 +1,576 @@
+// ===== APP CORE =====
+// Navigation, shell UI, notifications, AI chat, dashboard metrics
+
+// ============================================
+// F2AI v2 — AUDIT FRAMEWORK NAVIGATION SYSTEM
+// ============================================
+
+// Page metadata: name, parent tab (for active highlight), action tray config
+const pages = {
+  'dashboard':      { name:'Dashboard', tab:'dashboard', tray:null },
+  'rfqs':           { name:'RFQs & Bids', tab:'rfqs', tray:{ left:'<div class="view-toggle" id="rfq-view-toggle"><button class="view-toggle-btn active" data-view="list" title="List view" onclick="switchRfqView(\'list\')"><span class="mi">format_list_bulleted</span></button><button class="view-toggle-btn" data-view="cards" title="Card view" onclick="switchRfqView(\'cards\')"><span class="mi">grid_view</span></button></div><span id="rfq-row-count" style="font-size:12px;color:var(--steel-300);margin-left:10px"></span>', right:'<button class="btn btn-secondary">Import</button><button class="btn btn-primary" onclick="navigateTo(\'rfq-capture\')">+ New RFQ</button>' } },
+  'rfq-board':      { name:'RFQ Pipeline', tab:'rfq-board', tray:null },
+  'rfq-capture':    { name:'Capture New RFQ', tab:'rfqs', tray:{ left:'<div class="at-breadcrumb"><span class="at-bc-link" onclick="navigateTo(\'rfqs\')">RFQs &amp; Bids</span><span class="at-bc-sep">›</span><span class="at-bc-current">Capture New RFQ</span></div>', right:'<button class="btn btn-secondary">Save as Draft</button><button class="btn btn-primary" onclick="navigateTo(\'rfqs\')">Save &amp; Start Estimating</button>' } },
+  'rfq-detail':     { name:'RFQ-2026-0147', tab:'rfqs', tray:{ left:'<div class="at-breadcrumb"><span class="at-bc-link" onclick="navigateTo(\'rfqs\')">RFQs &amp; Bids</span><span class="at-bc-sep">›</span><span class="at-bc-current">RFQ-2026-0147</span><span class="badge badge-cyan" style="margin-left:12px">In Estimating</span></div>', right:'<button class="btn btn-secondary">Decline</button><button class="btn btn-outline">Save</button><button class="btn btn-primary" id="at-start-bid" onclick="navigateTo(\'3d-quicklook\')">Start Bid</button>' } },
+  '3d-quicklook':   { name:'3D Quick Look', tab:'rfqs', tray:{ left:'<div class="at-breadcrumb"><span class="at-bc-link" onclick="navigateTo(\'rfqs\')">RFQs &amp; Bids</span><span class="at-bc-sep">\u203a</span><span class="at-bc-link" onclick="navigateTo(\'rfq-detail\')">RFQ-2026-0147</span><span class="at-bc-sep">\u203a</span><span class="at-bc-current">3D Quick Look</span></div>', right:'<button class="btn btn-secondary" onclick="navigateTo(\'rfq-detail\')">Back to RFQ</button><button class="btn btn-primary" onclick="navigateTo(\'bid-workspace\')">Open Bid Workspace</button>' } },
+  'bid-workspace':  { name:'Bid Workspace', tab:'rfqs', tray:{ left:'<div class="at-breadcrumb"><span class="at-bc-link" onclick="navigateTo(\'rfqs\')">RFQs &amp; Bids</span><span class="at-bc-sep">›</span><span class="at-bc-link" onclick="navigateTo(\'rfq-detail\')">RFQ-2026-0147</span><span class="at-bc-sep">›</span><span class="at-bc-current">Bid Workspace</span><span class="badge badge-yellow" style="margin-left:12px">Draft</span></div>', right:'<button class="btn btn-secondary">Save</button><button class="btn btn-primary" onclick="navigateTo(\'quote-output\')">Submit for Approval</button>' } },
+  'quote-output':   { name:'Quote Output', tab:'rfqs', tray:{ left:'<div class="at-breadcrumb"><span class="at-bc-link" onclick="navigateTo(\'rfqs\')">RFQs &amp; Bids</span><span class="at-bc-sep">›</span><span class="at-bc-link" onclick="navigateTo(\'rfq-detail\')">RFQ-2026-0147</span><span class="at-bc-sep">›</span><span class="at-bc-link" onclick="navigateTo(\'bid-workspace\')">Bid Workspace</span><span class="at-bc-sep">›</span><span class="at-bc-current">Quote Output</span><span class="badge badge-blue" style="margin-left:12px">Pending Approval</span></div>', right:'<button class="btn btn-secondary">Request Changes</button><button class="btn btn-success"><span class="mi" style="font-size:16px;vertical-align:middle">check</span> Approve</button>' } },
+  'award-capture':  { name:'Award Capture', tab:'rfqs', tray:{ left:'<div class="at-breadcrumb"><span class="at-bc-link" onclick="navigateTo(\'rfqs\')">RFQs &amp; Bids</span><span class="at-bc-sep">›</span><span class="at-bc-current">Award Capture</span></div>' } },
+  'jobs':           { name:'Jobs', tab:'jobs', tray:{ left:'<span id="jobs-row-count" style="font-size:12px;color:var(--steel-300)"></span>', right:'<button class="btn btn-primary">+ New Job</button>' } },
+  'job-overview':   { name:'J-2026-038 Overview', tab:'jobs', tray:{ left:'<div class="at-breadcrumb"><span class="at-bc-link" onclick="navigateTo(\'jobs\')">Jobs</span><span class="at-bc-sep">›</span><span class="at-bc-current">J-2026-038 Overview</span></div>' } },
+  'job-traveler':   { name:'J-2026-038 Traveler', tab:'jobs', tray:{ left:'<div class="at-breadcrumb"><span class="at-bc-link" onclick="navigateTo(\'jobs\')">Jobs</span><span class="at-bc-sep">›</span><span class="at-bc-link" onclick="navigateTo(\'job-overview\')">J-2026-038</span><span class="at-bc-sep">›</span><span class="at-bc-current">Traveler</span></div>', right:'<button class="btn btn-secondary"><span class="mi" style="font-size:16px;vertical-align:middle">edit</span> Edit Traveler</button>' } },
+  'job-qa':         { name:'J-2026-038 QA', tab:'jobs', tray:{ left:'<div class="at-breadcrumb"><span class="at-bc-link" onclick="navigateTo(\'jobs\')">Jobs</span><span class="at-bc-sep">›</span><span class="at-bc-link" onclick="navigateTo(\'job-overview\')">J-2026-038</span><span class="at-bc-sep">›</span><span class="at-bc-current">QA</span></div>' } },
+  'job-compliance': { name:'J-2026-038 Compliance', tab:'jobs', tray:{ left:'<div class="at-breadcrumb"><span class="at-bc-link" onclick="navigateTo(\'jobs\')">Jobs</span><span class="at-bc-sep">›</span><span class="at-bc-link" onclick="navigateTo(\'job-overview\')">J-2026-038</span><span class="at-bc-sep">›</span><span class="at-bc-current">Compliance</span></div>' } },
+  'quality':        { name:'Quality', tab:'quality', tray:{ left:'<span id="quality-row-count" style="font-size:12px;color:var(--steel-300)"></span>', right:'<button class="btn btn-primary">+ New NCR</button>' } },
+  'ncr-detail':     { name:'NCR-042', tab:'quality', tray:{ left:'<div class="at-breadcrumb"><span class="at-bc-link" onclick="navigateTo(\'quality\')">Quality</span><span class="at-bc-sep">›</span><span class="at-bc-current">NCR-042</span></div>' } },
+  'shipyard':       { name:'Shipyard Acceptance', tab:'quality', tray:{ left:'<div class="at-breadcrumb"><span class="at-bc-link" onclick="navigateTo(\'quality\')">Quality</span><span class="at-bc-sep">›</span><span class="at-bc-current">Shipyard Acceptance</span></div>' } },
+  'scheduler':      { name:'Production Scheduler', tab:'quality', tray:{ left:'<div class="at-breadcrumb"><span class="at-bc-link" onclick="navigateTo(\'quality\')">Quality</span><span class="at-bc-sep">›</span><span class="at-bc-current">Production Scheduler</span></div>' } },
+  'reports':        { name:'Reports & Analytics', tab:'reports', tray:null },
+  'settings':       { name:'Administration', tab:'settings', tray:null },
+  'splash':         { name:'Welcome', tab:null, tray:null, hideShell:true },
+  'login-desktop':  { name:'Login', tab:null, tray:null, hideShell:true },
+  'login-tablet':   { name:'Tablet Login', tab:null, tray:null, hideShell:true },
+  'tab-work':       { name:'My Work', tab:null, tray:null, hideShell:true },
+  'tab-operation':  { name:'Operation', tab:null, tray:null, hideShell:true },
+  'tab-ncr':        { name:'NCR Form', tab:null, tray:null, hideShell:true },
+  'tab-myncrs':     { name:'My NCRs', tab:null, tray:null, hideShell:true },
+  'tab-settings':   { name:'Settings', tab:null, tray:null, hideShell:true },
+};
+
+let currentPage = 'dashboard';
+let utilityOpen = false;
+let aiOpen = false;
+
+// ===== SEARCH PILLS =====
+var searchPillStore = { rfq: [], jobs: [], quality: [] };
+var savingViewModule = 'rfq';
+
+function handleSearchKeydown(e, module) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    var input = e.target;
+    var term = input.value.trim();
+    if (!term) return;
+    var exists = searchPillStore[module].some(function(p) { return p.text.toLowerCase() === term.toLowerCase(); });
+    if (exists) { input.value = ''; return; }
+    searchPillStore[module].push({ text: term });
+    input.value = '';
+    if (module === 'rfq') applyRfqFilters();
+    else if (module === 'jobs') applyJobsFilters();
+    else if (module === 'quality') applyQualityFilters();
+  }
+}
+
+function removeSearchPill(module, idx) {
+  searchPillStore[module].splice(idx, 1);
+  if (module === 'rfq') applyRfqFilters();
+  else if (module === 'jobs') applyJobsFilters();
+  else if (module === 'quality') applyQualityFilters();
+}
+
+function saveCurrentView(module) {
+  savingViewModule = module;
+  openSvModal();
+}
+
+function renderSearchPillsHtml(module) {
+  var pills = searchPillStore[module];
+  var html = '';
+  pills.forEach(function(pill, i) {
+    html += '<span class="search-pill">' +
+      '<span class="mi sp-icon">search</span>' +
+      pill.text +
+      '<span class="mi sp-save" onclick="event.stopPropagation();saveCurrentView(\'' + module + '\')" title="Save as filter">bookmark_border</span>' +
+      '<span class="mi sp-x" onclick="removeSearchPill(\'' + module + '\',' + i + ')">close</span>' +
+      '</span>';
+  });
+  return html;
+}
+
+function matchesSearchPills(module, text) {
+  var pills = searchPillStore[module];
+  for (var i = 0; i < pills.length; i++) {
+    if (!text.includes(pills[i].text.toLowerCase())) return false;
+  }
+  return true;
+}
+
+// ===== NAVIGATION =====
+function navigateTo(page) {
+  const config = pages[page];
+  if (!config) return;
+  currentPage = page;
+
+  // Hide all pages, show target
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const el = document.getElementById('page-' + page);
+  if (el) el.classList.add('active');
+
+  // Shell visibility (hide for login/tablet pages)
+  const header = document.getElementById('top-header');
+  const tray = document.getElementById('action-tray');
+
+  if (config.hideShell) {
+    header.style.display = 'none';
+    tray.classList.remove('visible');
+    document.getElementById('utility-panel').classList.remove('open');
+    document.getElementById('ai-panel').classList.remove('open');
+  } else {
+    header.style.display = '';
+  }
+
+  // Update tab active state
+  document.querySelectorAll('.th-tab[data-page]').forEach(tab => {
+    tab.classList.toggle('active', tab.dataset.page === config.tab);
+  });
+
+  // Update action tray — prepend "Back to ___" if navigated from Reports or Pipeline
+  var trayConfig = config.tray;
+  if (window._navFromReports && trayConfig && trayConfig.left) {
+    var backPrefix = '<span class="at-bc-link" onclick="window._navFromReports=false;navigateTo(\'reports\')" style="display:inline-flex;align-items:center;gap:4px"><span class="mi" style="font-size:14px">arrow_back</span>Back to Reports</span>' +
+      '<span style="display:inline-block;width:1px;height:16px;background:var(--steel-600);margin:0 12px;vertical-align:middle;flex-shrink:0"></span>';
+    var newLeft = trayConfig.left.replace('<div class="at-breadcrumb">', '<div class="at-breadcrumb">' + backPrefix);
+    trayConfig = { left: newLeft, center: trayConfig.center, right: trayConfig.right };
+  }
+  if (window._navFromPipeline && trayConfig && trayConfig.left) {
+    var backPrefix = '<span class="at-bc-link" onclick="window._navFromPipeline=false;navigateTo(\'rfq-board\')" style="display:inline-flex;align-items:center;gap:4px"><span class="mi" style="font-size:14px">arrow_back</span>Back to Pipeline</span>' +
+      '<span style="display:inline-block;width:1px;height:16px;background:var(--steel-600);margin:0 12px;vertical-align:middle;flex-shrink:0"></span>';
+    var newLeft = trayConfig.left.replace('<div class="at-breadcrumb">', '<div class="at-breadcrumb">' + backPrefix);
+    trayConfig = { left: newLeft, center: trayConfig.center, right: trayConfig.right };
+  }
+  if (page === 'reports' || page === 'dashboard' || page === 'rfqs' || page === 'jobs' || page === 'quality') {
+    window._navFromReports = false;
+  }
+  if (page === 'rfq-board' || page === 'dashboard' || page === 'rfqs' || page === 'jobs' || page === 'quality' || page === 'reports') {
+    window._navFromPipeline = false;
+  }
+  updateActionTray(trayConfig);
+
+  // Scroll active page to top
+  if (el) el.scrollTop = 0;
+
+  // Page-specific init: load default view or update count when entering RFQs page
+  if (page === 'rfqs') {
+    setTimeout(() => {
+      if (defaultView && savedViews[defaultView]) {
+        loadSavedView(defaultView);
+      } else {
+        applyRfqFilters();
+      }
+    }, 0);
+  }
+  if (page === 'jobs') {
+    setTimeout(() => { updateJobsCount(); }, 0);
+  }
+  if (page === 'quality') {
+    setTimeout(() => { updateQualityCount(); }, 0);
+  }
+}
+
+function updateActionTray(trayConfig) {
+  const tray = document.getElementById('action-tray');
+  const left = document.getElementById('at-left');
+  const center = document.getElementById('at-center');
+  const right = document.getElementById('at-right');
+
+  if (!trayConfig) {
+    tray.classList.remove('visible');
+    left.innerHTML = '';
+    center.innerHTML = '';
+    right.innerHTML = '';
+    return;
+  }
+
+  tray.classList.add('visible');
+  left.innerHTML = trayConfig.left || '';
+  center.innerHTML = trayConfig.center || '';
+  right.innerHTML = trayConfig.right || '';
+}
+
+// ===== NAV PANEL (legacy — no longer used, kept for tablet views) =====
+function toggleNav() { /* no-op in tab layout */ }
+
+// ===== UTILITY PANEL =====
+function toggleNotifications() {
+  const panel = document.getElementById('utility-panel');
+  const btn = document.getElementById('btn-notif');
+  utilityOpen = !utilityOpen;
+  panel.classList.toggle('open', utilityOpen);
+  if (btn) btn.classList.toggle('active', utilityOpen);
+}
+
+function toggleUtilityWidth() {
+  const panel = document.getElementById('utility-panel');
+  panel.classList.toggle('wide');
+}
+
+function filterNotifs(type, el) {
+  document.querySelectorAll('.notif-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('#notif-list .up-item').forEach(item => {
+    const dt = item.dataset.type || '';
+    if (type === 'all') { item.style.display = ''; }
+    else if (type === 'unread') { item.style.display = dt.includes('unread') ? '' : 'none'; }
+    else if (type === 'mentions') { item.style.display = dt.includes('mentions') ? '' : 'none'; }
+  });
+  // Show/hide date labels based on visible items
+  document.querySelectorAll('#notif-list .notif-date-label').forEach(lbl => {
+    let next = lbl.nextElementSibling;
+    let hasVisible = false;
+    while (next && !next.classList.contains('notif-date-label')) {
+      if (next.style.display !== 'none' && next.classList.contains('up-item')) hasVisible = true;
+      next = next.nextElementSibling;
+    }
+    lbl.style.display = hasVisible ? '' : 'none';
+  });
+}
+
+// ===== AI PANEL =====
+function toggleAI() {
+  const panel = document.getElementById('ai-panel');
+  const btn = document.getElementById('btn-ai');
+  aiOpen = !aiOpen;
+  panel.classList.toggle('open', aiOpen);
+  if (btn) btn.classList.toggle('active', aiOpen);
+  // Sync overlay AI button state
+  const overlayAiBtn = document.querySelector('.mm-ai-btn');
+  if (overlayAiBtn) overlayAiBtn.classList.toggle('active', aiOpen);
+  // Scroll chat to bottom when opening
+  if (aiOpen) {
+    setTimeout(() => {
+      const chat = document.getElementById('ap-chat');
+      if (chat) chat.scrollTop = chat.scrollHeight;
+    }, 50);
+  }
+}
+
+function sendAiMsg() {
+  const input = document.getElementById('ap-input');
+  const chat = document.getElementById('ap-chat');
+  if (!input || !chat || !input.value.trim()) return;
+  const text = input.value.trim();
+  input.value = '';
+  // Add user message
+  const userMsg = document.createElement('div');
+  userMsg.className = 'ap-msg ap-msg-user';
+  userMsg.innerHTML = '<div class="ap-bubble">' + text.replace(/</g,'&lt;') + '</div>';
+  chat.appendChild(userMsg);
+  chat.scrollTop = chat.scrollHeight;
+  // Simulate AI thinking
+  setTimeout(() => {
+    const aiMsg = document.createElement('div');
+    aiMsg.className = 'ap-msg ap-msg-ai';
+    aiMsg.innerHTML = '<div class="ap-label">AI Assistant</div><div class="ap-bubble">I\'m analyzing your request. In a production environment, this would connect to the AI backend for real-time analysis of your RFQ data, cost models, and capacity planning.</div>';
+    chat.appendChild(aiMsg);
+    chat.scrollTop = chat.scrollHeight;
+  }, 800);
+}
+
+// Enter key to send
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && document.activeElement && document.activeElement.id === 'ap-input') {
+    e.preventDefault();
+    sendAiMsg();
+  }
+});
+
+// ===== METRIC OVERLAY =====
+const metricData = {
+  pipeline: {
+    title: 'Total Pipeline', theme: 'success',
+    value: '$2.4M', change: '+18%', changeDir: 'positive',
+    periods: {
+      '3M':{d:[{l:'Dec',v:2.1},{l:'Jan',v:2.2},{l:'Feb',v:2.4}],max:2.8},
+      '6M':{d:[{l:'Sep',v:1.6},{l:'Oct',v:1.8},{l:'Nov',v:1.9},{l:'Dec',v:2.1},{l:'Jan',v:2.2},{l:'Feb',v:2.4}],max:2.8},
+      '12M':{d:[{l:'Mar',v:1.1},{l:'Apr',v:1.2},{l:'May',v:1.0},{l:'Jun',v:1.3},{l:'Jul',v:1.4},{l:'Aug',v:1.5},{l:'Sep',v:1.6},{l:'Oct',v:1.8},{l:'Nov',v:1.9},{l:'Dec',v:2.1},{l:'Jan',v:2.2},{l:'Feb',v:2.4}],max:2.8},
+      'YTD':{d:[{l:'Jan',v:2.2},{l:'Feb',v:2.4}],max:2.8}
+    },
+    breakdown:[['DDG-51 Flight III','$980K','41%','↑ 12%'],['CVN-81','$520K','22%','↑ 8%'],['LPD-32','$410K','17%','— flat'],['FFG-62','$320K','13%','↑ 24%'],['Other','$170K','7%','↓ 3%']],
+    breakdownHeaders:['Program','Value','Share','Trend'],
+    aiInsight:'<strong>Pipeline is up 18% QoQ</strong>, driven primarily by DDG-51 Flight III growth. FFG-62 is emerging as a high-growth program (+24%) worth prioritizing. Consider increasing bid capacity for Q2 — historical patterns suggest a 30% surge in RFQ volume during spring procurement cycles.'
+  },
+  due: {
+    title: 'Due This Week', theme: 'danger',
+    value: '8', change: '+3 vs last week', changeDir: 'negative',
+    periods: {
+      '3M':{d:[{l:'W10',v:5},{l:'W11',v:7},{l:'W12',v:8}],max:10},
+      '6M':{d:[{l:'W7',v:4},{l:'W8',v:6},{l:'W9',v:3},{l:'W10',v:5},{l:'W11',v:7},{l:'W12',v:8}],max:10},
+      '12M':{d:[{l:'W1',v:3},{l:'W4',v:5},{l:'W8',v:6},{l:'W12',v:4},{l:'W16',v:7},{l:'W20',v:3},{l:'W24',v:5},{l:'W28',v:6},{l:'W32',v:4},{l:'W36',v:7},{l:'W40',v:5},{l:'W44',v:8}],max:10},
+      'YTD':{d:[{l:'W1',v:5},{l:'W2',v:3},{l:'W3',v:6},{l:'W4',v:4},{l:'W5',v:7},{l:'W6',v:5},{l:'W7',v:8}],max:10}
+    },
+    breakdown:[['RFQ-0147','HII-Ingalls','DDG-51','Feb 18','2 days left'],['RFQ-0161','HII-Ingalls','LPD-32','Feb 17','1 day left'],['RFQ-0152','Bath Iron Works','DDG-51','Feb 20','4 days left'],['RFQ-0168','Electric Boat','SSN-810','Feb 22','6 days left'],['RFQ-0138','HII-Newport News','CVN-81','Feb 16','Overdue'],['RFQ-0155','Fincantieri Marinette','FFG-62','Feb 15','Overdue'],['RFQ-0172','GD-NASSCO','T-AO-205','Feb 25','9 days left']],
+    breakdownHeaders:['RFQ','Shipyard','Program','Due Date','Status'],
+    aiInsight:'<strong>2 RFQs are overdue</strong> — RFQ-0138 (CVN-81) and RFQ-0155 (FFG-62). Both are from high-value programs. Prioritize RFQ-0138 as HII-Newport News has a 72-hour follow-up policy. Responding within the next 24 hours could prevent disqualification from future CVN-81 bid cycles.'
+  },
+  hitrate: {
+    title: 'Win Rate (12mo)', theme: 'success',
+    value: '34%', change: '↑ 6% vs prior year', changeDir: 'positive',
+    periods: {
+      '3M':{d:[{l:'Dec',v:31},{l:'Jan',v:33},{l:'Feb',v:34}],max:40},
+      '6M':{d:[{l:'Sep',v:28},{l:'Oct',v:30},{l:'Nov',v:29},{l:'Dec',v:31},{l:'Jan',v:33},{l:'Feb',v:34}],max:40},
+      '12M':{d:[{l:'Mar',v:24},{l:'Apr',v:25},{l:'May',v:26},{l:'Jun',v:25},{l:'Jul',v:27},{l:'Aug',v:28},{l:'Sep',v:28},{l:'Oct',v:30},{l:'Nov',v:29},{l:'Dec',v:31},{l:'Jan',v:33},{l:'Feb',v:34}],max:40},
+      'YTD':{d:[{l:'Jan',v:33},{l:'Feb',v:34}],max:40}
+    },
+    breakdown:[['HII-Ingalls','67%','6 / 9','↑ 12%'],['Electric Boat','50%','3 / 6','↑ 15%'],['Bath Iron Works','38%','3 / 8','↑ 8%'],['HII-Newport News','29%','2 / 7','— flat'],['GD-NASSCO','25%','1 / 4','New'],['Fincantieri Marinette','20%','1 / 5','New'],['Austal USA','17%','1 / 6','↓ 5%'],['Overall','34%','17 / 45','↑ 6%']],
+    breakdownHeaders:['Shipyard','Win Rate','Won / Bid','vs Prior'],
+    aiInsight:'<strong>Win rate at HII-Ingalls is 2x higher than Bath Iron Works</strong> (67% vs 38%). Electric Boat at 50% shows strong submarine niche performance. Austal USA trending down — reassess bid strategy for auxiliary vessels. Consider applying the HII-Ingalls pricing model to other yards.'
+  },
+  response: {
+    title: 'Avg Response Time', theme: 'warn',
+    value: '4.2d', change: '−0.8d vs prior quarter', changeDir: 'positive',
+    periods: {
+      '3M':{d:[{l:'Dec',v:4.8},{l:'Jan',v:4.5},{l:'Feb',v:4.2}],max:7},
+      '6M':{d:[{l:'Sep',v:5.8},{l:'Oct',v:5.2},{l:'Nov',v:5.0},{l:'Dec',v:4.8},{l:'Jan',v:4.5},{l:'Feb',v:4.2}],max:7},
+      '12M':{d:[{l:'Mar',v:6.5},{l:'Apr',v:6.2},{l:'May',v:6.4},{l:'Jun',v:6.0},{l:'Jul',v:5.9},{l:'Aug',v:5.8},{l:'Sep',v:5.8},{l:'Oct',v:5.2},{l:'Nov',v:5.0},{l:'Dec',v:4.8},{l:'Jan',v:4.5},{l:'Feb',v:4.2}],max:7},
+      'YTD':{d:[{l:'Jan',v:4.5},{l:'Feb',v:4.2}],max:7}
+    },
+    breakdown:[['Simple (< $50K)','2.1 days','12 quotes','↓ 0.5d'],['Standard ($50–200K)','4.3 days','8 quotes','↓ 0.3d'],['Complex (> $200K)','7.8 days','3 quotes','↓ 1.2d'],['Rush requests','1.4 days','5 quotes','↓ 0.2d']],
+    breakdownHeaders:['Category','Avg Time','Volume','Trend'],
+    aiInsight:'<strong>Response time improved 16% this quarter.</strong> Complex quotes (>$200K) saw the largest improvement (−1.2d). This correlates with the new estimating template rollout in January. Rush requests are averaging 1.4d — well under the 2-day SLA. Maintaining this pace could unlock preferred vendor status at Bath Iron Works.'
+  },
+  'open-rfqs': {
+    title: 'Open RFQs', theme: 'danger',
+    value: '23', change: '+5 vs last month', changeDir: 'negative',
+    periods: {
+      '3M':{d:[{l:'Dec',v:12},{l:'Jan',v:20},{l:'Feb',v:23}],max:28},
+      '6M':{d:[{l:'Sep',v:14},{l:'Oct',v:18},{l:'Nov',v:16},{l:'Dec',v:12},{l:'Jan',v:20},{l:'Feb',v:23}],max:28},
+      '12M':{d:[{l:'Mar',v:10},{l:'Apr',v:12},{l:'May',v:11},{l:'Jun',v:13},{l:'Jul',v:15},{l:'Aug',v:14},{l:'Sep',v:14},{l:'Oct',v:18},{l:'Nov',v:16},{l:'Dec',v:12},{l:'Jan',v:20},{l:'Feb',v:23}],max:28},
+      'YTD':{d:[{l:'Jan',v:20},{l:'Feb',v:23}],max:28}
+    },
+    breakdown:[['New (< 3 days)','5','22%','Responding'],['In Review','8','35%','Estimating'],['Quoted','6','26%','Awaiting decision'],['Overdue','4','17%','Needs action']],
+    breakdownHeaders:['Status','Count','Share','Action'],
+    aiInsight:'<strong>4 overdue RFQs need immediate attention</strong> — representing 17% of the open pipeline. The "In Review" backlog (8 RFQs) has grown 60% from last month, suggesting an estimating bottleneck. Redistributing 2–3 standard quotes to the secondary estimator could reduce the backlog by 40% this week.'
+  },
+  jobs: {
+    title: 'Jobs In-Work', theme: 'warn',
+    value: '12', change: '+2 vs last month', changeDir: 'neutral',
+    periods: {
+      '3M':{d:[{l:'Dec',v:11},{l:'Jan',v:10},{l:'Feb',v:12}],max:15},
+      '6M':{d:[{l:'Sep',v:8},{l:'Oct',v:7},{l:'Nov',v:10},{l:'Dec',v:11},{l:'Jan',v:10},{l:'Feb',v:12}],max:15},
+      '12M':{d:[{l:'Mar',v:6},{l:'Apr',v:7},{l:'May',v:5},{l:'Jun',v:8},{l:'Jul',v:9},{l:'Aug',v:8},{l:'Sep',v:8},{l:'Oct',v:7},{l:'Nov',v:10},{l:'Dec',v:11},{l:'Jan',v:10},{l:'Feb',v:12}],max:15},
+      'YTD':{d:[{l:'Jan',v:10},{l:'Feb',v:12}],max:15}
+    },
+    breakdown:[['On Schedule','7','58%','On track'],['Ahead','2','17%','Avg +2d ahead'],['At Risk','2','17%','Material delays'],['Behind','1','8%','Weld rework']],
+    breakdownHeaders:['Status','Count','Share','Notes'],
+    aiInsight:'<strong>3 jobs are at risk or behind schedule</strong> — all linked to material delays or rework. J-2026-031 has a weld rework NCR (NCR-039) that could cascade to a 5-day delay if not resolved by Friday. The 2 at-risk jobs share the same steel supplier — consider expediting the alternate vendor qualification process.'
+  },
+  ncrs: {
+    title: 'Open NCRs', theme: 'danger',
+    value: '5', change: '+1 vs last month', changeDir: 'negative',
+    periods: {
+      '3M':{d:[{l:'Dec',v:2},{l:'Jan',v:4},{l:'Feb',v:5}],max:8},
+      '6M':{d:[{l:'Sep',v:3},{l:'Oct',v:4},{l:'Nov',v:3},{l:'Dec',v:2},{l:'Jan',v:4},{l:'Feb',v:5}],max:8},
+      '12M':{d:[{l:'Mar',v:2},{l:'Apr',v:3},{l:'May',v:1},{l:'Jun',v:2},{l:'Jul',v:4},{l:'Aug',v:3},{l:'Sep',v:3},{l:'Oct',v:4},{l:'Nov',v:3},{l:'Dec',v:2},{l:'Jan',v:4},{l:'Feb',v:5}],max:8},
+      'YTD':{d:[{l:'Jan',v:4},{l:'Feb',v:5}],max:8}
+    },
+    breakdown:[['NCR-040','J-2026-038','Material surface defect','Open — 1d'],['NCR-039','J-2026-031','Weld undercut','Open — 3d'],['NCR-038','J-2026-042','Dimensional OOT','Disposition pending'],['NCR-037','J-2025-119','Surface finish','Disposition pending'],['NCR-036','J-2026-031','Thread damage','Under review']],
+    breakdownHeaders:['NCR','Job','Issue','Status'],
+    aiInsight:'<strong>NCR volume is trending up 25% over 3 months.</strong> Two NCRs (039, 036) are tied to J-2026-031, indicating a systemic welding issue on that job. NCR-038 (dimensional OOT) is the highest cost risk — similar OOT issues on DDG-51 parts averaged $18K in rework. Recommend a root cause review before the next production run.'
+  },
+  margin: {
+    title: 'Avg Margin', theme: 'success',
+    value: '22%', change: '↑ 2% vs prior quarter', changeDir: 'positive',
+    periods: {
+      '3M':{d:[{l:'Dec',v:21},{l:'Jan',v:23},{l:'Feb',v:22}],max:30},
+      '6M':{d:[{l:'Sep',v:18},{l:'Oct',v:19},{l:'Nov',v:20},{l:'Dec',v:21},{l:'Jan',v:23},{l:'Feb',v:22}],max:30},
+      '12M':{d:[{l:'Mar',v:16},{l:'Apr',v:17},{l:'May',v:15},{l:'Jun',v:16},{l:'Jul',v:18},{l:'Aug',v:17},{l:'Sep',v:18},{l:'Oct',v:19},{l:'Nov',v:20},{l:'Dec',v:21},{l:'Jan',v:23},{l:'Feb',v:22}],max:30},
+      'YTD':{d:[{l:'Jan',v:23},{l:'Feb',v:22}],max:30}
+    },
+    breakdown:[['DDG-51 Flight III','26%','$980K','↑ 3%'],['CVN-81','19%','$520K','↑ 1%'],['LPD-32','24%','$410K','— flat'],['FFG-62','18%','$320K','↑ 4%']],
+    breakdownHeaders:['Program','Margin','Revenue','Trend'],
+    aiInsight:'<strong>Margins are healthy at 22% but FFG-62 is lagging at 18%.</strong> DDG-51 Flight III is the margin leader at 26%, benefiting from repeat part familiarity. FFG-62 margins could improve 3–4% by leveraging existing DDG-51 tooling setups for shared hull components. LPD-32 margin is flat — review material cost assumptions for Q2 bids.'
+  },
+
+  // ===== JOBS PAGE METRICS =====
+  'active-jobs': {
+    title: 'Active Jobs', theme: 'cyan',
+    value: '37', change: '+12 new this month', changeDir: 'positive',
+    periods: {
+      '3M':{d:[{l:'Dec',v:28},{l:'Jan',v:32},{l:'Feb',v:37}],max:45},
+      '6M':{d:[{l:'Sep',v:22},{l:'Oct',v:25},{l:'Nov',v:24},{l:'Dec',v:28},{l:'Jan',v:32},{l:'Feb',v:37}],max:45},
+      '12M':{d:[{l:'Mar',v:15},{l:'Apr',v:18},{l:'May',v:16},{l:'Jun',v:20},{l:'Jul',v:22},{l:'Aug',v:21},{l:'Sep',v:22},{l:'Oct',v:25},{l:'Nov',v:24},{l:'Dec',v:28},{l:'Jan',v:32},{l:'Feb',v:37}],max:45},
+      'YTD':{d:[{l:'Jan',v:32},{l:'Feb',v:37}],max:45}
+    },
+    breakdown:[['In Work','18','49%','3 at risk'],['RTW Released','8','22%','All on track'],['RTW Ready','6','16%','Awaiting release'],['Planned','5','13%','Scheduled next 2 wks']],
+    breakdownHeaders:['Status','Count','Share','Notes'],
+    aiInsight:'<strong>Active jobs up 32% over 3 months</strong> — driven by new DDG-51 and CVN-81 awards. The 18 "In Work" jobs are consuming 87% of shop floor capacity. With 6 RTW Ready jobs queued, consider staggering releases to avoid a bottleneck at CNC machining (currently at 94% utilization). The 5 planned jobs are all due to start within 2 weeks.'
+  },
+  'ontime-rate': {
+    title: 'On-Time Rate', theme: 'success',
+    value: '91%', change: '↑ 3% vs last month', changeDir: 'positive',
+    periods: {
+      '3M':{d:[{l:'Dec',v:87},{l:'Jan',v:88},{l:'Feb',v:91}],max:100},
+      '6M':{d:[{l:'Sep',v:82},{l:'Oct',v:84},{l:'Nov',v:85},{l:'Dec',v:87},{l:'Jan',v:88},{l:'Feb',v:91}],max:100},
+      '12M':{d:[{l:'Mar',v:76},{l:'Apr',v:78},{l:'May',v:80},{l:'Jun',v:79},{l:'Jul',v:81},{l:'Aug',v:83},{l:'Sep',v:82},{l:'Oct',v:84},{l:'Nov',v:85},{l:'Dec',v:87},{l:'Jan',v:88},{l:'Feb',v:91}],max:100},
+      'YTD':{d:[{l:'Jan',v:88},{l:'Feb',v:91}],max:100}
+    },
+    breakdown:[['DDG-51 Flight III','94%','16 / 17','↑ 5%'],['CVN-81','88%','7 / 8','↑ 2%'],['SSN-810 Virginia','92%','11 / 12','↑ 4%'],['SSBN-826 Columbia','85%','6 / 7','— flat'],['Other Programs','100%','4 / 4','↑ 8%']],
+    breakdownHeaders:['Program','On-Time','Delivered','Trend'],
+    aiInsight:'<strong>On-time rate has climbed 15 points over 12 months</strong> — a strong upward trajectory. DDG-51 leads at 94%, benefiting from repeat part familiarity. SSBN-826 Columbia at 85% is the weak point — 2 of the late deliveries were tied to material delays from the same steel supplier. Switching to the qualified alternate vendor for Columbia parts could push the rate above 93%.'
+  },
+  'overdue-jobs': {
+    title: 'Overdue Jobs', theme: 'danger',
+    value: '4', change: '+1 vs last month', changeDir: 'negative',
+    periods: {
+      '3M':{d:[{l:'Dec',v:2},{l:'Jan',v:3},{l:'Feb',v:4}],max:8},
+      '6M':{d:[{l:'Sep',v:5},{l:'Oct',v:4},{l:'Nov',v:3},{l:'Dec',v:2},{l:'Jan',v:3},{l:'Feb',v:4}],max:8},
+      '12M':{d:[{l:'Mar',v:6},{l:'Apr',v:5},{l:'May',v:7},{l:'Jun',v:4},{l:'Jul',v:3},{l:'Aug',v:4},{l:'Sep',v:5},{l:'Oct',v:4},{l:'Nov',v:3},{l:'Dec',v:2},{l:'Jan',v:3},{l:'Feb',v:4}],max:8},
+      'YTD':{d:[{l:'Jan',v:3},{l:'Feb',v:4}],max:8}
+    },
+    breakdown:[['J-2026-109','Cooling water pipe','SSN-810','5 days late — material delay'],['J-2026-145','Structural bracket','CVN-81','3 days late — weld rework'],['J-2026-111','Sea chest grating','CVN-81','2 days late — at risk'],['J-2026-136','Bilge pump mount','DDG-51','1 day late — behind schedule']],
+    breakdownHeaders:['Job','Part','Program','Issue'],
+    aiInsight:'<strong>2 of 4 overdue jobs are CVN-81 parts</strong> — both linked to welding operations. J-2026-145 required weld rework after an NCR, adding 3 days. J-2026-109 is delayed by a material shortage from the primary steel supplier. Expediting the material order could recover 3 of the 5 lost days. Recommend escalating J-2026-145 to the QA lead to prevent a repeat NCR on the remaining operations.'
+  },
+  'cycle-time': {
+    title: 'Avg Cycle Time', theme: 'neutral',
+    value: '18d', change: '−3d vs last quarter', changeDir: 'positive',
+    periods: {
+      '3M':{d:[{l:'Dec',v:20},{l:'Jan',v:19},{l:'Feb',v:18}],max:28},
+      '6M':{d:[{l:'Sep',v:24},{l:'Oct',v:23},{l:'Nov',v:22},{l:'Dec',v:20},{l:'Jan',v:19},{l:'Feb',v:18}],max:28},
+      '12M':{d:[{l:'Mar',v:27},{l:'Apr',v:26},{l:'May',v:28},{l:'Jun',v:25},{l:'Jul',v:24},{l:'Aug',v:24},{l:'Sep',v:24},{l:'Oct',v:23},{l:'Nov',v:22},{l:'Dec',v:20},{l:'Jan',v:19},{l:'Feb',v:18}],max:28},
+      'YTD':{d:[{l:'Jan',v:19},{l:'Feb',v:18}],max:28}
+    },
+    breakdown:[['Simple (< 5 ops)','8 days','12 jobs','↓ 2d'],['Standard (5–10 ops)','16 days','18 jobs','↓ 3d'],['Complex (> 10 ops)','28 days','7 jobs','↓ 4d'],['Rush','6 days','3 jobs','↓ 1d']],
+    breakdownHeaders:['Complexity','Avg Cycle','Volume','Trend'],
+    aiInsight:'<strong>Cycle time down 14% this quarter</strong> — now 3 days under the 21-day target. Complex jobs saw the biggest improvement (−4d), correlating with the new CNC programming templates deployed in December. Standard jobs are the volume sweet spot at 16 days. If the trend holds, you could commit to a 15-day SLA for standard jobs by Q3, which would be a competitive differentiator.'
+  },
+
+  // ===== QUALITY PAGE METRICS =====
+  'open-ncrs-q': {
+    title: 'Open NCRs', theme: 'danger',
+    value: '9', change: '+3 vs last month', changeDir: 'negative',
+    periods: {
+      '3M':{d:[{l:'Dec',v:4},{l:'Jan',v:6},{l:'Feb',v:9}],max:12},
+      '6M':{d:[{l:'Sep',v:5},{l:'Oct',v:6},{l:'Nov',v:5},{l:'Dec',v:4},{l:'Jan',v:6},{l:'Feb',v:9}],max:12},
+      '12M':{d:[{l:'Mar',v:3},{l:'Apr',v:4},{l:'May',v:2},{l:'Jun',v:3},{l:'Jul',v:5},{l:'Aug',v:4},{l:'Sep',v:5},{l:'Oct',v:6},{l:'Nov',v:5},{l:'Dec',v:4},{l:'Jan',v:6},{l:'Feb',v:9}],max:12},
+      'YTD':{d:[{l:'Jan',v:6},{l:'Feb',v:9}],max:12}
+    },
+    breakdown:[['Critical','3','33%','Avg age: 4d'],['Major','4','45%','Avg age: 8d'],['Minor','2','22%','Avg age: 12d']],
+    breakdownHeaders:['Severity','Count','Share','Avg Age'],
+    aiInsight:'<strong>Open NCRs spiked 50% this month</strong> — 3 are Critical severity. The spike correlates with a batch of HY-80 steel from supplier Lot #2026-047 — 4 of the 9 open NCRs trace back to this lot. Recommend quarantining remaining material from this lot and initiating a supplier corrective action request (SCAR). Resolving the 3 Critical NCRs should be prioritized this week to avoid shipment delays on 2 DDG-51 parts.'
+  },
+  'awaiting-disp': {
+    title: 'Awaiting Disposition', theme: 'warn',
+    value: '4', change: '+2 vs last month', changeDir: 'negative',
+    periods: {
+      '3M':{d:[{l:'Dec',v:1},{l:'Jan',v:2},{l:'Feb',v:4}],max:6},
+      '6M':{d:[{l:'Sep',v:2},{l:'Oct',v:3},{l:'Nov',v:2},{l:'Dec',v:1},{l:'Jan',v:2},{l:'Feb',v:4}],max:6},
+      '12M':{d:[{l:'Mar',v:1},{l:'Apr',v:2},{l:'May',v:1},{l:'Jun',v:1},{l:'Jul',v:3},{l:'Aug',v:2},{l:'Sep',v:2},{l:'Oct',v:3},{l:'Nov',v:2},{l:'Dec',v:1},{l:'Jan',v:2},{l:'Feb',v:4}],max:6},
+      'YTD':{d:[{l:'Jan',v:2},{l:'Feb',v:4}],max:6}
+    },
+    breakdown:[['NCR-108','Wrong alloy — 7d waiting','J-2026-135','Major'],['NCR-111','Misalignment — 7d waiting','J-2026-121','Major'],['NCR-110','Incomplete pen. — 12d waiting','J-2026-114','Minor'],['NCR-109','Porosity — 6d waiting','J-2026-106','Major']],
+    breakdownHeaders:['NCR','Issue','Job','Severity'],
+    aiInsight:'<strong>Average disposition wait time is 8 days</strong> — up from 4 days last month. NCR-110 has been waiting 12 days, well over the 5-day SLA. The bottleneck appears to be the MRB (Material Review Board) meeting cadence — currently weekly. Moving to twice-weekly MRB reviews could cut average wait time by 40%. NCR-108 (wrong alloy) may require a customer deviation request, which adds 5–7 business days.'
+  },
+  'closed-month': {
+    title: 'Closed This Month', theme: 'success',
+    value: '12', change: '↑ 4 vs last month', changeDir: 'positive',
+    periods: {
+      '3M':{d:[{l:'Dec',v:6},{l:'Jan',v:8},{l:'Feb',v:12}],max:15},
+      '6M':{d:[{l:'Sep',v:4},{l:'Oct',v:5},{l:'Nov',v:7},{l:'Dec',v:6},{l:'Jan',v:8},{l:'Feb',v:12}],max:15},
+      '12M':{d:[{l:'Mar',v:3},{l:'Apr',v:4},{l:'May',v:5},{l:'Jun',v:3},{l:'Jul',v:6},{l:'Aug',v:5},{l:'Sep',v:4},{l:'Oct',v:5},{l:'Nov',v:7},{l:'Dec',v:6},{l:'Jan',v:8},{l:'Feb',v:12}],max:15},
+      'YTD':{d:[{l:'Jan',v:8},{l:'Feb',v:12}],max:15}
+    },
+    breakdown:[['Closed - Rework','7','58%','Avg 4.2d resolution'],['Closed - Use As-Is','5','42%','Avg 2.8d resolution'],['Total Rework Cost','$34K','—','↑ $8K vs last month'],['Avg Resolution Time','3.2 days','—','↓ 0.6d improvement']],
+    breakdownHeaders:['Disposition','Count','Share','Detail'],
+    aiInsight:'<strong>NCR closure rate up 50% month-over-month</strong> — a strong improvement. However, rework dispositions (58%) are dominating over use-as-is (42%), driving $34K in rework costs. The welding-related NCRs account for 60% of rework costs. Investing in pre-weld inspection checks could reduce rework volume by an estimated 30%, saving ~$10K/month.'
+  },
+  'avg-resolution': {
+    title: 'Avg Resolution Time', theme: 'cyan',
+    value: '3.2d', change: '−0.6d vs last month', changeDir: 'positive',
+    periods: {
+      '3M':{d:[{l:'Dec',v:4.5},{l:'Jan',v:3.8},{l:'Feb',v:3.2}],max:7},
+      '6M':{d:[{l:'Sep',v:5.8},{l:'Oct',v:5.4},{l:'Nov',v:5.0},{l:'Dec',v:4.5},{l:'Jan',v:3.8},{l:'Feb',v:3.2}],max:7},
+      '12M':{d:[{l:'Mar',v:6.5},{l:'Apr',v:6.2},{l:'May',v:6.0},{l:'Jun',v:5.8},{l:'Jul',v:5.6},{l:'Aug',v:5.9},{l:'Sep',v:5.8},{l:'Oct',v:5.4},{l:'Nov',v:5.0},{l:'Dec',v:4.5},{l:'Jan',v:3.8},{l:'Feb',v:3.2}],max:7},
+      'YTD':{d:[{l:'Jan',v:3.8},{l:'Feb',v:3.2}],max:7}
+    },
+    breakdown:[['Critical NCRs','1.8 days','3 closed','↓ 0.4d'],['Major NCRs','3.5 days','6 closed','↓ 0.8d'],['Minor NCRs','4.8 days','3 closed','↓ 0.5d']],
+    breakdownHeaders:['Severity','Avg Time','Volume','Trend'],
+    aiInsight:'<strong>Resolution time trending down 45% over 6 months</strong> — now well under the 5-day target. Critical NCRs are being resolved fastest at 1.8 days, showing good triage prioritization. Minor NCRs at 4.8 days are the slowest — these tend to queue behind higher-priority items. Consider assigning minor NCRs to a dedicated junior QA engineer to free up senior staff for critical dispositions.'
+  }
+};
+
+let _currentMetricKey = null;
+
+// Bar color thresholds per metric — returns CSS class based on value
+const metricBarColor = {
+  // Higher pipeline = better: green ≥2.0, cyan ≥1.5, warn ≥1.0, red <1.0
+  pipeline: function(v) { return v >= 2.0 ? 'bar-success' : v >= 1.5 ? 'bar-yellow' : v >= 1.0 ? 'bar-warn' : 'bar-danger'; },
+  // Fewer due = better: green ≤3, cyan ≤5, warn ≤7, red >7
+  due: function(v) { return v <= 3 ? 'bar-success' : v <= 5 ? 'bar-yellow' : v <= 7 ? 'bar-warn' : 'bar-danger'; },
+  // Higher win rate = better: green ≥32, cyan ≥27, warn ≥22, red <22
+  hitrate: function(v) { return v >= 32 ? 'bar-success' : v >= 27 ? 'bar-yellow' : v >= 22 ? 'bar-warn' : 'bar-danger'; },
+  // Lower response = better: green ≤3, cyan ≤4.5, warn ≤5.5, red >5.5
+  response: function(v) { return v <= 3 ? 'bar-success' : v <= 4.5 ? 'bar-yellow' : v <= 5.5 ? 'bar-warn' : 'bar-danger'; },
+  // Fewer open = better: green ≤12, cyan ≤16, warn ≤20, red >20
+  'open-rfqs': function(v) { return v <= 12 ? 'bar-success' : v <= 16 ? 'bar-yellow' : v <= 20 ? 'bar-warn' : 'bar-danger'; },
+  // More jobs = better capacity: green ≥14, cyan ≥10, warn ≥6, red <6
+  jobs: function(v) { return v >= 14 ? 'bar-success' : v >= 10 ? 'bar-yellow' : v >= 6 ? 'bar-warn' : 'bar-danger'; },
+  // Fewer NCRs = better: green ≤2, cyan ≤3, warn ≤4, red >4
+  ncrs: function(v) { return v <= 2 ? 'bar-success' : v <= 3 ? 'bar-yellow' : v <= 4 ? 'bar-warn' : 'bar-danger'; },
+  // Higher margin = better: green ≥22, cyan ≥19, warn ≥16, red <16
+  margin: function(v) { return v >= 22 ? 'bar-success' : v >= 19 ? 'bar-yellow' : v >= 16 ? 'bar-warn' : 'bar-danger'; },
+  // Jobs page metrics
+  'active-jobs': function(v) { return v >= 30 ? 'bar-success' : v >= 22 ? 'bar-yellow' : v >= 15 ? 'bar-warn' : 'bar-danger'; },
+  'ontime-rate': function(v) { return v >= 90 ? 'bar-success' : v >= 85 ? 'bar-yellow' : v >= 80 ? 'bar-warn' : 'bar-danger'; },
+  'overdue-jobs': function(v) { return v <= 2 ? 'bar-success' : v <= 3 ? 'bar-yellow' : v <= 5 ? 'bar-warn' : 'bar-danger'; },
+  'cycle-time': function(v) { return v <= 18 ? 'bar-success' : v <= 21 ? 'bar-yellow' : v <= 25 ? 'bar-warn' : 'bar-danger'; },
+  // Quality page metrics
+  'open-ncrs-q': function(v) { return v <= 4 ? 'bar-success' : v <= 6 ? 'bar-yellow' : v <= 8 ? 'bar-warn' : 'bar-danger'; },
+  'awaiting-disp': function(v) { return v <= 1 ? 'bar-success' : v <= 2 ? 'bar-yellow' : v <= 3 ? 'bar-warn' : 'bar-danger'; },
+  'closed-month': function(v) { return v >= 10 ? 'bar-success' : v >= 7 ? 'bar-yellow' : v >= 4 ? 'bar-warn' : 'bar-danger'; },
+  'avg-resolution': function(v) { return v <= 3 ? 'bar-success' : v <= 4.5 ? 'bar-yellow' : v <= 5.5 ? 'bar-warn' : 'bar-danger'; }
+};
+
+// ============================================
+// CUSTOM DROPDOWNS (replace native <select>)
+// ============================================
+function initCustomDropdowns() {
+  document.querySelectorAll('select.form-input').forEach(function(sel) {
+    var wrap = document.createElement('div');
+    wrap.className = 'cdd';
+    // Copy any inline style from the select's parent style context
+    var trigger = document.createElement('div');
+    trigger.className = 'cdd-trigger form-input';
+    // Copy inline styles from select if present
+    if (sel.getAttribute('style')) trigger.setAttribute('style', sel.getAttribute('style'));
+    var menu = document.createElement('div');
+    menu.className = 'cdd-menu';
+    var selectedText = '';
+    Array.from(sel.options).forEach(function(opt) {
+      var item = document.createElement('div');
+      item.className = 'cdd-opt';
+      if (opt.selected) { item.classList.add('active'); selectedText = opt.textContent; }
+      item.textContent = opt.textContent;
+      item.setAttribute('data-val', opt.value || opt.textContent);
+      item.addEventListener('click', function(e) {
+        e.stopPropagation();
+        trigger.textContent = this.textContent;
+        menu.querySelectorAll('.cdd-opt').forEach(function(o) { o.classList.remove('active'); });
+        this.classList.add('active');
+        sel.value = this.getAttribute('data-val');
+        wrap.classList.remove('open');
+      });
+      menu.appendChild(item);
+    });
+    if (!selectedText && sel.options.length) selectedText = sel.options[0].textContent;
+    trigger.textContent = selectedText;
+    trigger.addEventListener('click', function(e) {
+      e.stopPropagation();
+      // Close any other open dropdowns
+      document.querySelectorAll('.cdd.open').forEach(function(d) { if (d !== wrap) d.classList.remove('open'); });
+      wrap.classList.toggle('open');
+    });
+    sel.parentNode.insertBefore(wrap, sel);
+    wrap.appendChild(trigger);
+    wrap.appendChild(menu);
+    wrap.appendChild(sel); // keep hidden select inside for data
+  });
+}
+// Close dropdowns on outside click
+document.addEventListener('click', function() {
+  document.querySelectorAll('.cdd.open').forEach(function(d) { d.classList.remove('open'); });
+});
+// Init on DOM ready
+document.addEventListener('DOMContentLoaded', initCustomDropdowns);
+
