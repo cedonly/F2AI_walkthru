@@ -1410,6 +1410,12 @@ When the job closed, the platform learned from it \\u2014 so the next bid is sma
   }
 
   function toggleVoiceover() {
+    // First-time click with no engine configured → show voice settings modal
+    if (!voiceoverEnabled && !useGoogleTts && !useElevenLabs && !googleTtsApiKey && !elevenLabsApiKey) {
+      openVoiceModal();
+      return;
+    }
+
     voiceoverEnabled = !voiceoverEnabled;
     updateVoiceoverIcon();
     if (voiceoverEnabled) {
