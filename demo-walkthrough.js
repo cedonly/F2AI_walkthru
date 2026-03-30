@@ -15,13 +15,11 @@
     {
       id: 'intro',
       page: 'splash',
-      act: 0, scene: '\\u2014',
+      act: 0, scene: '\u2014',
       title: 'Welcome',
       persona: '',
-      desc: 'Welcome to the F2AI prototype demo. We\\u2019ll follow RFQ-2026-0147 \\u2014 12 pump mounting brackets in HY-80 for DDG-51 Flight III \\u2014 from discovery through shipyard acceptance.',
-      dialog: 'It\\u2019s a Tuesday morning at Bayside Precision \\u2014 a 48-person shop in Pascagoula that builds HY-80 weldments for Navy destroyers. A new RFQ just came in: 12 pump brackets for the DDG-51 program.\
-\
-We\\u2019re going to follow this single job through the entire F2AI platform \\u2014 from the moment it lands on Maria\\u2019s desk, all the way to shipyard acceptance.',
+      desc: 'Welcome to the F2AI prototype demo. We\u2019ll follow RFQ-2026-0147 \u2014 12 pump mounting brackets in HY-80 for DDG-51 Flight III \u2014 from discovery through shipyard acceptance.',
+      dialog: 'It\u2019s a Tuesday morning at Bayside Precision \u2014 a 48-person shop in Pascagoula that builds HY-80 weldments for Navy destroyers. A new RFQ just came in: 12 pump brackets for the DDG-51 program.\n\nWe\u2019re going to follow this single job through the entire F2AI platform \u2014 from the moment it lands on Maria\u2019s desk, all the way to shipyard acceptance.',
       clickTarget: '#splash-begin-btn', clickLabel: 'Begin Demo'
     },
     {
@@ -30,10 +28,8 @@ We\\u2019re going to follow this single job through the entire F2AI platform \\u
       act: 1, scene: '1.1',
       title: 'Desktop Login',
       persona: 'Maria',
-      desc: 'Maria starts her morning by logging into F2AI. The platform is web-based with SSO \\u2014 no installs, no VPN headaches.',
-      dialog: 'Maria logs in to start her day. Web-based, single sign-on \\u2014 nothing to install.\
-\
-\\u27A4 Enter credentials and click Sign In.',
+      desc: 'Maria starts her morning by logging into F2AI. The platform is web-based with SSO \u2014 no installs, no VPN headaches.',
+      dialog: 'Maria logs in to start her day. Web-based, single sign-on \u2014 nothing to install.\n\n\u27A4 Enter credentials and click Sign In.',
       clickTarget: '#page-login-desktop .btn-primary', clickLabel: 'Sign In'
     },
     {
@@ -42,22 +38,18 @@ We\\u2019re going to follow this single job through the entire F2AI platform \\u
       act: 1, scene: '1.2',
       title: 'Dashboard',
       persona: 'Maria',
-      desc: 'Maria\\u2019s command center. KPIs across the top, and the AI-scored RFQ carousel below. Click the HII-Ingalls chip to filter.',
-      dialog: 'Maria\\u2019s dashboard. KPIs across the top, and down here \\u2014 the smart part \\u2014 F2AI has already scored incoming RFQs against Bayside\\u2019s capabilities. Let\\u2019s filter to her biggest customer.\
-\
-\\u27A4 Click the HII-Ingalls filter chip.',
+      desc: 'Maria\u2019s command center. KPIs across the top, and the AI-scored RFQ carousel below. Click the HII-Ingalls chip to filter.',
+      dialog: 'Maria\u2019s dashboard. KPIs across the top, and down here \u2014 the smart part \u2014 F2AI has already scored incoming RFQs against Bayside\u2019s capabilities. Let\u2019s filter to her biggest customer.\n\n\u27A4 Click the HII-Ingalls filter chip.',
       clickTarget: '#page-dashboard .chip[data-yard="HII-Ingalls"]', clickLabel: 'HII-Ingalls chip'
     },
     {
       id: '1.2b',
       page: 'dashboard',
       act: 1, scene: '1.2',
-      title: 'Dashboard \\u2014 RFQ Carousel',
+      title: 'Dashboard \u2014 RFQ Carousel',
       persona: 'Maria',
       desc: 'The carousel filters instantly. Maria spots RFQ-2026-0147 with a 94/100 fit score. Click the card to open the RFQ Detail.',
-      dialog: 'There it is. RFQ-0147 with a 94 out of 100 fit score. The platform is saying: you\\u2019ve built this exact part before, profitably, and you have the certs. Let\\u2019s open it up.\
-\
-\\u27A4 Click the RFQ-2026-0147 card.',
+      dialog: 'There it is. RFQ-0147 with a 94 out of 100 fit score. The platform is saying: you\u2019ve built this exact part before, profitably, and you have the certs. Let\u2019s open it up.\n\n\u27A4 Click the RFQ-2026-0147 card.',
       clickTarget: '#page-dashboard .rfq-card', clickLabel: 'RFQ-0147 card'
     ,
       callout: {"type":"ai","label":"AI-Scored RFQ Matching","text":"RFQ score based on drawing specific transformer ML model that can compare features in drawings and match past work to RFQs."}},
@@ -68,36 +60,28 @@ We\\u2019re going to follow this single job through the entire F2AI platform \\u
       title: 'RFQ Detail',
       persona: 'Maria',
       desc: 'Full RFQ breakdown with AI-powered Fit Analysis. Parsed RFQ data on the left, capability match and profitability projections on the right.',
-      dialog: 'Full RFQ breakdown on one screen. Parsed data on the left, AI-powered fit analysis on the right. Let\\u2019s scroll down to the really interesting part.\
-\
-\\u27A4 Scroll down to see the ML Comparison Analysis.',
+      dialog: 'Full RFQ breakdown on one screen. Parsed data on the left, AI-powered fit analysis on the right. Let\u2019s scroll down to the really interesting part.\n\n\u27A4 Scroll down to see the ML Comparison Analysis.',
       clickTarget: null, clickLabel: ''
     },
     {
       id: '1.3a',
       page: 'rfq-detail',
       act: 1, scene: '1.3',
-      title: 'RFQ Detail \\u2014 ML Comparison',
+      title: 'RFQ Detail \u2014 ML Comparison',
       persona: 'Maria',
       desc: 'The ML engine extracted geometric features and found 3 similar past parts. Click the top match.',
-      dialog: 'The ML Comparison Analysis. The platform extracted geometric features from the engineering drawings and found three similar past parts.\
-\
-\\u27A4 Click J-2024-018 to expand its production process.',
+      dialog: 'The ML Comparison Analysis. The platform extracted geometric features from the engineering drawings and found three similar past parts.\n\n\u27A4 Click J-2024-018 to expand its production process.',
       clickTarget: '#page-rfq-detail #rfq-comparison-table tbody tr:first-child', clickLabel: 'J-2024-018 — 92% match',
-      callout: { type: 'ai', label: 'ML Feature Extraction', text: 'The platform\\u2019s machine learning engine has extracted geometric and process features from the RFQ engineering drawings — weld joint types, material thickness, tolerance bands, hole patterns, mounting geometry. It compared those features against every part Bayside has manufactured.\
-\
-The three closest matches: a pump bracket from 2024 (92% feature match), a bearing mount from 2023 (84%), and a valve support from 2025 (78%). For each match, F2AI generated an estimated production process based on actual shop floor data.' }
+      callout: { type: 'ai', label: 'ML Feature Extraction', text: 'The platform\u2019s machine learning engine has extracted geometric and process features from the RFQ engineering drawings — weld joint types, material thickness, tolerance bands, hole patterns, mounting geometry. It compared those features against every part Bayside has manufactured.\n\nThe three closest matches: a pump bracket from 2024 (92% feature match), a bearing mount from 2023 (84%), and a valve support from 2025 (78%). For each match, F2AI generated an estimated production process based on actual shop floor data.' }
     },
     {
       id: '1.3b',
       page: 'rfq-detail',
       act: 1, scene: '1.3',
-      title: 'RFQ Detail \\u2014 Comparison Analysis',
+      title: 'RFQ Detail \u2014 Comparison Analysis',
       persona: 'Maria',
       desc: 'The ML engine generated an estimated production process from actual shop data on J-2024-018. This used to take Maria and Dave an afternoon. Click Start Bid.',
-      dialog: 'F2AI generated an estimated production process from actual shop data on that prior job. This used to take Maria and Dave a full afternoon. Now it\\u2019s instant \\u2014 and grounded in real numbers. Let\\u2019s start the bid.\
-\
-\\u27A4 Click Start Bid.',
+      dialog: 'F2AI generated an estimated production process from actual shop data on that prior job. This used to take Maria and Dave a full afternoon. Now it\u2019s instant \u2014 and grounded in real numbers. Let\u2019s start the bid.\n\n\u27A4 Click Start Bid.',
       clickTarget: '#at-start-bid, #at-right .btn-primary', clickLabel: 'Start Bid'
     },
     {
@@ -107,9 +91,7 @@ The three closest matches: a pump bracket from 2024 (92% feature match), a beari
       title: '3D Quick Look',
       persona: 'Maria, Dave & Sarah',
       desc: 'Maria opens the 3D viewer to inspect the pump bracket. The browser-based viewer renders a navigable model directly from TDP drawings — no CAD software required.',
-      dialog: 'Before diving into the estimate, Maria opens the 3D Quick Look \\u2014 a browser-based viewer that renders the part directly from the TDP drawings. No CAD software needed.\
-\
-\\u27A4 Orbit the 3D model.',
+      dialog: 'Before diving into the estimate, Maria opens the 3D Quick Look \u2014 a browser-based viewer that renders the part directly from the TDP drawings. No CAD software needed.\n\n\u27A4 Orbit the 3D model.',
       clickTarget: '#page-3d-quicklook .card:first-child', clickLabel: '3D Viewer',
       callout: { type: 'ai', label: '3D Visualization — NeRF / Mesh / Omniverse', text: 'The 3D Quick Look is a browser-based viewer that renders a navigable model of the pump bracket directly from TDP drawings and available scan data. No CAD software required. The viewer uses NeRF, mesh, or Omniverse rendering depending on available source data.' }
     },
@@ -117,62 +99,50 @@ The three closest matches: a pump bracket from 2024 (92% feature match), a beari
       id: '1.4b',
       page: '3d-quicklook',
       act: 1, scene: '1.4',
-      title: '3D Quick Look \\u2014 Select Team',
+      title: '3D Quick Look \u2014 Select Team',
       persona: 'Maria',
       desc: 'Maria wants quick input from the shop. She selects Dave Torres and Sarah Chen from the team list to share the 3D model for review.',
-      dialog: 'She wants input from the shop, so she pulls up the share panel and selects Dave and Sarah.\
-\
-\\u27A4 Select Dave Torres and Sarah Chen.',
+      dialog: 'She wants input from the shop, so she pulls up the share panel and selects Dave and Sarah.\n\n\u27A4 Select Dave Torres and Sarah Chen.',
       clickTarget: '#ql-team-list', clickLabel: 'Team list'
     },
     {
       id: '1.4c',
       page: '3d-quicklook',
       act: 1, scene: '1.4',
-      title: '3D Quick Look \\u2014 Message',
+      title: '3D Quick Look \u2014 Message',
       persona: 'Maria',
       desc: 'Maria types a quick message asking Dave and Sarah for their input on weld hours and process.',
-      dialog: 'Quick message asking for their take on weld hours and process.\
-\
-\\u27A4 Type a message in the Share Quick Look message box.',
+      dialog: 'Quick message asking for their take on weld hours and process.\n\n\u27A4 Type a message in the Share Quick Look message box.',
       clickTarget: '#ql-message', clickLabel: 'Message box'
     },
     {
       id: '1.4d',
       page: '3d-quicklook',
       act: 1, scene: '1.4',
-      title: '3D Quick Look \\u2014 Send Share',
+      title: '3D Quick Look \u2014 Send Share',
       persona: 'Maria',
-      desc: 'Maria clicks Send to share the Quick Look link with Dave and Sarah. They\\u2019ll receive it in their F2AI notification panel.',
-      dialog: 'She sends it off. Both get a notification with the full 3D model they can review on their own devices.\
-\
-\\u27A4 Click Send.',
+      desc: 'Maria clicks Send to share the Quick Look link with Dave and Sarah. They\u2019ll receive it in their F2AI notification panel.',
+      dialog: 'She sends it off. Both get a notification with the full 3D model they can review on their own devices.\n\n\u27A4 Click Send.',
       clickTarget: '#ql-send-btn', clickLabel: 'Send'
     },
     {
       id: '1.4e',
       page: '3d-quicklook',
       act: 1, scene: '1.4',
-      title: '3D Quick Look \\u2014 Team Comments',
+      title: '3D Quick Look \u2014 Team Comments',
       persona: 'Dave & Sarah',
       desc: 'Dave flags the rear weld joint at 3.5 hrs/ea. Sarah notes NDT access on the inner flange. Maria adjusts the estimate before bidding.',
-      dialog: 'Dave and Sarah respond. Dave adjusts the weld hours and Sarah flags an NDT concern.\
-\
-\\u27A4 Show inline team comments.',
+      dialog: 'Dave and Sarah respond. Dave adjusts the weld hours and Sarah flags an NDT concern.\n\n\u27A4 Show inline team comments.',
       clickTarget: '#page-3d-quicklook .badge-cyan', clickLabel: 'Team Comments'
     },
     {
       id: '1.5a',
       page: 'bid-workspace',
       act: 1, scene: '1.5',
-      title: 'Bid Workspace \\u2014 Routing',
+      title: 'Bid Workspace \u2014 Routing',
       persona: 'Maria',
-      desc: 'Three-column workspace where Maria does 80% of her quoting. The ML-estimated routing already includes Dave\\u2019s adjusted 3.5 hr/ea weld hours from the Quick Look.',
-      dialog: 'This is where the quoting magic happens. The Bid Workspace is designed so Maria can do 80% of her quoting work without leaving this screen. Three columns: left is the part and routing definition, center is the live cost rollup, and right is customer context and attachments.\
-\
-Notice the routing is already populated from the ML comparison analysis \\u2014 but with Dave\\u2019s adjusted weld hours (3.5 hrs/ea instead of 3.2) already baked in from the Quick Look feedback. Every change instantly updates the cost summary and margin calculation in the center column.\
-\
-\\u27A4 Point to the routing showing the adjusted weld hours from Dave\\u2019s Quick Look input.',
+      desc: 'Three-column workspace where Maria does 80% of her quoting. The ML-estimated routing already includes Dave\u2019s adjusted 3.5 hr/ea weld hours from the Quick Look.',
+      dialog: 'This is where the quoting magic happens. The Bid Workspace is designed so Maria can do 80% of her quoting work without leaving this screen. Three columns: left is the part and routing definition, center is the live cost rollup, and right is customer context and attachments.\n\nNotice the routing is already populated from the ML comparison analysis \u2014 but with Dave\u2019s adjusted weld hours (3.5 hrs/ea instead of 3.2) already baked in from the Quick Look feedback. Every change instantly updates the cost summary and margin calculation in the center column.\n\n\u27A4 Point to the routing showing the adjusted weld hours from Dave\u2019s Quick Look input.',
       clickTarget: '#routing-weld-row', clickLabel: 'Weld row (adjusted hours)'
     ,
       callout: {"type":"ai","label":"ML-Powered Bid Workspace","text":"F2AI prepopulates the routing based on ML comparison analysis and incorporating peer feedback. Cost and time estimates are auto-updated for review and submission."}},
@@ -180,24 +150,20 @@ Notice the routing is already populated from the ML comparison analysis \\u2014 
       id: '1.5b',
       page: 'bid-workspace',
       act: 1, scene: '1.5',
-      title: 'Bid Workspace \\u2014 Cost Summary',
+      title: 'Bid Workspace \u2014 Cost Summary',
       persona: 'Maria',
       desc: 'The live cost summary updates instantly as Maria adjusts routing. Direct Labor, Material, Overhead, and a 24.7% margin — all grounded in real shop data.',
-      dialog: 'Cost summary updates in real time.\
-\
-\\u27A4 Point to the cost summary.',
+      dialog: 'Cost summary updates in real time.\n\n\u27A4 Point to the cost summary.',
       clickTarget: '#page-bid-workspace .cost-card', clickLabel: 'Cost Summary'
     },
     {
       id: '1.5c',
       page: 'bid-workspace',
       act: 1, scene: '1.5',
-      title: 'Bid Workspace \\u2014 Compliance',
+      title: 'Bid Workspace \u2014 Compliance',
       persona: 'Maria',
       desc: 'Compliance chips show pass/fail status for ITAR, Weld Cert, NDT Req, and more — ensuring nothing gets missed before the quote goes out.',
-      dialog: 'Quick compliance check \\u2014\
-\
-\\u27A4 Point to the compliance chips.',
+      dialog: 'Quick compliance check \u2014\n\n\u27A4 Point to the compliance chips.',
       clickTarget: '#bid-compliance-chips', clickLabel: 'Compliance chips'
     },
     {
@@ -207,21 +173,17 @@ Notice the routing is already populated from the ML comparison analysis \\u2014 
       title: 'Bid Workspace — Submit',
       persona: 'Maria',
       desc: 'All compliance checks pass. Maria clicks Submit for Approval to send the quote for internal review.',
-      dialog: 'All clear. Maria submits for approval.\
-\
-\\u27A4 Click Submit for Approval.',
+      dialog: 'All clear. Maria submits for approval.\n\n\u27A4 Click Submit for Approval.',
       clickTarget: '#at-right .btn-primary', clickLabel: 'Submit for Approval'
     },
     {
       id: '1.6a',
       page: 'quote-output',
       act: 1, scene: '1.6',
-      title: 'Quote Output \\u2014 Review',
+      title: 'Quote Output \u2014 Review',
       persona: 'Maria',
-      desc: 'F2AI auto-generates a professional quote document formatted to the shipyard\\u2019s expected layout. This is v2, after adjusting weld hours from the Quick Look feedback.',
-      dialog: 'Quote output \\u2014 auto-generated, matching the shipyard\\u2019s expected format.\
-\
-\\u27A4 Point to the quote summary.',
+      desc: 'F2AI auto-generates a professional quote document formatted to the shipyard\u2019s expected layout. This is v2, after adjusting weld hours from the Quick Look feedback.',
+      dialog: 'Quote output \u2014 auto-generated, matching the shipyard\u2019s expected format.\n\n\u27A4 Point to the quote summary.',
       clickTarget: '#page-quote-output .card:first-child', clickLabel: 'Quote Header'
     ,
       callout: {"type":"ai","label":"Auto-Generated Quote","text":"F2AI quote preview is generated to match the shipyard format."}},
@@ -229,84 +191,70 @@ Notice the routing is already populated from the ML comparison analysis \\u2014 
       id: '1.6b',
       page: 'quote-output',
       act: 1, scene: '1.6',
-      title: 'Quote Output \\u2014 Approve',
+      title: 'Quote Output \u2014 Approve',
       persona: 'Maria',
       desc: 'Maria approves the quote, marking it ready for submission. The internal approval workflow moves from Pending to Approved.',
-      dialog: 'Maria reviews and approves. Full audit trail \\u2014 who approved, when, which version.\
-\
-\\u27A4 Click Approve.',
+      dialog: 'Maria reviews and approves. Full audit trail \u2014 who approved, when, which version.\n\n\u27A4 Click Approve.',
       clickTarget: '#at-right .btn-success', clickLabel: 'Approve Quote'
     },
     {
       id: '1.6c',
       page: 'quote-output',
       act: 1, scene: '1.6',
-      title: 'Quote Output \\u2014 Submit',
+      title: 'Quote Output \u2014 Submit',
       persona: 'Maria',
       desc: 'Maria submits the quote to HII-Ingalls via email. F2AI generates the PDF and sends it to the buyer contact.',
-      dialog: 'She submits the quote directly to HII-Ingalls.\
-\
-\\u27A4 Click Generate & Send.',
+      dialog: 'She submits the quote directly to HII-Ingalls.\n\n\u27A4 Click Generate & Send.',
       clickTarget: '#page-quote-output .btn-primary', clickLabel: 'Generate & Send'
     },
     {
       id: '1.7a',
       page: 'rfqs',
       act: 1, scene: '1.7',
-      title: 'RFQs & Bids \\u2014 List View',
+      title: 'RFQs & Bids \u2014 List View',
       persona: 'Maria',
       desc: 'Maria manages her full bid portfolio from the RFQs & Bids page. The list view shows all active RFQs in a sortable table.',
-      dialog: 'Back on the RFQ management page. Maria can see her full bid portfolio \\u2014 RFQ-0147 now shows Submitted status.\
-\
-\\u27A4 Point to RFQ-0147.',
+      dialog: 'Back on the RFQ management page. Maria can see her full bid portfolio \u2014 RFQ-0147 now shows Submitted status.\n\n\u27A4 Point to RFQ-0147.',
       clickTarget: '#rfq-row-0147', clickLabel: 'RFQ-0147 row'
     },
     {
       id: '1.7b',
       page: 'rfqs',
       act: 1, scene: '1.7',
-      title: 'RFQs & Bids \\u2014 Toggle View',
+      title: 'RFQs & Bids \u2014 Toggle View',
       persona: 'Maria',
       desc: 'The grid toggle in the action tray switches between list and card views.',
-      dialog: 'She can toggle between list and card view.\
-\
-\\u27A4 Click the grid view toggle.',
+      dialog: 'She can toggle between list and card view.\n\n\u27A4 Click the grid view toggle.',
       clickTarget: '#rfq-view-toggle .view-toggle-btn[data-view="cards"]', clickLabel: 'Grid view toggle'
     },
     {
       id: '1.7c',
       page: 'rfqs',
       act: 1, scene: '1.7',
-      title: 'RFQs & Bids \\u2014 Card View',
+      title: 'RFQs & Bids \u2014 Card View',
       persona: 'Maria',
       desc: 'Each card shows the RFQ ID, part description, shipyard, fit score, due date, and current status at a glance.',
-      dialog: '\
-\
-\\u27A4 Point to the RFQ-0147 card.',
+      dialog: '\n\n\u27A4 Point to the RFQ-0147 card.',
       clickTarget: '#rfq-card-0147', clickLabel: 'RFQ-0147 card'
     },
     {
       id: '1.7d',
       page: 'rfqs',
       act: 1, scene: '1.7',
-      title: 'RFQs & Bids \\u2014 New RFQ',
+      title: 'RFQs & Bids \u2014 New RFQ',
       persona: 'Maria',
       desc: 'Maria clicks + New RFQ to open the capture form and enter a new request for quote.',
-      dialog: 'While we wait on the award, let\\u2019s see how new RFQs enter the system.\
-\
-\\u27A4 Click + New RFQ.',
+      dialog: 'While we wait on the award, let\u2019s see how new RFQs enter the system.\n\n\u27A4 Click + New RFQ.',
       clickTarget: '#at-right .btn-primary', clickLabel: '+ New RFQ'
     },
     {
       id: '1.8a',
       page: 'rfq-capture',
       act: 1, scene: '1.8',
-      title: 'New RFQ Capture \\u2014 Form',
+      title: 'New RFQ Capture \u2014 Form',
       persona: 'Maria',
       desc: 'How new RFQs enter the system. Maria can manually enter structured fields — RFQ ID, Due Date, Shipyard, Program, line items.',
-      dialog: 'The capture form \\u2014 structured fields for manual entry. F2AI normalizes different shipyard formats into one consistent data model.\
-\
-\\u27A4 Show the form fields.',
+      dialog: 'The capture form \u2014 structured fields for manual entry. F2AI normalizes different shipyard formats into one consistent data model.\n\n\u27A4 Show the form fields.',
       clickTarget: '#page-rfq-capture .card:first-child', clickLabel: 'RFQ Details form'
     ,
       callout: {"type":"ai","label":"Unified Data Model","text":"F2AI normalizes different shipyard formats into one consistent data-model and allows the addition of unstructured data from other sources like email, slack etc."}},
@@ -314,20 +262,18 @@ Notice the routing is already populated from the ML comparison analysis \\u2014 
       id: '1.8b',
       page: 'rfq-capture',
       act: 1, scene: '1.8',
-      title: 'New RFQ Capture \\u2014 AI Extract',
+      title: 'New RFQ Capture \u2014 AI Extract',
       persona: 'Maria',
-      desc: 'Or Maria can paste unstructured email text and let F2AI\\u2019s AI parse it into structured fields. Attach RFQ PDFs and drawings for full extraction.',
-      dialog: 'Or Maria can paste unstructured text from an email and let F2AI parse it automatically. She can also attach PDFs and drawings \\u2014 the platform extracts everything it needs.\
-\
-\\u27A4 Point to the Paste & Extract area.',
+      desc: 'Or Maria can paste unstructured email text and let F2AI\u2019s AI parse it into structured fields. Attach RFQ PDFs and drawings for full extraction.',
+      dialog: 'Or Maria can paste unstructured text from an email and let F2AI parse it automatically. She can also attach PDFs and drawings \u2014 the platform extracts everything it needs.\n\n\u27A4 Point to the Paste & Extract area.',
       clickTarget: '#page-rfq-capture .btn-primary', clickLabel: 'Extract Fields'
     ,
       callout: {"type":"ai","label":"Unified Data Model","text":"F2AI normalizes different shipyard formats into one consistent data-model and allows the addition of unstructured data from other sources like email, slack etc."}},
     {
       id: 'transition-1',
       page: 'rfq-capture',
-      act: 1, scene: '\\u2014',
-      title: 'Three Weeks Pass\\u2026',
+      act: 1, scene: '\u2014',
+      title: 'Three Weeks Pass\u2026',
       persona: '',
       desc: 'Three weeks pass. HII-Ingalls awards the contract to Bayside. Maria gets the notification and heads to Award Capture.',
       dialog: 'Three weeks pass. HII-Ingalls awards the contract to Bayside.',
@@ -338,24 +284,20 @@ Notice the routing is already populated from the ML comparison analysis \\u2014 
       id: '2.1a',
       page: 'award-capture',
       act: 2, scene: '2.1',
-      title: 'Award Capture \\u2014 Comparison',
+      title: 'Award Capture \u2014 Comparison',
       persona: 'Maria & Dave',
       desc: 'Maria records the award in F2AI. The system compares the award to the original quote and flags discrepancies in price or dates.',
-      dialog: 'Maria records the award. The system automatically compares award terms against the original quote and flags any discrepancies.\
-\
-\\u27A4 Show the award vs. quote comparison.',
+      dialog: 'Maria records the award. The system automatically compares award terms against the original quote and flags any discrepancies.\n\n\u27A4 Show the award vs. quote comparison.',
       clickTarget: '#page-award-capture .card:nth-child(2)', clickLabel: 'Award vs Quote Comparison'
     },
     {
       id: '2.1b',
       page: 'award-capture',
       act: 2, scene: '2.1',
-      title: 'Award Capture \\u2014 Generate Jobs',
+      title: 'Award Capture \u2014 Generate Jobs',
       persona: 'Maria & Dave',
       desc: 'One click generates Job J-2026-042, carrying forward the entire routing, materials, and requirements from the bid.',
-      dialog: 'One click creates the job \\u2014 carrying forward the entire routing, materials, and requirements from the bid. No re-typing. Dave gets notified.\
-\
-\\u27A4 Click Generate Jobs.',
+      dialog: 'One click creates the job \u2014 carrying forward the entire routing, materials, and requirements from the bid. No re-typing. Dave gets notified.\n\n\u27A4 Click Generate Jobs.',
       clickTarget: '#page-award-capture .btn-success', clickLabel: 'Generate Jobs & RTW Packages'
     },
     {
@@ -365,57 +307,47 @@ Notice the routing is already populated from the ML comparison analysis \\u2014 
       title: 'Jobs List',
       persona: 'Dave',
       desc: 'Dave sees J-2026-042 at the top of his Jobs list, status: Planned. All active and completed jobs with key dates and status badges.',
-      dialog: 'Dave opens the Jobs List to find the new planned job to review and schedule.\
-\
-\\u27A4 Click J-2026-042 to open the Job Overview.',
-      clickTarget: '#job-row-042', clickLabel: 'J-2026-042 \\u2014 Pump bracket'
+      dialog: 'Dave opens the Jobs List to find the new planned job to review and schedule.\n\n\u27A4 Click J-2026-042 to open the Job Overview.',
+      clickTarget: '#job-row-042', clickLabel: 'J-2026-042 \u2014 Pump bracket'
     },
     {
       id: '2.3a',
       page: 'job-overview',
       act: 2, scene: '2.3',
-      title: 'Job Overview \\u2014 Operations',
+      title: 'Job Overview \u2014 Operations',
       persona: 'Dave',
-      desc: 'Single source of truth for the job: operation progress bar (Saw \\u2192 CNC Mill \\u2192 Weld \\u2192 NDT \\u2192 Final QA) with schedule and cost summaries.',
-      dialog: 'Job Overview \\u2014 single source of truth. Operation progress bar across the top, schedule and cost tracking below.\
-\
-\\u27A4 Point to the step bar.',
+      desc: 'Single source of truth for the job: operation progress bar (Saw \u2192 CNC Mill \u2192 Weld \u2192 NDT \u2192 Final QA) with schedule and cost summaries.',
+      dialog: 'Job Overview \u2014 single source of truth. Operation progress bar across the top, schedule and cost tracking below.\n\n\u27A4 Point to the step bar.',
       clickTarget: '#page-job-overview .step-bar', clickLabel: 'Operations step bar'
     },
     {
       id: '2.3b',
       page: 'job-overview',
       act: 2, scene: '2.3',
-      title: 'Job Overview \\u2014 RTW Checklist',
+      title: 'Job Overview \u2014 RTW Checklist',
       persona: 'Dave',
       desc: 'RTW checklist confirms materials, traveler approval, and QA plan are all green before the job goes to the floor.',
-      dialog: 'Ready-to-Work checklist \\u2014 This job is ready.\
-\
-\\u27A4 Point to the RTW checklist.',
+      dialog: 'Ready-to-Work checklist \u2014 This job is ready.\n\n\u27A4 Point to the RTW checklist.',
       clickTarget: '#rtw-checklist-card', clickLabel: 'RTW Checklist'
     },
     {
       id: '2.3c',
       page: 'job-overview',
       act: 2, scene: '2.3',
-      title: 'Job Overview \\u2014 Traveler Tab',
+      title: 'Job Overview \u2014 Traveler Tab',
       persona: 'Dave',
       desc: 'Dave clicks the Traveler tab to review the digital work package for this job.',
-      dialog: '\
-\
-\\u27A4 Click the Traveler tab.',
+      dialog: '\n\n\u27A4 Click the Traveler tab.',
       clickTarget: '#page-job-overview .seg-btn:nth-child(2)', clickLabel: 'Traveler tab'
     },
     {
       id: '2.4a',
       page: 'job-traveler',
       act: 2, scene: '2.4',
-      title: 'Job Traveler \\u2014 Operations',
+      title: 'Job Traveler \u2014 Operations',
       persona: 'Dave & Sarah',
       desc: 'The digital work package. Left panel lists operations with status; right panel shows work instructions with caution callouts.',
-      dialog: 'The digital traveler replaces paper. Each operation has step-by-step instructions. Notice the caution callout on the weld op \\u2014 preheat and interpass temps. The kind of Navy-specific detail that used to get lost on paper.\
-\
-\\u27A4 Click through the operation list.',
+      dialog: 'The digital traveler replaces paper. Each operation has step-by-step instructions. Notice the caution callout on the weld op \u2014 preheat and interpass temps. The kind of Navy-specific detail that used to get lost on paper.\n\n\u27A4 Click through the operation list.',
       clickTarget: '#page-job-traveler .col-left-right > .card', clickLabel: 'Operation list'
     ,
       callout: {"type":"ai","label":"Digital Traveler","text":"F2AI captures the Navy specific details in the digital traveler, and provides direct access to artifacts needed on the shop floor or for real-time engineering review."}},
@@ -423,12 +355,10 @@ Notice the routing is already populated from the ML comparison analysis \\u2014 
       id: '2.4b',
       page: 'job-traveler',
       act: 2, scene: '2.4',
-      title: 'Job Traveler \\u2014 Attachments',
+      title: 'Job Traveler \u2014 Attachments',
       persona: 'Dave & Sarah',
-      desc: 'Linked attachments \\u2014 drawings, weld procedures, and fixture setup PDFs \\u2014 right at the operation level.',
-      dialog: 'Attachments linked right to each operation \\u2014 drawings, weld procedures, fixture setups. No hunting through shared drives.\
-\
-\\u27A4 Point to the Attachments panel.',
+      desc: 'Linked attachments \u2014 drawings, weld procedures, and fixture setup PDFs \u2014 right at the operation level.',
+      dialog: 'Attachments linked right to each operation \u2014 drawings, weld procedures, fixture setups. No hunting through shared drives.\n\n\u27A4 Point to the Attachments panel.',
       clickTarget: '#traveler-attachments-card', clickLabel: 'Attachments'
     ,
       callout: {"type":"ai","label":"Digital Traveler","text":"F2AI captures the Navy specific details in the digital traveler, and provides direct access to artifacts needed on the shop floor or for real-time engineering review."}},
@@ -436,12 +366,10 @@ Notice the routing is already populated from the ML comparison analysis \\u2014 
       id: '2.4c',
       page: 'job-traveler',
       act: 2, scene: '2.4',
-      title: 'Job Traveler \\u2014 QA Tab',
+      title: 'Job Traveler \u2014 QA Tab',
       persona: 'Sarah',
       desc: 'Sarah clicks QA & Inspections to review the inspection plan and auto data collection setup.',
-      dialog: 'Sarah takes over to set up the QA plan.\
-\
-\\u27A4 Click QA & Inspections tab.',
+      dialog: 'Sarah takes over to set up the QA plan.\n\n\u27A4 Click QA & Inspections tab.',
       clickTarget: '#page-job-traveler .seg-btn:nth-child(3)', clickLabel: 'QA & Inspections tab'
     },
     {
@@ -450,77 +378,60 @@ Notice the routing is already populated from the ML comparison analysis \\u2014 
       act: 2, scene: '2.5',
       title: 'Auto Data Collection Setup',
       persona: 'Sarah',
-      desc: 'Sarah configures automated data collection for each operation \\u2014 digitized tools, vision stations, and manual QR entry methods.',
-      dialog: 'Sarah configures automated data collection for each operation. The band saw and CNC are digitized \\u2014 data flows automatically. The weld cell uses QR scans plus a vision station. NDT sends digital reports direct.\
-\
-\\u27A4 Point to the data source matrix.',
+      desc: 'Sarah configures automated data collection for each operation \u2014 digitized tools, vision stations, and manual QR entry methods.',
+      dialog: 'Sarah configures automated data collection for each operation. The band saw and CNC are digitized \u2014 data flows automatically. The weld cell uses QR scans plus a vision station. NDT sends digital reports direct.\n\n\u27A4 Point to the data source matrix.',
       clickTarget: '#qa-data-source-matrix', clickLabel: 'Data source matrix',
-      callout: { type: 'ai', label: 'Automated Data Collection Setup', text: 'Op 10 (Saw) — digitized; auto-logs cut start/stop times, blade speed, piece count.\
-Op 20 (CNC Mill) — networked; cycle times, tool changes, piece count flow automatically.\
-Op 30 (Weld) — manual; QR scan in/out plus vision station at weld cell exit captures build progress images.\
-Op 40 (NDT) — UT machine sends digital reports directly.' }
+      callout: { type: 'ai', label: 'Automated Data Collection Setup', text: 'Op 10 (Saw) — digitized; auto-logs cut start/stop times, blade speed, piece count.\nOp 20 (CNC Mill) — networked; cycle times, tool changes, piece count flow automatically.\nOp 30 (Weld) — manual; QR scan in/out plus vision station at weld cell exit captures build progress images.\nOp 40 (NDT) — UT machine sends digital reports directly.' }
     },
     {
       id: '2.5b',
       page: 'job-qa',
       act: 2, scene: '2.5',
-      title: 'QA \\u2014 Acceptance Package',
+      title: 'QA \u2014 Acceptance Package',
       persona: 'Sarah',
       desc: 'The acceptance package tracks which documents are ready — COC, CMTR, weld maps, NDT reports — auto-generated on job completion.',
-      dialog: 'Acceptance Package \\u2014 what the shipyard needs. Two documents already complete, the rest auto-generate as the job progresses.\
-\
-\\u27A4 Point to the Acceptance Package.',
+      dialog: 'Acceptance Package \u2014 what the shipyard needs. Two documents already complete, the rest auto-generate as the job progresses.\n\n\u27A4 Point to the Acceptance Package.',
       clickTarget: '#page-job-qa .two-col .card:nth-child(2)', clickLabel: 'Acceptance Package',
-      callout: { type: 'signal', label: 'Shipyard Signaling Configuration', text: 'Automated milestone signals get sent to HII-Ingalls\\u2019 ERP/PLM at 25%, 50%, 75%, and 100% completion. Each signal includes: percentage complete, NCR status, the latest production image from the vision station, and a revised estimated completion date.\
-\
-Near real-time supply chain visibility for the shipyard — no emails, no phone calls. The data flows from tools, vision stations, and QR scans the operators are already using.' }
+      callout: { type: 'signal', label: 'Shipyard Signaling Configuration', text: 'Automated milestone signals get sent to HII-Ingalls\u2019 ERP/PLM at 25%, 50%, 75%, and 100% completion. Each signal includes: percentage complete, NCR status, the latest production image from the vision station, and a revised estimated completion date.\n\nNear real-time supply chain visibility for the shipyard — no emails, no phone calls. The data flows from tools, vision stations, and QR scans the operators are already using.' }
     },
     {
       id: '2.5c',
       page: 'job-qa',
       act: 2, scene: '2.5',
-      title: 'QA \\u2014 Compliance Tab',
+      title: 'QA \u2014 Compliance Tab',
       persona: 'Sarah',
       desc: 'Sarah clicks the Compliance tab to review Navy-specific documentation requirements.',
-      dialog: 'Sarah checks Compliance for Navy documentation requirements.\
-\
-\\u27A4 Click the Compliance tab.',
+      dialog: 'Sarah checks Compliance for Navy documentation requirements.\n\n\u27A4 Click the Compliance tab.',
       clickTarget: '#page-job-qa .seg-btn:nth-child(4)', clickLabel: 'Compliance tab'
     },
     {
       id: '2.6a',
       page: 'job-compliance',
       act: 2, scene: '2.6',
-      title: 'Job QA \\u2014 TDP Checklist',
+      title: 'Job QA \u2014 TDP Checklist',
       persona: 'Sarah',
       desc: 'TDP element checklist confirms all Navy documentation requirements per MIL-STD-31000C. Security classification: Unclass.',
-      dialog: 'TDP checklist confirms all Navy documentation requirements. Three of six complete.\
-\
-\\u27A4 Point to the TDP checklist.',
+      dialog: 'TDP checklist confirms all Navy documentation requirements. Three of six complete.\n\n\u27A4 Point to the TDP checklist.',
       clickTarget: '#tdp-checklist-card', clickLabel: 'TDP Element Checklist'
     },
     {
       id: '2.6b',
       page: 'job-compliance',
       act: 2, scene: '2.6',
-      title: 'Job QA \\u2014 Acceptance & TIP',
+      title: 'Job QA \u2014 Acceptance & TIP',
       persona: 'Sarah',
       desc: 'Acceptance package builder and TIP table with (I)/(V)/(Q)/(G) codes mapping to NAVSEA requirements.',
-      dialog: 'The Test and Inspection Plan maps every inspection code.\
-\
-\\u27A4 Point to the TIP table.',
+      dialog: 'The Test and Inspection Plan maps every inspection code.\n\n\u27A4 Point to the TIP table.',
       clickTarget: '#page-job-compliance .data-table', clickLabel: 'TIP table'
     },
     {
       id: '2.7a',
       page: 'scheduler',
       act: 2, scene: '2.7',
-      title: 'Scheduler \\u2014 MES Sync',
+      title: 'Scheduler \u2014 MES Sync',
       persona: 'Dave',
-      desc: 'F2AI passes the job to Bayside\\u2019s existing MES with all data intact. The MES returns scheduled dates.',
-      dialog: 'Dave opens the Scheduler. F2AI syncs with Bayside\\u2019s existing MES \\u2014 it\\u2019s not replacing it, it\\u2019s the single pane of glass that connects scheduling to the bid, traveler, QA, and shipyard signaling.\
-\
-\\u27A4 Point to the MES sync indicator.',
+      desc: 'F2AI passes the job to Bayside\u2019s existing MES with all data intact. The MES returns scheduled dates.',
+      dialog: 'Dave opens the Scheduler. F2AI syncs with Bayside\u2019s existing MES \u2014 it\u2019s not replacing it, it\u2019s the single pane of glass that connects scheduling to the bid, traveler, QA, and shipyard signaling.\n\n\u27A4 Point to the MES sync indicator.',
       clickTarget: '#mes-sync-indicator', clickLabel: 'MES sync status'
     ,
       callout: {"type":"ai","label":"MES Integration","text":"F2AI synchronizes with the existing shop's MES system to integrate the job schedule into a single pane of glass for bid, build and acceptance."}},
@@ -528,31 +439,27 @@ Near real-time supply chain visibility for the shipyard — no emails, no phone 
       id: '2.7b',
       page: 'scheduler',
       act: 2, scene: '2.7',
-      title: 'Scheduler \\u2014 Gantt Chart',
+      title: 'Scheduler \u2014 Gantt Chart',
       persona: 'Dave',
-      desc: 'Gantt timeline showing J-2026-042 across work centers \\u2014 CNC Mill Bay 1 next week, weld cell the week after.',
-      dialog: 'The Gantt shows the work slotted across work centers over the next two weeks.\
-\
-\\u27A4 Point to the Gantt chart.',
+      desc: 'Gantt timeline showing J-2026-042 across work centers \u2014 CNC Mill Bay 1 next week, weld cell the week after.',
+      dialog: 'The Gantt shows the work slotted across work centers over the next two weeks.\n\n\u27A4 Point to the Gantt chart.',
       clickTarget: '#scheduler-gantt-card', clickLabel: 'Gantt chart'
     },
     {
       id: '2.7c',
       page: 'scheduler',
       act: 2, scene: '2.7',
-      title: 'Scheduler \\u2014 Capacity',
+      title: 'Scheduler \u2014 Capacity',
       persona: 'Dave',
-      desc: 'Capacity utilization sourced from MES data \\u2014 CNC Mill at 95%, Weld Cell at 70%, NDT Lab at 30%.',
-      dialog: 'The capacity utilization shows real-time work cell loading sourced from MES data.\
-\
-\\u27A4 Point to capacity.',
+      desc: 'Capacity utilization sourced from MES data \u2014 CNC Mill at 95%, Weld Cell at 70%, NDT Lab at 30%.',
+      dialog: 'The capacity utilization shows real-time work cell loading sourced from MES data.\n\n\u27A4 Point to capacity.',
       clickTarget: '#scheduler-capacity-card', clickLabel: 'Capacity Utilization'
     },
     {
       id: 'transition-2',
       page: 'scheduler',
-      act: 2, scene: '\\u2014',
-      title: 'RTW Complete \\u2014 Released to Floor',
+      act: 2, scene: '\u2014',
+      title: 'RTW Complete \u2014 Released to Floor',
       persona: '',
       desc: 'RTW checklist complete. Job J-2026-042 is released to the shop floor. Mike picks it up on second shift.',
       dialog: 'Job released to the shop floor. Mike picks it up on second shift.',
@@ -563,48 +470,40 @@ Near real-time supply chain visibility for the shipyard — no emails, no phone 
       id: '3.1a',
       page: 'login-tablet',
       act: 3, scene: '3.1',
-      title: 'Tablet Login \\u2014 Badge Scan',
+      title: 'Tablet Login \u2014 Badge Scan',
       persona: 'Mike',
-      desc: 'Mike walks up to the ruggedized tablet at his weld cell and scans his badge. Two-factor auth \\u2014 badge first, then PIN.',
-      dialog: 'Second shift. Mike walks up to the tablet. Two-factor login \\u2014 badge scan first, then PIN. Simple and secure.\
-\
-\\u27A4 Scan badge.',
+      desc: 'Mike walks up to the ruggedized tablet at his weld cell and scans his badge. Two-factor auth \u2014 badge first, then PIN.',
+      dialog: 'Second shift. Mike walks up to the tablet. Two-factor login \u2014 badge scan first, then PIN. Simple and secure.\n\n\u27A4 Scan badge.',
       clickTarget: '#badge-scan-btn', clickLabel: 'Badge scanner'
     },
     {
       id: '3.1b',
       page: 'login-tablet',
       act: 3, scene: '3.1',
-      title: 'Tablet Login \\u2014 PIN',
+      title: 'Tablet Login \u2014 PIN',
       persona: 'Mike',
       desc: 'Badge verified. Now Mike enters his 4-digit PIN to confirm identity. No passwords, no email.',
-      dialog: 'Badge verified.\
-\
-\\u27A4 Enter PIN.',
+      dialog: 'Badge verified.\n\n\u27A4 Enter PIN.',
       clickTarget: '#pin-btn-1', clickLabel: 'PIN pad "1"'
     },
     {
       id: '3.1c',
       page: 'login-tablet',
       act: 3, scene: '3.1',
-      title: 'Tablet Login \\u2014 PIN contd.',
+      title: 'Tablet Login \u2014 PIN contd.',
       persona: 'Mike',
-      desc: 'Mike continues entering his PIN \\u2014 third and fourth digits.',
-      dialog: 'Pin verified.\
-\
-\\u27A4 Tap 5.',
+      desc: 'Mike continues entering his PIN \u2014 third and fourth digits.',
+      dialog: 'Pin verified.\n\n\u27A4 Tap 5.',
       clickTarget: '#page-login-tablet #pin-btn-5', clickLabel: 'PIN pad "5"'
     },
     {
       id: '3.1d',
       page: 'login-tablet',
       act: 3, scene: '3.1',
-      title: 'Tablet Login \\u2014 Sign In',
+      title: 'Tablet Login \u2014 Sign In',
       persona: 'Mike',
-      desc: 'Tap the green check and he\\u2019s in. Two-factor done \\u2014 no IT support calls.',
-      dialog: 'Work center selected. He\\u2019s in \\u2014 two-factor complete.\
-\
-\\u27A4 Tap the green check button.',
+      desc: 'Tap the green check and he\u2019s in. Two-factor done \u2014 no IT support calls.',
+      dialog: 'Work center selected. He\u2019s in \u2014 two-factor complete.\n\n\u27A4 Tap the green check button.',
       clickTarget: '#login-check-btn', clickLabel: 'Login button'
     },
     {
@@ -613,34 +512,28 @@ Near real-time supply chain visibility for the shipyard — no emails, no phone 
       act: 3, scene: '3.2',
       title: 'Tablet My Work',
       persona: 'Mike',
-      desc: 'Large, tap-friendly job tiles in priority order. Mike sees Op 30 \\u2014 Weld for J-2026-042 at the top of his list.',
-      dialog: 'My Work \\u2014 exactly what Mike needs to do today. Large tap-friendly tiles in priority order. He sees the pump bracket weld at the top.\
-\
-\\u27A4 Tap the Op 30 Weld tile.',
-      clickTarget: '#page-tab-work .tile', clickLabel: 'Op 30 \\u2014 Weld tile'
+      desc: 'Large, tap-friendly job tiles in priority order. Mike sees Op 30 \u2014 Weld for J-2026-042 at the top of his list.',
+      dialog: 'My Work \u2014 exactly what Mike needs to do today. Large tap-friendly tiles in priority order. He sees the pump bracket weld at the top.\n\n\u27A4 Tap the Op 30 Weld tile.',
+      clickTarget: '#page-tab-work .tile', clickLabel: 'Op 30 \u2014 Weld tile'
     },
     {
       id: '3.2b',
       page: 'tab-operation',
       act: 3, scene: '3.2',
-      title: 'Tablet \\u2014 3D Quick Look',
+      title: 'Tablet \u2014 3D Quick Look',
       persona: 'Mike',
       desc: 'Same 3D model from the RFQ process is available right here on the tablet. Mike can orbit the part, see weld callouts, and review geometry before starting.',
-      dialog: 'The same 3D Quick Look from the quoting process is right here on Mike\\u2019s tablet. He can see the part geometry, weld locations, and reference dimensions before picking up the torch.\
-\
-\\u27A4 Scroll down to see the 3D viewer.',
+      dialog: 'The same 3D Quick Look from the quoting process is right here on Mike\u2019s tablet. He can see the part geometry, weld locations, and reference dimensions before picking up the torch.\n\n\u27A4 Scroll down to see the 3D viewer.',
       clickTarget: '#tab-3d-viewer-card', clickLabel: '3D Quick Look'
     },
     {
       id: '3.3a',
       page: 'tab-operation',
       act: 3, scene: '3.3',
-      title: 'Tablet \\u2014 Scan Part',
+      title: 'Tablet \u2014 Scan Part',
       persona: 'Mike',
       desc: 'Mike scans the QR code on the part traveler tag. The system confirms bracket #1 of 12, Job J-2026-042.',
-      dialog: 'This replaces the paper traveler. Check-in is complete.\
-\
-\\u27A4 Tap Scan Part.',
+      dialog: 'This replaces the paper traveler. Check-in is complete.\n\n\u27A4 Tap Scan Part.',
       clickTarget: '#tab-scan-part', clickLabel: 'Scan Part QR',
       callout: {"type":"ai","label":"QR Code Scan — Part & Tool Check-In","text":"The paper traveler is replaced with a QR scan of the part, operator and machine. Artifacts and visual renderings are all available in 1 screen on the tablet. No typing is required, gloves stay on!"}
     },
@@ -648,24 +541,20 @@ Near real-time supply chain visibility for the shipyard — no emails, no phone 
       id: '3.3b',
       page: 'tab-operation',
       act: 3, scene: '3.3',
-      title: 'Tablet \\u2014 Scan Station',
+      title: 'Tablet \u2014 Scan Station',
       persona: 'Mike',
       desc: 'Mike scans the weld cell QR. F2AI logs which machine/cell is being used for full traceability.',
-      dialog: 'Operator, parts and station are scanned and identified.\
-\
-\\u27A4 Tap Scan Station.',
+      dialog: 'Operator, parts and station are scanned and identified.\n\n\u27A4 Tap Scan Station.',
       clickTarget: '#tab-scan-station', clickLabel: 'Scan Station QR'
     },
     {
       id: '3.3c',
       page: 'tab-operation',
       act: 3, scene: '3.3',
-      title: 'Tablet \\u2014 Welding',
+      title: 'Tablet \u2014 Welding',
       persona: 'Mike',
-      desc: 'Confirmed: Bracket #1 \\u2192 Weld Cell 1 \\u2192 Mike Johnson \\u2192 Started 14:32. Completed parts pass the vision station automatically.',
-      dialog: 'Mike starts welding. As completed brackets leave his cell, they pass a vision station that captures a 3D model automatically.\
-\
-\\u27A4 Tap Complete Op.',
+      desc: 'Confirmed: Bracket #1 \u2192 Weld Cell 1 \u2192 Mike Johnson \u2192 Started 14:32. Completed parts pass the vision station automatically.',
+      dialog: 'Mike starts welding. As completed brackets leave his cell, they pass a vision station that captures a 3D model automatically.\n\n\u27A4 Tap Complete Op.',
       clickTarget: '#scan-confirmation', clickLabel: 'Scan confirmation'
     },
     {
@@ -675,9 +564,7 @@ Near real-time supply chain visibility for the shipyard — no emails, no phone 
       title: 'Shipyard Signaling',
       persona: 'Sarah & Maria',
       desc: 'The Shipyard Signaling screen shows delivery timelines, automated progress updates, and 3D inspection results for all active jobs.',
-      dialog: 'Meanwhile, the Shipyard Signaling screen keeps the customer informed automatically \\u2014 delivery timeline, vision results, milestone signals.\
-\
-\\u27A4 Scroll down to see the vision station results.',
+      dialog: 'Meanwhile, the Shipyard Signaling screen keeps the customer informed automatically \u2014 delivery timeline, vision results, milestone signals.\n\n\u27A4 Scroll down to see the vision station results.',
       clickTarget: null, clickLabel: ''
     ,
       callout: {"type":"ai","label":"Shipyard Signaling","text":"Near real-time feedback is automatically sent to the shipyard and integrated into their PLM system via FastAPI calls. The shipyard has an updated expectation of predicted quality and timing."}},
@@ -688,9 +575,7 @@ Near real-time supply chain visibility for the shipyard — no emails, no phone 
       title: '3D Model Comparison',
       persona: 'Sarah & Maria',
       desc: 'Vision station compares in-process 3D scans against the TDP reference. Geometry match: 98.6%, all critical dimensions within tolerance.',
-      dialog: 'The vision station compares each bracket against the TDP reference model.\
-\
-\\u27A4 Point to the 3D comparison overlay.',
+      dialog: 'The vision station compares each bracket against the TDP reference model.\n\n\u27A4 Point to the 3D comparison overlay.',
       clickTarget: '#model-comparison', clickLabel: '3D comparison overlay',
       callout: {"type":"ai","label":"Vision Station AI","text":"F2AI's stereo vision capture of the part and conversion to a 3D model extracts features to compare the as-is part against the TDP. This is minimally invasive to the manufacturer because of F2AI's unique drawing based transformer ML model matched with vision to model AI workflow (NeRF, point cloud, mesh etc.). This is not replacing inspection but providing additional near real-time digital fabrication signals to the shipyard and enterprise AI to reduce unexpected supply-chain issues."}
     },
@@ -698,21 +583,17 @@ Near real-time supply chain visibility for the shipyard — no emails, no phone 
       id: '3.4b',
       page: 'shipyard',
       act: 3, scene: '3.4',
-      title: 'Shipyard Signal \\u2014 25%',
+      title: 'Shipyard Signal \u2014 25%',
       persona: 'Sarah & Maria',
       desc: 'At 25% complete, an automated signal goes to HII-Ingalls: 3 of 12 units fabricated, 0 NCRs, geometry match 98.6%.',
-      dialog: 'At 25% complete, the first automated signal goes to the shipyard \\u2014 progress, NCR status, geometry match, estimated completion. No phone calls needed.\
-\
-\\u27A4 Point to the signal log.',
+      dialog: 'At 25% complete, the first automated signal goes to the shipyard \u2014 progress, NCR status, geometry match, estimated completion. No phone calls needed.\n\n\u27A4 Point to the signal log.',
       clickTarget: '#shipyard-signal-card', clickLabel: '25% shipyard signal',
-      callout: { type: 'signal', label: 'Automated Shipyard Signal — 25% Milestone', text: 'The 25% milestone triggers the first automated signal to the shipyard: J-2026-042 is 25% complete. 3 of 12 units fabricated. 0 open NCRs. Geometry match: 98.6%. Estimated completion: on track for March 15.\
-\
-The formatted update is sent to HII-Ingalls\\u2019 ERP/PLM. The shipyard sees a near real-time production update without a single phone call from Bayside.' }
+      callout: { type: 'signal', label: 'Automated Shipyard Signal — 25% Milestone', text: 'The 25% milestone triggers the first automated signal to the shipyard: J-2026-042 is 25% complete. 3 of 12 units fabricated. 0 open NCRs. Geometry match: 98.6%. Estimated completion: on track for March 15.\n\nThe formatted update is sent to HII-Ingalls\u2019 ERP/PLM. The shipyard sees a near real-time production update without a single phone call from Bayside.' }
     },
     {
       id: 'transition-3',
       page: 'tab-operation',
-      act: 3, scene: '\\u2014',
+      act: 3, scene: '\u2014',
       title: 'Porosity Detected',
       persona: '',
       desc: 'Three brackets in, Mike spots porosity in the weld bead on bracket #4. Time to raise an NCR.',
@@ -722,13 +603,11 @@ The formatted update is sent to HII-Ingalls\\u2019 ERP/PLM. The shipyard sees a 
     {
       id: 'transition-3b',
       page: 'tab-operation',
-      act: 3, scene: '\\u2014',
+      act: 3, scene: '\u2014',
       title: 'Raise NCR',
       persona: 'Mike',
       desc: 'Mike taps the NCR button on the tablet to report the defect.',
-      dialog: 'Mike initiates an NCR without removing his gloves.\
-\
-\\u27A4 Tap NCR.',
+      dialog: 'Mike initiates an NCR without removing his gloves.\n\n\u27A4 Tap NCR.',
       clickTarget: '#page-tab-operation .action-btn.ncr', clickLabel: 'NCR button'
     },
     // ── ACT 4: Quality & NCR ──
@@ -736,42 +615,36 @@ The formatted update is sent to HII-Ingalls\\u2019 ERP/PLM. The shipyard sees a 
       id: '4.1a',
       page: 'tab-ncr',
       act: 4, scene: '4.1',
-      title: 'Tablet NCR \\u2014 Defect Type',
+      title: 'Tablet NCR \u2014 Defect Type',
       persona: 'Mike',
-      desc: 'Mike taps the NCR button. A minimal form designed for gloves-on speed. Dropdown selects \\u201cPorosity.\\u201d Quantity: 2.',
-      dialog: 'NCR is sent for internal review.\
-\
-\\u27A4 Show the defect dropdown.',
+      desc: 'Mike taps the NCR button. A minimal form designed for gloves-on speed. Dropdown selects \u201cPorosity.\u201d Quantity: 2.',
+      dialog: 'NCR is sent for internal review.\n\n\u27A4 Show the defect dropdown.',
       clickTarget: '#ncr-defect-group', clickLabel: 'Defect type dropdown'
     },
     {
       id: '4.1b',
       page: 'tab-ncr',
       act: 4, scene: '4.1',
-      title: 'Tablet NCR \\u2014 Camera',
+      title: 'Tablet NCR \u2014 Camera',
       persona: 'Mike',
       desc: 'Mike taps the camera button to photograph the defective welds.',
-      dialog: 'He snaps a photo of the porosity.\
-\
-\\u27A4 Tap the camera button.',
+      dialog: 'He snaps a photo of the porosity.\n\n\u27A4 Tap the camera button.',
       clickTarget: '#ncr-camera-btn', clickLabel: 'Camera button'
     },
     {
       id: '4.1b2',
       page: 'tab-ncr',
       act: 4, scene: '4.1',
-      title: 'Tablet NCR \\u2014 Photos Captured',
+      title: 'Tablet NCR \u2014 Photos Captured',
       persona: 'Mike',
       desc: 'Two photos captured — close-ups of the porosity in the weld bead.',
-      dialog: 'Two photos attached, geotagged to the weld cell.\
-\
-\\u27A4 Tap Submit NCR.',
+      dialog: 'Two photos attached, geotagged to the weld cell.\n\n\u27A4 Tap Submit NCR.',
       clickTarget: '#page-tab-ncr .btn-danger', clickLabel: 'Submit NCR'
     },
     {
       id: '4.1c',
       page: 'tab-ncr',
-      act: 4, scene: '\\u2014',
+      act: 4, scene: '\u2014',
       title: 'NCR Submitted',
       persona: '',
       desc: 'NCR-042 submitted in under 60 seconds. Tied to Job J-2026-042, Op 30 (Weld). Mike continues welding while Sarah is notified.',
@@ -782,40 +655,32 @@ The formatted update is sent to HII-Ingalls\\u2019 ERP/PLM. The shipyard sees a 
       id: '4.2a',
       page: 'ncr-detail',
       act: 4, scene: '4.2',
-      title: 'NCR Detail \\u2014 Evidence',
+      title: 'NCR Detail \u2014 Evidence',
       persona: 'Sarah',
       desc: 'Sarah reviews NCR-042 with photos, defect description, timeline, and linked items.',
-      dialog: 'Sarah opens the NCR \\u2014 defect details, Mike\\u2019s photos, affected job, full timeline.\
-\
-\\u27A4 Point to the timeline and photo evidence.',
+      dialog: 'Sarah opens the NCR \u2014 defect details, Mike\u2019s photos, affected job, full timeline.\n\n\u27A4 Point to the timeline and photo evidence.',
       clickTarget: '#ncr-timeline-card', clickLabel: 'NCR Timeline'
     },
     {
       id: '4.2b',
       page: 'ncr-detail',
       act: 4, scene: '4.2',
-      title: 'NCR Detail \\u2014 Disposition',
+      title: 'NCR Detail \u2014 Disposition',
       persona: 'Sarah',
-      desc: 'Sarah reviews the photos, consults the WPS, and selects \\u201cRepair\\u201d as the disposition.',
-      dialog: 'She reviews the photos, checks the WPS, and determines it\\u2019s repairable.\
-\
-\\u27A4 Select Repair from the disposition dropdown.',
+      desc: 'Sarah reviews the photos, consults the WPS, and selects \u201cRepair\u201d as the disposition.',
+      dialog: 'She reviews the photos, checks the WPS, and determines it\u2019s repairable.\n\n\u27A4 Select Repair from the disposition dropdown.',
       clickTarget: '#ncr-disp-repair-opt', clickLabel: 'Repair option'
     },
     {
       id: '4.2c',
       page: 'ncr-detail',
       act: 4, scene: '4.2',
-      title: 'NCR Detail \\u2014 Hold Signal',
+      title: 'NCR Detail \u2014 Hold Signal',
       persona: 'Sarah',
       desc: 'F2AI automatically signaled a delivery hold to HII-Ingalls the moment the NCR was created.',
-      dialog: 'Here\\u2019s the key part \\u2014 the moment that NCR was created, F2AI automatically sent a delivery signal to the shipyard. No surprises. The program manager at Ingalls is informed.\
-\
-\\u27A4 Point to the shipyard hold signal.',
+      dialog: 'Here\u2019s the key part \u2014 the moment that NCR was created, F2AI automatically sent a delivery signal to the shipyard. No surprises. The program manager at Ingalls is informed.\n\n\u27A4 Point to the shipyard hold signal.',
       clickTarget: '#ncr-hold-signal-card', clickLabel: 'Shipyard hold signal log',
-      callout: { type: 'signal', label: 'Automatic Delivery Hold Signal', text: 'The moment the NCR was created, F2AI automatically signaled a hold on the projected delivery date. The HII-Ingalls program manager sees: J-2026-042 — Previous delivery estimate: 3/10/27. Status: NCR pending disposition. 2 of 12 units affected.\
-\
-No surprises — the shipyard knows about the issue before it becomes a schedule problem.' }
+      callout: { type: 'signal', label: 'Automatic Delivery Hold Signal', text: 'The moment the NCR was created, F2AI automatically signaled a hold on the projected delivery date. The HII-Ingalls program manager sees: J-2026-042 — Previous delivery estimate: 3/10/27. Status: NCR pending disposition. 2 of 12 units affected.\n\nNo surprises — the shipyard knows about the issue before it becomes a schedule problem.' }
     },
     {
       id: '4.3',
@@ -824,15 +689,13 @@ No surprises — the shipyard knows about the issue before it becomes a schedule
       title: 'NCR Resolution',
       persona: 'Sarah & Mike',
       desc: 'Repair completed, re-inspection passed. F2AI sends an updated signal: NCR resolved, delivery estimate restored.',
-      dialog: 'Sarah completes the disposition \\u2014 repair authorized, instructions pushed to Mike\\u2019s tablet. He grinds out and re-welds the two brackets, passes re-inspection. F2AI sends an updated signal: NCR resolved, delivery restored. The whole thing opened and closed without a phone call.\
-\
-\\u27A4 Point to the completed disposition.',
+      dialog: 'Sarah completes the disposition \u2014 repair authorized, instructions pushed to Mike\u2019s tablet. He grinds out and re-welds the two brackets, passes re-inspection. F2AI sends an updated signal: NCR resolved, delivery restored. The whole thing opened and closed without a phone call.\n\n\u27A4 Point to the completed disposition.',
       clickTarget: '#ncr-disp-notes', clickLabel: 'Disposition notes'
     },
     {
       id: 'transition-4',
       page: 'ncr-detail',
-      act: 4, scene: '\\u2014',
+      act: 4, scene: '\u2014',
       title: 'All 12 Brackets Complete',
       persona: '',
       desc: 'NCR resolved. All 12 brackets complete. NDT passed. Final QA and shipyard acceptance ahead.',
@@ -844,31 +707,22 @@ No surprises — the shipyard knows about the issue before it becomes a schedule
       id: '5.1a',
       page: 'shipyard',
       act: 5, scene: '5.1',
-      title: 'Shipyard Acceptance \\u2014 Package',
+      title: 'Shipyard Acceptance \u2014 Package',
       persona: 'Sarah & Maria',
       desc: 'F2AI auto-assembled the complete submission package: COC, CMTR, weld maps, NDT reports, traveler history, and final 3D scans.',
-      dialog: 'All 12 brackets done, NDT passed. F2AI auto-assembled the complete submission package from data captured throughout the job.\
-\
-\\u27A4 Point to the submission package.',
+      dialog: 'All 12 brackets done, NDT passed. F2AI auto-assembled the complete submission package from data captured throughout the job.\n\n\u27A4 Point to the submission package.',
       clickTarget: '#shipyard-submission-pkg', clickLabel: 'Submission Package'
     },
     {
       id: '5.1b',
       page: 'shipyard',
       act: 5, scene: '5.1',
-      title: 'Shipyard Acceptance \\u2014 Learning Loop',
+      title: 'Shipyard Acceptance \u2014 Learning Loop',
       persona: 'Sarah & Maria',
-      desc: 'On close, the Learning Loop stores actual production data, 3D scans, and build timing \\u2014 making the next bid smarter.',
-      dialog: 'Sarah reviews, confirms completeness, and submits to HII-Ingalls. When this job closes, F2AI updates its knowledge base \\u2014 actual production times, 3D scans, Dave\\u2019s weld hour correction. The next bid will be smarter.\
-\
-\\u27A4 Click Submit Package.',
+      desc: 'On close, the Learning Loop stores actual production data, 3D scans, and build timing \u2014 making the next bid smarter.',
+      dialog: 'Sarah reviews, confirms completeness, and submits to HII-Ingalls. When this job closes, F2AI updates its knowledge base \u2014 actual production times, 3D scans, Dave\u2019s weld hour correction. The next bid will be smarter.\n\n\u27A4 Click Submit Package.',
       clickTarget: '#btn-submit-package', clickLabel: 'Submit to HII-Ingalls',
-      callout: { type: 'ai', label: 'F2AI Learning Loop', text: 'When the job closes, F2AI updates its knowledge base:\
-\
-\\u2022 Actual production times stored alongside the ML estimate — next bid uses real data\
-\\u2022 Final 3D scan stored as a reference model for future TDP comparison\
-\\u2022 Complete TDP packaged for the Navy\\u2019s digital library per MIL-STD-31000C\
-\\u2022 Cycle times, material yield, and Dave\\u2019s weld hour correction captured for future bids' }
+      callout: { type: 'ai', label: 'F2AI Learning Loop', text: 'When the job closes, F2AI updates its knowledge base:\n\n\u2022 Actual production times stored alongside the ML estimate — next bid uses real data\n\u2022 Final 3D scan stored as a reference model for future TDP comparison\n\u2022 Complete TDP packaged for the Navy\u2019s digital library per MIL-STD-31000C\n\u2022 Cycle times, material yield, and Dave\u2019s weld hour correction captured for future bids' }
     },
     {
       id: '5.2',
@@ -876,34 +730,28 @@ No surprises — the shipyard knows about the issue before it becomes a schedule
       act: 5, scene: '5.2',
       title: 'Reports Dashboard',
       persona: 'Maria & Dave',
-      desc: 'The Reports screen gives leadership the analytics they need \\u2014 bid metrics, on-time delivery, throughput, and estimate accuracy.',
-      dialog: 'Reports give leadership the full picture \\u2014 bid metrics, production throughput, quality trends. All flowing from data captured throughout the workflow.\
-\
-\\u27A4 Scroll down to Estimate Accuracy.',
+      desc: 'The Reports screen gives leadership the analytics they need \u2014 bid metrics, on-time delivery, throughput, and estimate accuracy.',
+      dialog: 'Reports give leadership the full picture \u2014 bid metrics, production throughput, quality trends. All flowing from data captured throughout the workflow.\n\n\u27A4 Scroll down to Estimate Accuracy.',
       clickTarget: null, clickLabel: ''
     },
     {
       id: '5.2a',
       page: 'reports',
       act: 5, scene: '5.2',
-      title: 'Reports \\u2014 Estimate Accuracy',
+      title: 'Reports \u2014 Estimate Accuracy',
       persona: 'Maria & Dave',
       desc: 'The Estimate Accuracy by Program chart shows how close ML predictions were to actual production costs.',
-      dialog: 'Estimate accuracy by program \\u2014 how close the ML analysis was to actual costs. This is the feedback loop.\
-\
-\\u27A4 Click the chart.',
+      dialog: 'Estimate accuracy by program \u2014 how close the ML analysis was to actual costs. This is the feedback loop.\n\n\u27A4 Click the chart.',
       clickTarget: '#rpt-accuracy-by-program', clickLabel: 'Open Estimate Accuracy detail'
     },
     {
       id: '5.2b',
       page: 'reports',
       act: 5, scene: '5.2',
-      title: 'Reports \\u2014 Close Detail',
+      title: 'Reports \u2014 Close Detail',
       persona: 'Maria & Dave',
       desc: 'The detail view breaks down estimate accuracy by program — showing predicted vs. actual costs.',
-      dialog: 'Detail breakdown by program.\
-\
-\\u27A4 Close the overlay.',
+      dialog: 'Detail breakdown by program.\n\n\u27A4 Close the overlay.',
       clickTarget: '#rpt-overlay-close', clickLabel: 'Close overlay'
     },
     {
@@ -913,9 +761,7 @@ No surprises — the shipyard knows about the issue before it becomes a schedule
       title: 'Settings',
       persona: 'All',
       desc: 'Platform configuration: work centers, material libraries, rate tables, user roles, MES integration, vision stations, and shipyard signaling rules.',
-      dialog: 'Settings \\u2014 where admins configure work centers, MES integration, vision stations, shipyard signaling rules, and user roles.\
-\
-\\u27A4 Point to the settings sections.',
+      dialog: 'Settings \u2014 where admins configure work centers, MES integration, vision stations, shipyard signaling rules, and user roles.\n\n\u27A4 Point to the settings sections.',
       clickTarget: '#page-settings .seg-btn', clickLabel: 'Settings tabs'
     },
     {
@@ -924,25 +770,11 @@ No surprises — the shipyard knows about the issue before it becomes a schedule
       act: 5, scene: 'END',
       title: 'Demo Complete',
       persona: '',
-      desc: 'One RFQ, four people, zero paper. F2AI \\u2014 Foundry & Forge. Built for the shops that build the fleet.',
-      dialog: 'And that\\u2019s the full journey. One RFQ, four people, zero paper.\
-\
-F2AI gave Maria ML-powered confidence in which jobs to bid. It let the team visualize the part in 3D before a single cut was made. It gave Dave a one-click path from award to production. It gave Sarah automated data collection and real-time shipyard signaling. And it gave Mike clear instructions and a 60-second NCR process.\
-\
-When the job closed, the platform learned from it \\u2014 so the next bid is smarter, the next estimate tighter.\
-\
-That\\u2019s Foundry and Forge. Built for the shops that build the fleet.',
+      desc: 'One RFQ, four people, zero paper. F2AI \u2014 Foundry & Forge. Built for the shops that build the fleet.',
+      dialog: 'And that\u2019s the full journey. One RFQ, four people, zero paper.\n\nF2AI gave Maria ML-powered confidence in which jobs to bid. It let the team visualize the part in 3D before a single cut was made. It gave Dave a one-click path from award to production. It gave Sarah automated data collection and real-time shipyard signaling. And it gave Mike clear instructions and a 60-second NCR process.\n\nWhen the job closed, the platform learned from it \u2014 so the next bid is smarter, the next estimate tighter.\n\nThat\u2019s Foundry and Forge. Built for the shops that build the fleet.',
       clickTarget: null, clickLabel: ''
     ,
-      callout: { type: 'ai', label: 'F2AI Platform Summary', text: 'F2AI gives:\
-\
-\\u2022 Maria ML-powered confidence in which jobs to bid.\
-\\u2022 The team visualization of the part in 3D before a single cut was made.\
-\\u2022 Dave a one-click path from award to production.\
-\\u2022 Sarah automated data collection and real-time shipyard signaling.\
-\\u2022 Mike clear instructions and a 60-second NCR process.\
-\
-When the job closed, the platform learned from it \\u2014 so the next bid is smarter, the next estimate tighter.' }}
+      callout: { type: 'ai', label: 'F2AI Platform Summary', text: 'F2AI gives:\n\n\u2022 Maria ML-powered confidence in which jobs to bid.\n\u2022 The team visualization of the part in 3D before a single cut was made.\n\u2022 Dave a one-click path from award to production.\n\u2022 Sarah automated data collection and real-time shipyard signaling.\n\u2022 Mike clear instructions and a 60-second NCR process.\n\nWhen the job closed, the platform learned from it \u2014 so the next bid is smarter, the next estimate tighter.' }}
   ];
 
   // ── State ─────────────────────────────────────────────────
@@ -960,13 +792,11 @@ When the job closed, the platform learned from it \\u2014 so the next bid is sma
 
   // ── Google Cloud TTS ─────────────────────────────────────────
   var googleTtsApiKey = '';
-  var googleTtsVoice = 'en-US-Neural2-D';  // Natural male voice (Neural2 tier)
-  var googleTtsAudio = null;   // current Audio element
-  var googleTtsCache = {};     // stepIndex → data URL
-  var googleTtsFetching = {};  // stepIndex → true while fetch in flight
-  var useGoogleTts = false;    // true = Google Cloud TTS active
-
-  // Available Google Cloud TTS voices (Neural2 + Chirp3 HD)
+  var googleTtsVoice = 'en-US-Neural2-D';
+  var googleTtsAudio = null;
+  var googleTtsCache = {};
+  var googleTtsFetching = {};
+  var useGoogleTts = false;
   var googleTtsVoices = [
     { id: 'en-US-Neural2-D', name: 'Neural2-D', desc: 'Male · natural, warm' },
     { id: 'en-US-Neural2-F', name: 'Neural2-F', desc: 'Female · natural, clear' },
@@ -997,7 +827,7 @@ When the job closed, the platform learned from it \\u2014 so the next bid is sma
     { id: 'TxGEqnHWrfWFTfGW9XjX', name: 'Josh', desc: 'Warm, engaging' }
   ];
 
-  // Load saved Google TTS settings from localStorage
+  // Load saved Google TTS settings
   try {
     var _savedGoogleKey = localStorage.getItem('f2ai-google-tts-key');
     if (_savedGoogleKey) { googleTtsApiKey = _savedGoogleKey; useGoogleTts = true; }
@@ -1095,7 +925,7 @@ When the job closed, the platform learned from it \\u2014 so the next bid is sma
     fab.addEventListener('click', function(e) { e.stopPropagation(); toggleCalloutPanel(); });
     document.getElementById('demo-callout-close').addEventListener('click', function(e) { e.stopPropagation(); closeCalloutPanel(); });
 
-    // ── Voice Settings Modal (Google TTS + ElevenLabs tabs) ──────
+    // Voice Settings modal (Google TTS + ElevenLabs + System tabs)
     var modal = document.createElement('div');
     modal.id = 'demo-11labs-modal';
     modal.style.cssText = 'display:none;position:fixed;inset:0;z-index:100002;background:rgba(0,0,0,.6);align-items:center;justify-content:center;backdrop-filter:blur(4px)';
@@ -1105,47 +935,35 @@ When the job closed, the platform learned from it \\u2014 so the next bid is sma
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#e8a820" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
           <span style="font-size:15px;font-weight:600;color:#f3f4f6">Voice Settings</span>
         </div>
-        <!-- Tabs -->
         <div style="display:flex;gap:0;margin-bottom:16px;border-bottom:1px solid #333a44">
-          <button id="demo-voice-tab-google" class="demo-voice-tab demo-voice-tab-active" onclick="demoSwitchVoiceTab('google')">
-            <svg width="14" height="14" viewBox="0 0 24 24" style="vertical-align:-2px;margin-right:4px"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-            Google TTS
-          </button>
-          <button id="demo-voice-tab-eleven" class="demo-voice-tab" onclick="demoSwitchVoiceTab('eleven')" style="margin-left:4px">
-            ElevenLabs
-          </button>
-          <button id="demo-voice-tab-system" class="demo-voice-tab" onclick="demoSwitchVoiceTab('system')" style="margin-left:4px">
-            System Voice
-          </button>
+          <button id="demo-voice-tab-google" class="demo-voice-tab demo-voice-tab-active" onclick="demoSwitchVoiceTab('google')">&#127381; Google TTS</button>
+          <button id="demo-voice-tab-eleven" class="demo-voice-tab" onclick="demoSwitchVoiceTab('eleven')" style="margin-left:4px">ElevenLabs</button>
+          <button id="demo-voice-tab-system" class="demo-voice-tab" onclick="demoSwitchVoiceTab('system')" style="margin-left:4px">System Voice</button>
         </div>
-
-        <!-- Google TTS panel -->
         <div id="demo-voice-panel-google">
           <label style="font-size:12px;color:#9aa2b1;display:block;margin-bottom:4px">Google Cloud API Key</label>
-          <div style="font-size:11px;color:#697182;margin-bottom:6px">Get a free key at <span style="color:#4a9eed">console.cloud.google.com</span> → Cloud Text-to-Speech API</div>
+          <div style="font-size:11px;color:#697182;margin-bottom:6px">Get a free key at console.cloud.google.com → Cloud Text-to-Speech API</div>
           <input id="demo-google-key-input" type="password" placeholder="AIza..." style="width:100%;padding:8px 10px;border-radius:6px;border:1px solid #485162;background:#191d23;color:#f3f4f6;font-size:13px;outline:none;margin-bottom:12px;box-sizing:border-box" />
           <label style="font-size:12px;color:#9aa2b1;display:block;margin-bottom:6px">Voice</label>
           <select id="demo-google-voice-select" style="width:100%;padding:8px 10px;border-radius:6px;border:1px solid #485162;background:#191d23;color:#f3f4f6;font-size:13px;outline:none;margin-bottom:16px;box-sizing:border-box;cursor:pointer;appearance:auto">
             ${googleTtsVoices.map(function(v) {
-              return '<option value="' + v.id + '"' + (v.id === googleTtsVoice ? ' selected' : '') + '>' + v.name + ' — ' + v.desc + '</option>';
+              return '<option value="' + v.id + '"' + (v.id === googleTtsVoice ? ' selected' : '') + '>' + v.name + ' \u2014 ' + v.desc + '</option>';
             }).join('')}
           </select>
           <div style="display:flex;gap:8px;justify-content:flex-end">
             <button id="demo-google-cancel" style="padding:7px 14px;border-radius:6px;border:1px solid #485162;background:transparent;color:#9aa2b1;font-size:12px;cursor:pointer">Cancel</button>
             <button id="demo-google-save" style="padding:7px 14px;border-radius:6px;border:none;background:#1a73e8;color:#fff;font-size:12px;font-weight:600;cursor:pointer">Enable Google TTS</button>
           </div>
-          <p style="font-size:11px;color:#697182;margin:10px 0 0;line-height:1.4">~$4 per 1M characters (Neural2). Audio is cached per step — replays are free.</p>
+          <p style="font-size:11px;color:#697182;margin:10px 0 0;line-height:1.4">~$4 per 1M characters (Neural2). Audio cached per step &mdash; replays are free.</p>
         </div>
-
-        <!-- ElevenLabs panel -->
         <div id="demo-voice-panel-eleven" style="display:none">
           <label style="font-size:12px;color:#9aa2b1;display:block;margin-bottom:4px">ElevenLabs API Key</label>
-          <div style="font-size:11px;color:#697182;margin-bottom:6px">Get a free key at <span style="color:#4a9eed">elevenlabs.io</span> (10,000 chars/month free)</div>
+          <div style="font-size:11px;color:#697182;margin-bottom:6px">Get a free key at elevenlabs.io (10,000 chars/month free)</div>
           <input id="demo-11labs-key-input" type="password" placeholder="sk_..." style="width:100%;padding:8px 10px;border-radius:6px;border:1px solid #485162;background:#191d23;color:#f3f4f6;font-size:13px;outline:none;margin-bottom:12px;box-sizing:border-box" />
           <label style="font-size:12px;color:#9aa2b1;display:block;margin-bottom:6px">Voice</label>
           <select id="demo-11labs-voice-select" style="width:100%;padding:8px 10px;border-radius:6px;border:1px solid #485162;background:#191d23;color:#f3f4f6;font-size:13px;outline:none;margin-bottom:16px;box-sizing:border-box;cursor:pointer;appearance:auto">
             ${elevenLabsVoices.map(function(v) {
-              return '<option value="' + v.id + '"' + (v.id === elevenLabsVoiceId ? ' selected' : '') + '>' + v.name + ' — ' + v.desc + '</option>';
+              return '<option value="' + v.id + '"' + (v.id === elevenLabsVoiceId ? ' selected' : '') + '>' + v.name + ' \u2014 ' + v.desc + '</option>';
             }).join('')}
           </select>
           <div style="display:flex;gap:8px;justify-content:flex-end">
@@ -1153,10 +971,8 @@ When the job closed, the platform learned from it \\u2014 so the next bid is sma
             <button id="demo-11labs-save" style="padding:7px 14px;border-radius:6px;border:none;background:#0e6d96;color:#fff;font-size:12px;font-weight:600;cursor:pointer">Enable ElevenLabs</button>
           </div>
         </div>
-
-        <!-- System Voice panel -->
         <div id="demo-voice-panel-system" style="display:none">
-          <p style="font-size:13px;color:#9aa2b1;line-height:1.6;margin:0 0 16px">Uses your browser's built-in speech synthesis. Voice quality depends on your OS.</p>
+          <p style="font-size:13px;color:#9aa2b1;line-height:1.6;margin:0 0 16px">Uses your browser's built-in speech synthesis. No API key needed.</p>
           <div style="display:flex;gap:8px;justify-content:flex-end">
             <button id="demo-system-cancel" style="padding:7px 14px;border-radius:6px;border:1px solid #485162;background:transparent;color:#9aa2b1;font-size:12px;cursor:pointer">Cancel</button>
             <button id="demo-system-save" style="padding:7px 14px;border-radius:6px;border:none;background:#22c55e;color:#fff;font-size:12px;font-weight:600;cursor:pointer">Use System Voice</button>
@@ -1166,7 +982,7 @@ When the job closed, the platform learned from it \\u2014 so the next bid is sma
     `;
     document.body.appendChild(modal);
 
-    // Tab switcher (exposed on window so inline onclick works inside the IIFE)
+    // Tab switcher exposed on window so inline onclick works inside IIFE
     window.demoSwitchVoiceTab = function(tab) {
       ['google','eleven','system'].forEach(function(t) {
         var btn = document.getElementById('demo-voice-tab-' + t);
@@ -1176,7 +992,6 @@ When the job closed, the platform learned from it \\u2014 so the next bid is sma
       });
     };
 
-    // ── Google TTS save ──
     document.getElementById('demo-google-cancel').addEventListener('click', function() {
       document.getElementById('demo-11labs-modal').style.display = 'none';
     });
@@ -1189,18 +1004,13 @@ When the job closed, the platform learned from it \\u2014 so the next bid is sma
         googleTtsCache = {};
         useGoogleTts = true;
         useElevenLabs = false;
-        try {
-          localStorage.setItem('f2ai-google-tts-key', googleTtsApiKey);
-          localStorage.setItem('f2ai-google-tts-voice', googleTtsVoice);
-        } catch(e) {}
+        try { localStorage.setItem('f2ai-google-tts-key', googleTtsApiKey); localStorage.setItem('f2ai-google-tts-voice', googleTtsVoice); } catch(e) {}
         document.getElementById('demo-11labs-modal').style.display = 'none';
         voiceoverEnabled = true;
         updateVoiceoverIcon();
         speakStep(steps[currentStep]);
       }
     });
-
-    // ── ElevenLabs save ──
     document.getElementById('demo-11labs-cancel').addEventListener('click', function() {
       document.getElementById('demo-11labs-modal').style.display = 'none';
     });
@@ -1213,66 +1023,42 @@ When the job closed, the platform learned from it \\u2014 so the next bid is sma
         elevenLabsCache = {};
         useElevenLabs = true;
         useGoogleTts = false;
-        try {
-          localStorage.setItem('f2ai-11labs-key', elevenLabsApiKey);
-          localStorage.setItem('f2ai-11labs-voice', elevenLabsVoiceId);
-        } catch(e) {}
+        try { localStorage.setItem('f2ai-11labs-key', elevenLabsApiKey); localStorage.setItem('f2ai-11labs-voice', elevenLabsVoiceId); } catch(e) {}
         document.getElementById('demo-11labs-modal').style.display = 'none';
         voiceoverEnabled = true;
         updateVoiceoverIcon();
         speakStep(steps[currentStep]);
       }
     });
-
-    // ── System Voice save ──
     document.getElementById('demo-system-cancel').addEventListener('click', function() {
       document.getElementById('demo-11labs-modal').style.display = 'none';
     });
     document.getElementById('demo-system-save').addEventListener('click', function() {
-      useGoogleTts = false;
-      useElevenLabs = false;
-      try {
-        localStorage.removeItem('f2ai-google-tts-key');
-        localStorage.removeItem('f2ai-11labs-key');
-      } catch(e) {}
+      useGoogleTts = false; useElevenLabs = false;
+      try { localStorage.removeItem('f2ai-google-tts-key'); localStorage.removeItem('f2ai-11labs-key'); } catch(e) {}
       document.getElementById('demo-11labs-modal').style.display = 'none';
       voiceoverEnabled = true;
       updateVoiceoverIcon();
       speakStep(steps[currentStep]);
     });
-
-    // Close modal on backdrop click
-    modal.addEventListener('click', function(e) {
-      if (e.target === modal) modal.style.display = 'none';
-    });
-    // Pre-fill saved keys
-    if (googleTtsApiKey) {
-      var gki = document.getElementById('demo-google-key-input');
-      if (gki) gki.value = googleTtsApiKey;
-    }
-    if (elevenLabsApiKey) {
-      var ki = document.getElementById('demo-11labs-key-input');
-      if (ki) ki.value = elevenLabsApiKey;
-    }
+    modal.addEventListener('click', function(e) { if (e.target === modal) modal.style.display = 'none'; });
+    if (googleTtsApiKey) { var gki = document.getElementById('demo-google-key-input'); if (gki) gki.value = googleTtsApiKey; }
+    if (elevenLabsApiKey) { var ki = document.getElementById('demo-11labs-key-input'); if (ki) ki.value = elevenLabsApiKey; }
 
     // Event listeners
     document.getElementById('demo-prev').addEventListener('click', prevStep);
     document.getElementById('demo-next').addEventListener('click', nextStep);
     document.getElementById('demo-expand').addEventListener('click', toggleExpand);
     document.getElementById('demo-voiceover').addEventListener('click', toggleVoiceover);
-    // Long-press (500 ms) on voiceover button → open voice settings modal
-    (function() {
-      var _lpTimer = null;
-      var voBtn = document.getElementById('demo-voiceover');
-      voBtn.addEventListener('mousedown', function() {
-        _lpTimer = setTimeout(function() { _lpTimer = null; openVoiceModal(); }, 500);
-      });
-      voBtn.addEventListener('mouseup',   function() { if (_lpTimer) { clearTimeout(_lpTimer); _lpTimer = null; } });
-      voBtn.addEventListener('mouseleave',function() { if (_lpTimer) { clearTimeout(_lpTimer); _lpTimer = null; } });
-      voBtn.addEventListener('touchstart',function(e) { e.preventDefault(); _lpTimer = setTimeout(function() { _lpTimer = null; openVoiceModal(); }, 500); }, { passive: false });
-      voBtn.addEventListener('touchend',  function() { if (_lpTimer) { clearTimeout(_lpTimer); _lpTimer = null; } });
-    })();
     document.getElementById('demo-speed').addEventListener('click', cycleSpeed);
+    // Long-press voiceover button (500ms) → open voice settings
+    (function() {
+      var _lp = null;
+      var vob = document.getElementById('demo-voiceover');
+      vob.addEventListener('mousedown', function() { _lp = setTimeout(function() { _lp = null; openVoiceModal(); }, 500); });
+      vob.addEventListener('mouseup',    function() { if (_lp) { clearTimeout(_lp); _lp = null; } });
+      vob.addEventListener('mouseleave', function() { if (_lp) { clearTimeout(_lp); _lp = null; } });
+    })();
 
     // Splash Begin button → advance to next step
     var beginBtn = document.getElementById('splash-begin-btn');
@@ -1402,15 +1188,14 @@ When the job closed, the platform learned from it \\u2014 so the next bid is sma
 
   // ── Voiceover ──────────────────────────────────────────────
   function openVoiceModal() {
-    // Switch to the active tab based on current engine
-    if (useGoogleTts) { window.demoSwitchVoiceTab('google'); }
-    else if (useElevenLabs) { window.demoSwitchVoiceTab('eleven'); }
-    else { window.demoSwitchVoiceTab('google'); } // default to Google tab
+    if (useGoogleTts)     window.demoSwitchVoiceTab('google');
+    else if (useElevenLabs) window.demoSwitchVoiceTab('eleven');
+    else                  window.demoSwitchVoiceTab('google');
     document.getElementById('demo-11labs-modal').style.display = 'flex';
   }
 
   function toggleVoiceover() {
-    // First-time click with no engine configured → show voice settings modal
+    // First click with no engine configured → show voice settings modal
     if (!voiceoverEnabled && !useGoogleTts && !useElevenLabs && !googleTtsApiKey && !elevenLabsApiKey) {
       openVoiceModal();
       return;
@@ -1419,13 +1204,11 @@ When the job closed, the platform learned from it \\u2014 so the next bid is sma
     voiceoverEnabled = !voiceoverEnabled;
     updateVoiceoverIcon();
     if (voiceoverEnabled) {
-      // Resume paused audio if same step
       if (useGoogleTts && googleTtsAudio && !googleTtsAudio.ended && googleTtsAudio.paused && currentSpeechStep === currentStep) {
         googleTtsAudio.play();
       } else if (useElevenLabs && elevenLabsAudio && !elevenLabsAudio.ended && elevenLabsAudio.paused && currentSpeechStep === currentStep) {
         elevenLabsAudio.play();
       } else if (!useGoogleTts && !useElevenLabs && currentSpeechStep === currentStep && currentSpeechText && currentCharOffset > 0) {
-        // Web Speech API fallback: resume from char offset
         speakFromChar(currentCharOffset);
       } else {
         speakStep(steps[currentStep]);
@@ -1460,16 +1243,10 @@ When the job closed, the platform learned from it \\u2014 so the next bid is sma
     if (btn) btn.textContent = label + 'x';
 
     if (useGoogleTts) {
-      if (googleTtsAudio && !googleTtsAudio.ended) {
-        googleTtsAudio.playbackRate = voiceoverSpeeds[voiceoverSpeedIdx];
-      }
+      if (googleTtsAudio && !googleTtsAudio.ended) googleTtsAudio.playbackRate = voiceoverSpeeds[voiceoverSpeedIdx];
     } else if (useElevenLabs) {
-      // ElevenLabs: change playbackRate on the live Audio element
-      if (elevenLabsAudio && !elevenLabsAudio.ended) {
-        elevenLabsAudio.playbackRate = voiceoverSpeeds[voiceoverSpeedIdx];
-      }
+      if (elevenLabsAudio && !elevenLabsAudio.ended) elevenLabsAudio.playbackRate = voiceoverSpeeds[voiceoverSpeedIdx];
     } else {
-      // Web Speech API fallback: resume from current word position at new speed
       if (voiceoverEnabled && window.speechSynthesis.speaking) {
         var resumeFrom = currentCharOffset;
         stopSpeaking();
@@ -1484,19 +1261,18 @@ When the job closed, the platform learned from it \\u2014 so the next bid is sma
     var text = step.dialog || step.desc || '';
     if (!text) return '';
     // Remove ➤ action cue lines
-    var lines = text.split('\
-');
+    var lines = text.split('\n');
     var kept = [];
     for (var li = 0; li < lines.length; li++) {
       var trimmed = lines[li].trim();
-      if (trimmed.indexOf('\\u27A4') === 0) continue;
+      if (trimmed.indexOf('\u27A4') === 0) continue;
       if (trimmed) kept.push(trimmed);
     }
     text = kept.join('. ');
     // Strip emoji
-    text = text.replace(/[\\u{1F600}-\\u{1F64F}\\u{1F300}-\\u{1F5FF}\\u{1F680}-\\u{1F6FF}\\u{1F1E0}-\\u{1F1FF}\\u{2600}-\\u{26FF}\\u{2700}-\\u{27BF}\\u{1F900}-\\u{1F9FF}\\u{1FA00}-\\u{1FA6F}\\u{1FA70}-\\u{1FAFF}]/gu, '');
-    text = text.replace(/\\u27A4/g, '');
-    text = text.replace(/\\.\\s*\\./g, '.').replace(/,\\s*\\./g, '.').replace(/\\s{2,}/g, ' ').trim();
+    text = text.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}]/gu, '');
+    text = text.replace(/\u27A4/g, '');
+    text = text.replace(/\.\s*\./g, '.').replace(/,\s*\./g, '.').replace(/\s{2,}/g, ' ').trim();
     return text;
   }
 
@@ -1549,11 +1325,10 @@ When the job closed, the platform learned from it \\u2014 so the next bid is sma
     });
   }
 
+  // Pre-fetch the NEXT step's audio while current step plays
   // ── Google Cloud TTS Engine ──────────────────────────────────
   function fetchGoogleTTSAudio(text, stepIndex) {
-    if (googleTtsCache[stepIndex]) {
-      return Promise.resolve(googleTtsCache[stepIndex]);
-    }
+    if (googleTtsCache[stepIndex]) return Promise.resolve(googleTtsCache[stepIndex]);
     if (googleTtsFetching[stepIndex]) {
       return new Promise(function(resolve) {
         var check = setInterval(function() {
@@ -1563,25 +1338,17 @@ When the job closed, the platform learned from it \\u2014 so the next bid is sma
       });
     }
     googleTtsFetching[stepIndex] = true;
-
     return fetch('https://texttospeech.googleapis.com/v1/text:synthesize?key=' + googleTtsApiKey, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         input: { text: text },
         voice: { languageCode: 'en-US', name: googleTtsVoice },
-        audioConfig: {
-          audioEncoding: 'MP3',
-          speakingRate: 0.92,
-          pitch: 0.5
-        }
+        audioConfig: { audioEncoding: 'MP3', speakingRate: 0.92, pitch: 0.5 }
       })
     }).then(function(resp) {
       googleTtsFetching[stepIndex] = false;
-      if (!resp.ok) {
-        console.warn('Google TTS API error:', resp.status, '— falling back to system voice');
-        return null;
-      }
+      if (!resp.ok) { console.warn('Google TTS error:', resp.status); return null; }
       return resp.json();
     }).then(function(data) {
       if (!data || !data.audioContent) return null;
@@ -1599,20 +1366,12 @@ When the job closed, the platform learned from it \\u2014 so the next bid is sma
     if (myGen !== speechGeneration) return;
     googleTtsAudio = new Audio(dataUrl);
     googleTtsAudio.playbackRate = voiceoverSpeeds[voiceoverSpeedIdx];
-    googleTtsAudio.onended = function() {
-      if (myGen !== speechGeneration) return;
-      autoAdvanceAfterSpeech();
-    };
-    googleTtsAudio.onerror = function() {
-      if (myGen !== speechGeneration) return;
-      console.warn('Google TTS audio playback error — falling back to system voice');
-      speakFromChar(0);
-    };
+    googleTtsAudio.onended = function() { if (myGen !== speechGeneration) return; autoAdvanceAfterSpeech(); };
+    googleTtsAudio.onerror = function() { if (myGen !== speechGeneration) return; speakFromChar(0); };
     googleTtsAudio.play().catch(function(e) { console.warn('Audio play blocked:', e); });
     prefetchNextStep();
   }
 
-  // Pre-fetch the NEXT step's audio while current step plays
   function prefetchNextStep() {
     var nextIdx = currentStep + 1;
     if (nextIdx >= steps.length) return;
@@ -1718,22 +1477,14 @@ When the job closed, the platform learned from it \\u2014 so the next bid is sma
     if (useGoogleTts && googleTtsApiKey) {
       var myGen = speechGeneration;
       fetchGoogleTTSAudio(text, currentStep).then(function(dataUrl) {
-        if (dataUrl) {
-          playGoogleTTSAudio(dataUrl, myGen);
-        } else {
-          console.warn('Google TTS unavailable, falling back to system voice');
-          speakFromChar(0);
-        }
+        if (dataUrl) { playGoogleTTSAudio(dataUrl, myGen); }
+        else { console.warn('Google TTS unavailable, falling back to system voice'); speakFromChar(0); }
       });
     } else if (useElevenLabs && elevenLabsApiKey) {
-      var myGen = speechGeneration;
+      var myGen2 = speechGeneration;
       fetchElevenLabsAudio(text, currentStep).then(function(blobUrl) {
-        if (blobUrl) {
-          playElevenLabsAudio(blobUrl, myGen);
-        } else {
-          console.warn('ElevenLabs unavailable, falling back to system voice');
-          speakFromChar(0);
-        }
+        if (blobUrl) { playElevenLabsAudio(blobUrl, myGen2); }
+        else { console.warn('ElevenLabs unavailable, falling back to system voice'); speakFromChar(0); }
       });
     } else {
       speakFromChar(0);
@@ -1827,12 +1578,9 @@ When the job closed, the platform learned from it \\u2014 so the next bid is sma
     icon.style.stroke = accentColor;
 
     // Render text with paragraphs
-    var paragraphs = c.text.split('\
-\
-');
+    var paragraphs = c.text.split('\n\n');
     textEl.innerHTML = paragraphs.map(function(p) {
-      return '<p style="margin-bottom:10px">' + p.replace(/\
-/g, '<br>') + '</p>';
+      return '<p style="margin-bottom:10px">' + p.replace(/\n/g, '<br>') + '</p>';
     }).join('');
 
     // Position panel near the FAB (which follows demo pointer)
@@ -1888,19 +1636,8 @@ When the job closed, the platform learned from it \\u2014 so the next bid is sma
 
   function stopSpeaking() {
     speechGeneration++;
-    // Stop Google TTS audio
-    if (googleTtsAudio) {
-      googleTtsAudio.pause();
-      googleTtsAudio.currentTime = 0;
-      googleTtsAudio = null;
-    }
-    // Stop ElevenLabs audio
-    if (elevenLabsAudio) {
-      elevenLabsAudio.pause();
-      elevenLabsAudio.currentTime = 0;
-      elevenLabsAudio = null;
-    }
-    // Stop Web Speech API
+    if (googleTtsAudio) { googleTtsAudio.pause(); googleTtsAudio.currentTime = 0; googleTtsAudio = null; }
+    if (elevenLabsAudio) { elevenLabsAudio.pause(); elevenLabsAudio.currentTime = 0; elevenLabsAudio = null; }
     if (window.speechSynthesis) window.speechSynthesis.cancel();
     voiceoverUtterance = null;
   }
@@ -2184,28 +1921,24 @@ When the job closed, the platform learned from it \\u2014 so the next bid is sma
       actBadge.textContent = 'INTRO';
     } else if (step.scene === 'END') {
       actBadge.textContent = 'END';
-    } else if (step.scene === '\\u2014') {
-      actBadge.textContent = '\\u23F8 TRANSITION';
+    } else if (step.scene === '\u2014') {
+      actBadge.textContent = '\u23F8 TRANSITION';
     } else {
       actBadge.textContent = 'ACT ' + step.act;
     }
     actBadge.style.background = color + '22';
     actBadge.style.color = color;
 
-    sceneNum.textContent = step.scene !== '\\u2014' ? step.scene : '';
+    sceneNum.textContent = step.scene !== '\u2014' ? step.scene : '';
     title.textContent = step.title;
-    persona.textContent = step.persona ? '\\uD83D\\uDC64 ' + step.persona : '';
+    persona.textContent = step.persona ? '\uD83D\uDC64 ' + step.persona : '';
     desc.textContent = step.desc;
 
-    // Populate dialog (convert \
- to paragraphs)
+    // Populate dialog (convert \n to paragraphs)
     if (step.dialog) {
-      var paragraphs = step.dialog.split('\
-\
-');
+      var paragraphs = step.dialog.split('\n\n');
       dialog.innerHTML = paragraphs.map(function(p) {
-        return '<p class="demo-dialog-p">' + p.replace(/\
-/g, '<br>') + '</p>';
+        return '<p class="demo-dialog-p">' + p.replace(/\n/g, '<br>') + '</p>';
       }).join('');
     } else {
       dialog.innerHTML = '';
@@ -2365,7 +2098,7 @@ When the job closed, the platform learned from it \\u2014 so the next bid is sma
     else if (stepId === '3.1c') filled = 3;
     dots.forEach(function(dot, i) {
       if (i < filled) {
-        dot.textContent = '\\u2022';
+        dot.textContent = '\u2022';
         dot.style.borderColor = 'var(--steel-400)';
       } else if (i === filled) {
         dot.textContent = '';
@@ -2409,7 +2142,7 @@ When the job closed, the platform learned from it \\u2014 so the next bid is sma
     // Fill or clear message
     if (msgBox) {
       msgBox.value = msgFilled
-        ? 'Hey, take a look at this part \\u2014 what do you think on weld hours and process?'
+        ? 'Hey, take a look at this part \u2014 what do you think on weld hours and process?'
         : '';
     }
 
@@ -2523,7 +2256,7 @@ When the job closed, the platform learned from it \\u2014 so the next bid is sma
       if (dispSelect) dispSelect.selectedIndex = 2;
       if (authSelect) authSelect.selectedIndex = 3; // T. Williams — Weld Engineer
       if (navseaSelect) navseaSelect.selectedIndex = 0; // Not required
-      if (dispNotes) dispNotes.value = 'Porosity within repair limits per WPS-HY80-GMAW-01 \\u00A74.3. Grind-out and re-weld of affected area on brackets #4 and #6. Re-inspect per VT and RT.';
+      if (dispNotes) dispNotes.value = 'Porosity within repair limits per WPS-HY80-GMAW-01 \u00A74.3. Grind-out and re-weld of affected area on brackets #4 and #6. Re-inspect per VT and RT.';
       if (dispBadge) { dispBadge.textContent = 'Disposition Complete'; dispBadge.className = 'badge badge-success'; }
       if (dispCard) dispCard.style.borderColor = 'var(--success)';
       if (holdCard) holdCard.style.display = 'block';
@@ -2538,7 +2271,7 @@ When the job closed, the platform learned from it \\u2014 so the next bid is sma
           resolvedDiv.style.cssText = 'position:relative;padding-top:14px';
           resolvedDiv.innerHTML = '<div style="position:absolute;left:-20px;top:17px;width:10px;height:10px;border-radius:50%;background:var(--success);border:2px solid var(--steel-850)"></div>'
             + '<div style="font-size:12px;font-weight:600;color:var(--success)">Delivery Hold Lifted</div>'
-            + '<div style="font-size:11px;color:var(--steel-400)">Auto-sent \\u00B7 Feb 12, 4:15 PM</div>'
+            + '<div style="font-size:11px;color:var(--steel-400)">Auto-sent \u00B7 Feb 12, 4:15 PM</div>'
             + '<div style="font-size:11px;color:var(--steel-300);margin-top:3px;padding:6px 8px;background:var(--steel-800);border-radius:6px;border-left:3px solid var(--success)">NCR-042 resolved. Disposition: Repair.<br>Delivery estimate restored to 3/10/27.</div>';
           var timeline = holdCardEl.querySelector('[style*="padding-left:24px"]');
           if (timeline) timeline.appendChild(resolvedDiv);
@@ -2801,13 +2534,13 @@ When the job closed, the platform learned from it \\u2014 so the next bid is sma
       + '<div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:16px">'
       + '<div style="width:10px;height:10px;border-radius:50%;background:rgba(255,180,50,.6)"></div>'
       + '<span style="font-size:13px;color:var(--steel-400);font-weight:500">Day Shift</span>'
-      + '<span style="font-size:13px;color:var(--steel-500);margin:0 4px">\\u2192</span>'
+      + '<span style="font-size:13px;color:var(--steel-500);margin:0 4px">\u2192</span>'
       + '<div style="width:10px;height:10px;border-radius:50%;background:var(--cyan-400)"></div>'
       + '<span style="font-size:13px;color:var(--cyan-400);font-weight:600">Second Shift</span>'
       + '</div>'
       + clockSvg
       + '<div style="margin-top:16px;font-size:15px;color:var(--steel-200);font-weight:600">Mike — Machinist, 2nd Shift</div>'
-      + '<div style="margin-top:6px;font-size:12px;color:var(--steel-400)">J-2026-042 \\u00b7 Released to Floor</div>'
+      + '<div style="margin-top:6px;font-size:12px;color:var(--steel-400)">J-2026-042 \u00b7 Released to Floor</div>'
       + '</div>';
 
     el.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;gap:20px">'
@@ -2979,21 +2712,7 @@ When the job closed, the platform learned from it \\u2014 so the next bid is sma
 
   // ── RFQ Paste text animation (step 1.8b) ─────────────────
   var _rfqPasteTimer = null;
-  var _rfqPasteText = 'Subject: RFQ-2026-0148 Pump Mounting Brackets\
-\
-Hi Maria,\
-\
-Please quote 12x pump mounting brackets per attached drawing PKG-DDG51-PM-2026.\
-\
-Material: HY-80 per MIL-S-16216\
-Qty: 12 ea\
-Need date: 90 days ARO\
-Program: DDG-51 Flight III\
-\
-Please include weld certs (AWS D1.6) and NDT (UT per T9074-AS-GIB-010/271).\
-\
-Thanks,\
-J. Rodriguez, HII-Ingalls';
+  var _rfqPasteText = 'Subject: RFQ-2026-0148 Pump Mounting Brackets\n\nHi Maria,\n\nPlease quote 12x pump mounting brackets per attached drawing PKG-DDG51-PM-2026.\n\nMaterial: HY-80 per MIL-S-16216\nQty: 12 ea\nNeed date: 90 days ARO\nProgram: DDG-51 Flight III\n\nPlease include weld certs (AWS D1.6) and NDT (UT per T9074-AS-GIB-010/271).\n\nThanks,\nJ. Rodriguez, HII-Ingalls';
 
   function setRfqPasteState(stepId) {
     // Clear any in-flight animation
@@ -3235,7 +2954,7 @@ J. Rodriguez, HII-Ingalls';
         border: 1px solid #333a44;
         border-radius: 14px;
         padding: 22px 24px;
-        width: 380px;
+        width: 340px;
         max-width: 90vw;
         box-shadow: 0 16px 48px rgba(0,0,0,.5);
       }
@@ -3246,21 +2965,12 @@ J. Rodriguez, HII-Ingalls';
       }
       .demo-11labs-card button:hover { opacity: 0.85; }
       .demo-voice-tab {
-        padding: 6px 12px;
-        font-size: 12px;
-        font-weight: 500;
-        color: #9aa2b1;
-        background: transparent;
-        border: none;
-        border-bottom: 2px solid transparent;
-        cursor: pointer;
-        transition: color 150ms, border-color 150ms;
+        padding: 6px 12px; font-size: 12px; font-weight: 500; color: #9aa2b1;
+        background: transparent; border: none; border-bottom: 2px solid transparent;
+        cursor: pointer; transition: color 150ms, border-color 150ms;
       }
       .demo-voice-tab:hover { color: #f3f4f6; }
-      .demo-voice-tab-active {
-        color: #f3f4f6;
-        border-bottom-color: #1a73e8;
-      }
+      .demo-voice-tab-active { color: #f3f4f6; border-bottom-color: #1a73e8; }
 
       /* Callout FAB — dark blue frosted glass with gold accent, follows demo pointer */
       #demo-callout-fab {
@@ -3441,5 +3151,3 @@ J. Rodriguez, HII-Ingalls';
   }
 
 })();
-"
-  }
