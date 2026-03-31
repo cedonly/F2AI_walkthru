@@ -49,7 +49,7 @@
       title: 'Dashboard \u2014 RFQ Carousel',
       persona: 'Maria',
       desc: 'The carousel filters instantly. Maria spots RFQ-2026-0147 with a 94/100 fit score. Click the card to open the RFQ Detail.',
-      dialog: 'There it is. RFQ-0147 with a 94 out of 100 fit score. The platform is saying: you\u2019ve built this exact part before, profitably, and you have the certs. Let\u2019s open it up.\n\n\u27A4 Click the RFQ-2026-0147 card.',
+      dialog: 'There it is. RFQ-0147 with a 94 out of 100 fit score. The platform is saying: you\u2019ve built similar parts before, profitably, and you have the certs. Let\u2019s open it up.\n\n\u27A4 Click the RFQ-2026-0147 card.',
       clickTarget: '#page-dashboard .rfq-card', clickLabel: 'RFQ-0147 card'
     ,
       callout: {"type":"ai","label":"AI-Scored RFQ Matching","text":"RFQ score based on drawing specific transformer ML model that can compare features in drawings and match past work to RFQs."}},
@@ -1385,7 +1385,7 @@
       body: JSON.stringify({
         input: { text: text },
         voice: { languageCode: 'en-US', name: googleTtsVoice },
-        audioConfig: { audioEncoding: 'MP3', speakingRate: 0.92, pitch: 0.5 }
+        audioConfig: { audioEncoding: 'MP3', speakingRate: 1.05 }
       })
     }).then(function(resp) {
       googleTtsFetching[stepIndex] = false;
