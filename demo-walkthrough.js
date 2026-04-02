@@ -791,8 +791,8 @@
   var currentSpeechStep = -1;   // which step index this text belongs to
 
   // ── Google Cloud TTS ─────────────────────────────────────────
-  var googleTtsApiKey = '';
-  var googleTtsVoice = 'en-US-Neural2-D';
+  var googleTtsApiKey = 'AIzaSyDgmPf8jIRrz3u_9BisbgY8GLe6fhiuxYY';
+  var googleTtsVoice = 'en-US-Chirp3-HD-Kore';
   var googleTtsAudio = null;
   var googleTtsCache = {};
   var googleTtsFetching = {};
