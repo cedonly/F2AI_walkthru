@@ -49,7 +49,7 @@
       title: 'Dashboard \u2014 RFQ Carousel',
       persona: 'Maria',
       desc: 'The carousel filters instantly. Maria spots RFQ-2026-0147 with a 94/100 fit score. Click the card to open the RFQ Detail.',
-      dialog: 'There it is. RFQ-0147 with a 94 out of 100 fit score. The platform is saying: you\u2019ve built similar parts before, profitably, and you have the certs. Let\u2019s open it up.\n\n\u27A4 Click the RFQ-2026-0147 card.',
+      dialog: 'There it is. RFQ-0147 with a 94 out of 100 fit score. The platform is saying: you\u2019ve built this exact part before, profitably, and you have the certs. Let\u2019s open it up.\n\n\u27A4 Click the RFQ-2026-0147 card.',
       clickTarget: '#page-dashboard .rfq-card', clickLabel: 'RFQ-0147 card'
     ,
       callout: {"type":"ai","label":"AI-Scored RFQ Matching","text":"RFQ score based on drawing specific transformer ML model that can compare features in drawings and match past work to RFQs."}},
@@ -792,11 +792,11 @@
 
   // ── Google Cloud TTS ─────────────────────────────────────────
   var googleTtsApiKey = 'AIzaSyDgmPf8jIRrz3u_9BisbgY8GLe6fhiuxYY';
-  var googleTtsVoice = 'en-US-Chirp3-HD-Kore';
+  var googleTtsVoice = 'en-US-Neural2-D';
   var googleTtsAudio = null;
   var googleTtsCache = {};
   var googleTtsFetching = {};
-  var useGoogleTts = false;
+  var useGoogleTts = true;
   var googleTtsVoices = [
     { id: 'en-US-Neural2-D', name: 'Neural2-D', desc: 'Male · natural, warm' },
     { id: 'en-US-Neural2-F', name: 'Neural2-F', desc: 'Female · natural, clear' },
@@ -827,10 +827,8 @@
     { id: 'TxGEqnHWrfWFTfGW9XjX', name: 'Josh', desc: 'Warm, engaging' }
   ];
 
-  // Load saved Google TTS settings
+  // Allow voice override from localStorage, but key is hardcoded
   try {
-    var _savedGoogleKey = localStorage.getItem('f2ai-google-tts-key');
-    if (_savedGoogleKey) { googleTtsApiKey = _savedGoogleKey; useGoogleTts = true; }
     var _savedGoogleVoice = localStorage.getItem('f2ai-google-tts-voice');
     if (_savedGoogleVoice) googleTtsVoice = _savedGoogleVoice;
   } catch(e) {}
@@ -1005,7 +1003,7 @@
       fetch('https://texttospeech.googleapis.com/v1/text:synthesize?key=' + key, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ input: { text: 'Google TTS is working.' }, voice: { languageCode: 'en-US', name: voice }, audioConfig: { audioEncoding: 'MP3' } })
+        body: JSON.stringify({ input: { text: 'Google TTS is working.' }, voice: { languageCode: 'en-US', name: voice }, audioConfig: { audioEncoding: 'MP3', speakingRate: 0.92 } })
       }).then(function(resp) {
         if (!resp.ok) return resp.json().then(function(e) { throw new Error((e && e.error && e.error.message) || ('HTTP ' + resp.status)); });
         return resp.json();
@@ -1385,7 +1383,7 @@
       body: JSON.stringify({
         input: { text: text },
         voice: { languageCode: 'en-US', name: googleTtsVoice },
-        audioConfig: { audioEncoding: 'MP3', speakingRate: 1.05 }
+        audioConfig: { audioEncoding: 'MP3', speakingRate: 0.92 }
       })
     }).then(function(resp) {
       googleTtsFetching[stepIndex] = false;
