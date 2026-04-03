@@ -792,7 +792,7 @@
 
   // ── Google Cloud TTS ─────────────────────────────────────────
   var googleTtsApiKey = 'AIzaSyDgmPf8jIRrz3u_9BisbgY8GLe6fhiuxYY';
-  var googleTtsVoice = 'en-US-Neural2-D';
+  var googleTtsVoice = 'en-US-Chirp3-HD-Kore';
   var googleTtsAudio = null;
   var googleTtsCache = {};
   var googleTtsFetching = {};
