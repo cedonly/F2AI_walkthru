@@ -1383,7 +1383,7 @@
       body: JSON.stringify({
         input: { text: text },
         voice: { languageCode: 'en-US', name: googleTtsVoice },
-        audioConfig: { audioEncoding: 'MP3', speakingRate: 0.92 }
+        audioConfig: { audioEncoding: 'MP3', speakingRate: 1.1 }
       })
     }).then(function(resp) {
       googleTtsFetching[stepIndex] = false;
